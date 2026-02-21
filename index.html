@@ -14,7 +14,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background-color: #f0f2f5; color: var(--none-black); font-family: 'Pretendard', sans-serif; }
 
-    /* ── 헤더 ── */
     .header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 15px 25px; background: #ffffff; border-bottom: 4px solid var(--main-orange);
@@ -27,13 +26,12 @@
     .btn-new { background: #ff3e3e; color: white; }
     .btn-refresh { background: #636e72; color: white; }
 
-    /* ── 리포트 영역 ── */
     .main-content { padding: 20px; max-width: 1400px; margin: 0 auto; }
     .report-container { background: white; padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 
     .item-card {
       background: white; border: 2.5px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 18px;
-      display: grid; grid-template-columns: 180px 140px 150px 1fr 80px; align-items: center; gap: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+      display: grid; grid-template-columns: 180px 140px 150px 1fr 80px; align-items: center; gap: 20px;
     }
     .item-name { font-size: 24px; font-weight: 900; color: var(--none-black); background: #fff5e6; padding: 12px; border-radius: 8px; text-align: center; border: 1.5px solid #ffe0b2; }
     .item-price { font-size: 24px; font-weight: 900; text-align: center; line-height: 1.2; }
@@ -42,23 +40,20 @@
     .change-up { color: var(--up-red); background: #fdedec; } .change-down { color: var(--down-blue); background: #ebf5fb; } .change-none { color: #7f8c8d; background: #f4f6f7; }
     .item-comm { font-size: 18px; color: #1e272e; border-left: 6px solid var(--main-orange); padding: 5px 20px; font-weight: 700; word-break: keep-all; }
     
-    /* WTI 차트 영역 */
     .wti-chart-area { width: 100%; height: 70px; margin-top: 10px; background: #fafafa; border-radius: 4px; overflow: hidden; }
 
     @media (max-width: 767px) {
-      .item-card { grid-template-columns: 1fr 1fr; grid-template-areas: "name price" "change change" "comm comm" "edit edit"; gap: 15px; padding: 20px; }
+      .item-card:not(.export-mode .item-card) { grid-template-columns: 1fr 1fr; grid-template-areas: "name price" "change change" "comm comm" "edit edit"; gap: 15px; padding: 20px; }
       .item-name { grid-area: name; font-size: 22px; } .item-price { grid-area: price; font-size: 26px; text-align: right; }
-      .item-change { grid-area: change; width: 100%; } .item-comm { grid-area: comm; border-left: none; border-top: 4px solid var(--main-orange); padding-top: 15px; margin-top: 5px; }
+      .item-change { grid-area: change; font-size: 17px; } .item-comm { grid-area: comm; border-left: none; border-top: 4px solid var(--main-orange); padding-top: 15px; font-size: 17px; }
       .btn-edit { grid-area: edit; width: 100%; padding: 12px; }
     }
 
-    /* 저장 시 PC 레이아웃 고정 */
     .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
     .export-mode .item-card { grid-template-columns: 180px 140px 150px 1fr 80px !important; grid-template-areas: none !important; display: grid !important; }
     .export-mode .item-comm { border-left: 6px solid var(--main-orange) !important; border-top: none !important; padding: 5px 20px !important; }
     .export-mode .btn-edit, .export-mode .wti-chart-area { display: none !important; }
 
-    /* ── 모달 ── */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; }
     .modal-overlay.active { display: flex; }
     .modal-box { background: white; width: 100%; max-width: 850px; border-radius: 15px; padding: 30px; max-height: 90vh; overflow-y: auto; }
@@ -83,19 +78,17 @@
 
 <div class="main-content">
   <div id="captureArea" class="report-container">
-    <div id="reportContent"><h3>데이터를 불러오는 중입니다...</h3></div>
+    <div id="reportContent"><h3>데이터 로딩 중...</h3></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box">
     <h2 id="modalTitle" style="color:var(--main-orange); margin-bottom:15px; font-size:22px;">📊 리포트 작성</h2>
-    
     <div id="smartParserSection" style="background:#fff9f0; border:2px dashed var(--main-orange); padding:15px; border-radius:10px; margin-bottom:20px;">
       <strong>✨ 스마트 파싱 (붙여넣기)</strong>
       <textarea id="smartInput" style="width:100%; height:100px; margin-top:10px; padding:10px; border:1px solid #ddd; border-radius:5px;" placeholder="WTI 78.5..." oninput="parseSmartText()"></textarea>
     </div>
-
     <div id="dailyWtiInput" style="margin-bottom:20px; padding:15px; background:#f0f7ff; border-radius:10px; border:1px solid #3498db;">
       <strong style="display:block; margin-bottom:10px;">📉 WTI 이번 주 일별 가격 (월~금)</strong>
       <div style="display:flex; gap:5px; flex-wrap:wrap;">
@@ -106,23 +99,21 @@
         <input type="number" id="wti_fri" class="modal-input" style="width:18%;" placeholder="금">
       </div>
     </div>
-
     <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px;"><span style="font-weight:800;">주차:</span><input type="text" id="modalWeek" class="modal-input" style="width:150px;" readonly></div>
     <div id="modalItemRows"></div>
-    <div style="margin-top:25px; text-align:right; display:flex; justify-content:flex-end; gap:10px;"><button class="btn" onclick="closeModal()" style="background:#eee;">닫기</button><button id="modalSubmitBtn" class="btn btn-new">데이터 저장하기</button></div>
+    <div style="margin-top:25px; text-align:right; display:flex; justify-content:flex-end; gap:10px;"><button class="btn" onclick="closeModal()" style="background:#eee;">닫기</button><button id="modalSubmitBtn" class="btn btn-new">저장하기</button></div>
   </div>
 </div>
 
 <div class="toast" id="toastMsg"></div>
 
 <script>
-  // ★ 본인의 GAS 배포 URL ★
+  // ★ GAS 배포 URL로 교체 ★
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbxTZjLHMxfRCAvM1FietPXm7XVvLm-BeaD8Yyue2BBujzyyhDycj3Hm9arp5SsqQqOf/exec'; 
   const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
   const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
   let currentWeekData = null;
 
-  // 구글 차트 로딩 최적화
   google.charts.load('current', {packages:['corechart']});
 
   document.addEventListener('DOMContentLoaded', () => { buildModalRows(); loadWeekList(); });
@@ -148,24 +139,20 @@
   }
 
   function renderMainUI(data) {
-    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;"><h2 style="font-size:24px;">Market Insight Report</h2><span style="font-weight:700;">Week: ${data.week}</span></div>`;
+    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;"><h2 style="font-size:24px;">Market insight Report</h2><span style="font-weight:700;">Week: ${data.week}</span></div>`;
     ITEMS.forEach(name => {
       const d = data.items[name] || {};
       const abs = parseFloat(d.change_abs);
-      const isNum = !isNaN(abs);
-      const statusCls = isNum ? (abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none')) : 'none';
-      
+      const statusCls = isNaN(abs) ? 'none' : (abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none'));
       html += `<div class="item-card">
         <div class="item-name">${name}</div>
         <div class="item-price price-${statusCls}">${d.price || '-'}<small>(${UNITS[name]})</small>${name === 'WTI' ? '<div id="wti_chart" class="wti-chart-area"></div>' : ''}</div>
-        <div class="item-change change-${statusCls}">${abs > 0 ? '▲' : (abs < 0 ? '▼' : '-')} ${isNum ? Math.abs(abs).toFixed(1) : '-'}(${isNum ? d.change_pct.toFixed(1) : '0.0'}%)</div>
+        <div class="item-change change-${statusCls}">${abs > 0 ? '▲' : (abs < 0 ? '▼' : '-')} ${isNaN(abs) ? '-' : Math.abs(abs).toFixed(1)}(${isNaN(abs) ? '0.0' : d.change_pct.toFixed(1)}%)</div>
         <div class="item-comm">${d.commentary || '분석 데이터 없음'}</div>
         <button class="btn btn-edit" onclick="quickEdit('${name}', '${d.price || ''}', '${d.commentary || ''}')">수정</button>
       </div>`;
     });
     document.getElementById('reportContent').innerHTML = html;
-    
-    // 차트 드로잉 타이밍 동기화
     if(google.visualization) { drawWtiChart(); } else { google.charts.setOnLoadCallback(drawWtiChart); }
   }
 
@@ -187,15 +174,14 @@
   }
 
   function quickEdit(name, oldPrice, oldComm) {
-    document.getElementById('modalTitle').textContent = `✏️ [${name}] 통합 수정`;
+    document.getElementById('modalTitle').textContent = `✏️ [${name}] 데이터 수정`;
     document.getElementById('smartParserSection').style.display = 'none';
     document.getElementById('dailyWtiInput').style.display = 'none';
     document.getElementById('modalWeek').value = currentWeekData.week;
     document.getElementById('modalItemRows').innerHTML = `<div class="modal-grid"><div class="modal-label">${name}</div><input type="number" step="0.01" id="modal_price_${name}" class="modal-input" value="${oldPrice}"><input type="text" id="modal_comm_${name}" class="modal-input" value="${oldComm}"></div>`;
     const btn = document.getElementById('modalSubmitBtn');
     btn.onclick = async () => {
-      const p = document.getElementById('modal_price_'+name).value;
-      const c = document.getElementById('modal_comm_'+name).value;
+      const p = document.getElementById('modal_price_'+name).value, c = document.getElementById('modal_comm_'+name).value;
       const res = await callGAS({action:'updateItemData', week:currentWeekData.week, item:name, price:p, commentary:c});
       if(res.success) { closeModal(); loadWeekData(currentWeekData.week); showToast('✅ 수정 완료'); }
     };
@@ -238,7 +224,7 @@
   }
 
   function openModal() {
-    document.getElementById('modalTitle').textContent = '📊 위클리 리포트 작성';
+    document.getElementById('modalTitle').textContent = '📊 리포트 작성';
     document.getElementById('smartParserSection').style.display = 'block';
     document.getElementById('dailyWtiInput').style.display = 'block';
     const now = new Date(), start = new Date(now.getFullYear(), 0, 1);
