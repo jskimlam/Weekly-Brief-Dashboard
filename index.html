@@ -33,6 +33,7 @@
       background: white; border: 2.5px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 18px;
       display: grid; grid-template-columns: 180px 140px 150px 1fr 80px; align-items: center; gap: 20px;
     }
+    /* 품목명 검정색 굵게 고정 */
     .item-name { font-size: 24px; font-weight: 900; color: var(--none-black); background: #fff5e6; padding: 12px; border-radius: 8px; text-align: center; border: 1.5px solid #ffe0b2; }
     .item-price { font-size: 24px; font-weight: 900; text-align: center; line-height: 1.2; }
     .price-up { color: var(--up-red) !important; } .price-down { color: var(--down-blue) !important; } .price-none { color: var(--none-black) !important; }
@@ -40,8 +41,7 @@
     .change-up { color: var(--up-red); background: #fdedec; } .change-down { color: var(--down-blue); background: #ebf5fb; } .change-none { color: #7f8c8d; background: #f4f6f7; }
     .item-comm { font-size: 18px; color: #1e272e; border-left: 6px solid var(--main-orange); padding: 5px 20px; font-weight: 700; word-break: keep-all; }
     
-    /* 차트 영역 */
-    .wti-chart-area { width: 100%; height: 60px; margin-top: 10px; border-radius: 4px; overflow: hidden; }
+    .wti-chart-area { width: 100%; height: 70px; margin-top: 10px; background: #fafafa; border-radius: 4px; overflow: hidden; }
 
     @media (max-width: 767px) {
       .item-card:not(.export-mode .item-card) { grid-template-columns: 1fr 1fr; grid-template-areas: "name price" "change change" "comm comm" "edit edit"; gap: 15px; padding: 20px; }
@@ -58,7 +58,6 @@
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; }
     .modal-overlay.active { display: flex; }
     .modal-box { background: white; width: 100%; max-width: 850px; border-radius: 15px; padding: 30px; max-height: 90vh; overflow-y: auto; }
-    .daily-input-section { background: #f0f7ff; border: 1.5px solid #3498db; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
     .modal-grid { display: grid; grid-template-columns: 120px 120px 1fr; gap: 10px; margin-top: 10px; align-items: center; }
     .modal-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; }
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 30px; border-radius: 30px; display: none; z-index: 5000; font-weight: 700; }
@@ -67,7 +66,7 @@
 <body>
 
 <div class="header">
-  <div style="display:flex; align-items:center;"><div class="lam-badge">LAM</div><div class="title-text">Weekly <span>Market</span> Brief</div></div>
+  <div style="display:flex; align-items:center;"><div class="lam-badge">LAM</div><div class="title-text" style="font-size:22px; font-weight:800; margin-left:10px;">Weekly <span>Market</span> Brief</div></div>
   <div class="btn-group">
     <button class="btn btn-refresh" onclick="refreshData()">↻</button>
     <button class="btn btn-copy" onclick="copyToClipboard()">📋 카톡복사</button>
@@ -91,7 +90,7 @@
       <strong>✨ 스마트 파싱 (붙여넣기)</strong>
       <textarea id="smartInput" style="width:100%; height:100px; margin-top:10px; padding:10px; border:1px solid #ddd; border-radius:5px;" placeholder="WTI 78.5..." oninput="parseSmartText()"></textarea>
     </div>
-    <div id="dailyWtiSection" class="daily-input-section">
+    <div id="dailyWtiInput" style="margin-bottom:20px; padding:15px; background:#f0f7ff; border-radius:10px; border:1px solid #3498db;">
       <strong style="display:block; margin-bottom:10px;">📉 WTI 이번 주 일별 가격 (월~금)</strong>
       <div style="display:flex; gap:5px; flex-wrap:wrap;">
         <input type="number" id="wti_mon" class="modal-input" style="width:18%;" placeholder="월">
@@ -101,7 +100,10 @@
         <input type="number" id="wti_fri" class="modal-input" style="width:18%;" placeholder="금">
       </div>
     </div>
-    <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px;"><span style="font-weight:800;">주차:</span><input type="text" id="modalWeek" class="modal-input" style="width:150px;" readonly></div>
+    <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+      <span style="font-weight:800;">주차:</span>
+      <input type="text" id="modalWeek" class="modal-input" style="width:150px;" placeholder="YYYY-W01">
+    </div>
     <div id="modalItemRows"></div>
     <div style="margin-top:25px; text-align:right; display:flex; justify-content:flex-end; gap:10px;"><button class="btn" onclick="closeModal()" style="background:#eee;">닫기</button><button id="modalSubmitBtn" class="btn btn-new">저장하기</button></div>
   </div>
@@ -115,7 +117,6 @@
   const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
   let currentWeekData = null;
 
-  // 차트 엔진 로드
   google.charts.load('current', {packages:['corechart']});
 
   document.addEventListener('DOMContentLoaded', () => { buildModalRows(); loadWeekList(); });
@@ -141,7 +142,7 @@
   }
 
   function renderMainUI(data) {
-    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;"><h2 style="font-size:24px;">Weekly Chemical Market Report</h2><span style="font-weight:700;">Week: ${data.week}</span></div>`;
+    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;"><h2 style="font-size:24px;">Market Insight Report</h2><span style="font-weight:700;">Week: ${data.week}</span></div>`;
     ITEMS.forEach(name => {
       const d = data.items[name] || {};
       const abs = parseFloat(d.change_abs);
@@ -156,7 +157,6 @@
       </div>`;
     });
     document.getElementById('reportContent').innerHTML = html;
-    // 타이밍 제어: 라이브러리 로드 후 차트 그리기
     if(google.visualization) { drawWtiChart(); } else { google.charts.setOnLoadCallback(drawWtiChart); }
   }
 
@@ -177,16 +177,35 @@
     }
   }
 
+  // 보완: 수정 시 WTI라면 일별 가격 입력창 다시 보이기
   function quickEdit(name, oldPrice, oldComm) {
     document.getElementById('modalTitle').textContent = `✏️ [${name}] 통합 수정`;
     document.getElementById('smartParserSection').style.display = 'none';
-    document.getElementById('dailyWtiSection').style.display = 'none';
     document.getElementById('modalWeek').value = currentWeekData.week;
+    
+    // WTI 수정 시에만 데일리 입력창 유지, 다른 품목은 숨김
+    document.getElementById('dailyWtiInput').style.display = (name === 'WTI') ? 'block' : 'none';
+
     document.getElementById('modalItemRows').innerHTML = `<div class="modal-grid"><div class="modal-label">${name}</div><input type="number" step="0.01" id="modal_price_${name}" class="modal-input" value="${oldPrice}"><input type="text" id="modal_comm_${name}" class="modal-input" value="${oldComm}"></div>`;
+    
     const btn = document.getElementById('modalSubmitBtn');
     btn.onclick = async () => {
       const p = document.getElementById('modal_price_'+name).value, c = document.getElementById('modal_comm_'+name).value;
+      
+      // 일별 데이터 수집 (WTI 수정 시 포함)
+      let dailyWti = [];
+      if(name === 'WTI') {
+        const ids = ['wti_mon','wti_tue','wti_wed','wti_thu','wti_fri'], days = ['월','화','수','목','금'];
+        dailyWti = ids.map((id, idx) => ({ date: days[idx], price: document.getElementById(id).value })).filter(d => d.price);
+      }
+
       const res = await callGAS({action:'updateItemData', week:currentWeekData.week, item:name, price:p, commentary:c});
+      
+      // 일별 데이터가 있으면 추가 저장 (saveEntry 로직 활용)
+      if(dailyWti.length > 0) {
+        await callGAS({action:'saveEntry', data: {week: currentWeekData.week, items: {}, dailyWti: dailyWti}});
+      }
+
       if(res.success) { closeModal(); loadWeekData(currentWeekData.week); showToast('✅ 수정 완료'); }
     };
     btn.textContent = '적용하기';
@@ -228,10 +247,13 @@
   function openModal() {
     document.getElementById('modalTitle').textContent = '📊 위클리 리포트 작성';
     document.getElementById('smartParserSection').style.display = 'block';
-    document.getElementById('dailyWtiSection').style.display = 'block';
+    document.getElementById('dailyWtiInput').style.display = 'block';
+    
+    // 보완: 주차 자동 계산 후 값만 입력 (수정 가능하게 둠)
     const now = new Date(), start = new Date(now.getFullYear(), 0, 1);
     const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
     document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0');
+    
     buildModalRows(); clearModalInputs();
     document.getElementById('modalSubmitBtn').onclick = saveEntry;
     document.getElementById('modalOverlay').classList.add('active');
