@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAM Weekly Chemical Brief</title>
+  <style>
+    /* ── 전역 리셋 ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #f4f4f4;         /* 전체 배경: 라이트 그레이 */
+      color: #222222;                    /* 기본 글자: 다크 */
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: #ffffff;              /* 헤더: 흰색 */
+      border-bottom: 3px solid #FF8C00;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    /* 타이틀 박스 */
+    .title-box {
+      display: flex;
+      align-items: center;
+      background: #f8f8f8;
+      border: 2px solid #e0e0e0;
+      border-radius: 50px;
+      padding: 8px 20px 8px 8px;
+      gap: 12px;
+    }
+
+    /* LAM 뱃지 */
+    .lam-badge {
+      background: #FF8C00;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 22px;
+      padding: 6px 18px;
+      border-radius: 40px;
+      letter-spacing: 1px;
+    }
+
+    /* 타이틀 텍스트 */
+    .title-text {
+      font-size: 22px;
+      font-weight: 800;
+      color: #222222;
+    }
+    .title-text span { color: #FF0000; }
+
+    /* 헤더 우측 버튼 그룹 */
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* 현재 주차 배지 */
+    .current-week-badge {
+      color: #FF8C00;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border: 2px solid #FF8C00;
+      border-radius: 20px;
+      background: #fff8f0;
+    }
+
+    /* 주차 선택 드롭다운 */
+    .week-selector {
+      background: #ffffff;
+      color: #FF8C00;
+      border: 2px solid #FF8C00;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* 새로고침 버튼 */
+    .btn-refresh {
+      background: #ffffff;
+      color: #555555;
+      border: 1px solid #cccccc;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-refresh:hover { background: #f0f0f0; }
+
+    /* NEW ENTRY 버튼 */
+    .btn-new-entry {
+      background: #FF0000;
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .btn-new-entry:hover { background: #cc0000; }
+
+    /* ── 메인 콘텐츠 ── */
+    .main-content {
+      padding: 20px 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ── 품목 카드 블록 ── */
+    .item-block {
+      margin-bottom: 10px;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+
+    /* 품목명 헤더 행 */
+    .item-header-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* 품목명 뱃지 */
+    .item-name-badge {
+      background: #FF8C00;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 7px 24px;
+      border-radius: 6px;
+      min-width: 180px;
+      text-align: center;
+    }
+
+    /* commentary 라벨 버튼 */
+    .commentary-label {
+      background: #f0f0f0;
+      color: #555555;
+      border: 1px solid #cccccc;
+      padding: 7px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .commentary-label:hover { background: #e0e0e0; }
+
+    /* 가격/등락/코멘터리 행 */
+    .item-data-row {
+      display: flex;
+      align-items: stretch;
+      gap: 6px;
+    }
+
+    /* 가격 박스 */
+    .price-box {
+      background: #fff8f0;
+      color: #222222;
+      border: 1px solid #ffe0b2;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      min-width: 130px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* 등락 박스 */
+    .change-box {
+      background: #f8f8f8;
+      border: 1px solid #e0e0e0;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      min-width: 110px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* 등락 색상 */
+    .change-positive { color: #FF0000; }
+    .change-negative { color: #0055FF; }
+    .change-neutral  { color: #999999; }
+
+    /* 코멘터리 입력 박스 */
+    .commentary-input {
+      flex: 1;
+      background: #fafafa;
+      color: #222222;
+      border: 1px solid #dddddd;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      outline: none;
+      resize: none;
+      transition: border 0.2s;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .commentary-input:focus {
+      border-color: #FF8C00;
+      box-shadow: 0 0 0 2px rgba(255,140,0,0.15);
+      background: #ffffff;
+    }
+
+    /* ── 모달 배경 ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.active { display: flex; }
+
+    /* 모달 박스 */
+    .modal-box {
+      background: #ffffff;
+      border: 2px solid #FF8C00;
+      border-radius: 10px;
+      padding: 28px;
+      width: 700px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+
+    /* 모달 제목 */
+    .modal-title {
+      color: #FF8C00;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ffe0b2;
+      padding-bottom: 10px;
+    }
+
+    /* 모달 주차 입력 */
+    .modal-week-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .modal-week-label {
+      color: #FF8C00;
+      font-weight: 700;
+      font-size: 14px;
+      min-width: 60px;
+    }
+
+    /* 모달 입력 필드 */
+    .modal-input {
+      background: #fafafa;
+      color: #222222;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+    .modal-input:focus { border-color: #FF8C00; background: #ffffff; }
+
+    /* 모달 컬럼 헤더 */
+    .modal-grid-header {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .modal-col-header {
+      color: #999999;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    /* 모달 품목 입력 그리드 */
+    .modal-item-row {
+      display: grid;
+      grid-template-columns: 150px 110px 1fr;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    /* 모달 품목명 라벨 */
+    .modal-item-label {
+      background: #FF8C00;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    /* 모달 버튼 영역 */
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+      border-top: 1px solid #eeeeee;
+      padding-top: 16px;
+    }
+
+    .btn-cancel {
+      background: #f0f0f0;
+      color: #555555;
+      border: 1px solid #cccccc;
+      padding: 9px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-cancel:hover { background: #e0e0e0; }
+
+    .btn-save {
+      background: #FF8C00;
+      color: #ffffff;
+      border: none;
+      padding: 9px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .btn-save:hover { background: #e07b00; }
+
+    /* ── 토스트 메시지 ── */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #FF8C00;
+      color: #ffffff;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      z-index: 9999;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* 로딩 텍스트 */
+    .loading-text {
+      color: #FF8C00;
+      font-size: 14px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    /* 등락 없음 표시 */
+    .no-change { color: #bbbbbb; font-size: 12px; }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .header { flex-wrap: wrap; gap: 10px; }
+      .title-text { font-size: 16px; }
+      .lam-badge  { font-size: 16px; }
+      .modal-item-row { grid-template-columns: 110px 90px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<div class="header">
+  <div class="title-box">
+    <div class="lam-badge">LAM</div>
+    <div class="title-text">Weekly <span>Chemical</span> Brief</div>
+  </div>
+  <div class="header-buttons">
+    <span class="current-week-badge" id="currentWeekLabel">--</span>
+    <select class="week-selector" id="weekSelector" onchange="loadWeekData(this.value)">
+      <option value="">주차 선택</option>
+    </select>
+    <button class="btn-refresh" onclick="refreshData()">↻ 새로고침</button>
+    <button class="btn-new-entry" onclick="openModal()">+NEW ENTRY</button>
+  </div>
+</div>
+
+<!-- ── 메인 콘텐츠 ── -->
+<div class="main-content" id="mainContent">
+  <div class="loading-text">데이터를 불러오는 중...</div>
+</div>
+
+<!-- ── NEW ENTRY 모달 ── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-title">📋 주간 데이터 입력 (NEW ENTRY)</div>
+
+    <!-- 주차 입력 -->
+    <div class="modal-week-row">
+      <span class="modal-week-label">주차</span>
+      <input type="text" class="modal-input" id="modalWeek"
+             placeholder="예: 2026-W09" style="width:160px;">
+      <button onclick="setCurrentWeek()"
+              style="background:#fff8f0;color:#FF8C00;border:2px solid #FF8C00;
+                     padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;">
+        이번 주
+      </button>
+    </div>
+
+    <!-- 컬럼 헤더 -->
+    <div style="display:grid;grid-template-columns:150px 110px 1fr;gap:6px;margin-bottom:6px;">
+      <div style="color:#999;font-size:11px;text-align:center;">품목</div>
+      <div style="color:#999;font-size:11px;text-align:center;">가격</div>
+      <div style="color:#999;font-size:11px;text-align:center;">Commentary</div>
+    </div>
+
+    <!-- 품목 입력 행 -->
+    <div id="modalItemRows"></div>
+
+    <div style="background:#fff8f0;border:1px solid #ffe0b2;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:12px;color:#888;">
+      💡 등락(change)은 이전 주차 가격과 비교하여 자동 계산됩니다.
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save"   onclick="saveEntry()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 토스트 ── -->
+<div class="toast" id="toastMsg"></div>
+
+<script>
+  // ============================================================
+  // ★ 반드시 본인 GAS 배포 URL로 교체하세요!
+  // ============================================================
+  var GAS_URL = 'https://script.google.com/macros/s/AKfycbxTZjLHMxfRCAvM1FietPXm7XVvLm-BeaD8Yyue2BBujzyyhDycj3Hm9arp5SsqQqOf/exec';
+
+  // 품목 목록
+  var ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
+
+  // 품목별 단위
+  var UNITS = {
+    'WTI':           '$/bbl',
+    'Styrene':       '$/MT',
+    'Acrylonitrile': '$/MT',
+    'Butadiene':     '$/MT',
+    'BPA':           '$/MT',
+    'MMA':           '$/MT'
+  };
+
+  var currentWeek = '';
+
+  // ── 페이지 로드 초기화 ────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function() {
+    buildModalRows();
+    loadWeekList();
+  });
+
+  // ── GAS API 호출 (GET 방식) ───────────────────────────────
+  async function callGAS(payload) {
+    try {
+      var url = GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
+      var res = await fetch(url, { method: 'GET', redirect: 'follow' });
+      var text = await res.text();
+      return JSON.parse(text);
+    } catch (err) {
+      showToast('⚠️ 서버 연결 오류: ' + err.message);
+      return { success: false };
+    }
+  }
+
+  // ── 주차 목록 불러오기 ────────────────────────────────────
+  async function loadWeekList() {
+    var result = await callGAS({ action: 'getWeekList' });
+
+    if (result.success) {
+      var selector = document.getElementById('weekSelector');
+      selector.innerHTML = '<option value="">주차 선택</option>';
+      result.weeks.forEach(function(week) {
+        var opt = document.createElement('option');
+        opt.value = week;
+        opt.textContent = week;
+        selector.appendChild(opt);
+      });
+
+      if (result.weeks.length > 0) {
+        selector.value = result.weeks[0];
+        loadWeekData(result.weeks[0]);
+      } else {
+        renderEmptyData();
+      }
+    } else {
+      renderEmptyData();
+    }
+  }
+
+  // ── 특정 주차 데이터 로드 ─────────────────────────────────
+  async function loadWeekData(week) {
+    if (!week) return;
+    currentWeek = week;
+    document.getElementById('mainContent').innerHTML =
+      '<div class="loading-text">데이터를 불러오는 중...</div>';
+
+    var result = await callGAS({ action: 'getData', week: week });
+
+    if (result.success) {
+      currentWeek = result.week;
+      document.getElementById('currentWeekLabel').textContent = result.week;
+      renderData(result.items);
+    } else {
+      showToast('⚠️ 데이터 조회 실패');
+      renderEmptyData();
+    }
+  }
+
+  // ── 데이터 렌더링 ────────────────────────────────────────
+  function renderData(items) {
+    var html = '';
+
+    ITEMS.forEach(function(itemName) {
+      var d          = items[itemName] || {};
+      var price      = d.price;
+      var unit       = d.unit || UNITS[itemName];
+      var changeAbs  = d.change_abs;
+      var changePct  = d.change_pct;
+      var commentary = d.commentary || '';
+
+      // 가격 표시
+      var priceDisplay = (price !== '' && price !== null && price !== undefined)
+        ? price + '<br><span style="font-size:11px;color:#888;font-weight:500;">(' + unit + ')</span>'
+        : '-<br><span style="font-size:11px;color:#bbb;">(' + unit + ')</span>';
+
+      // 등락 표시
+      var changeAbsStr, changePctStr, changeClass;
+      if (changeAbs !== '' && changeAbs !== null && changeAbs !== undefined) {
+        changeAbsStr = formatChange(changeAbs);
+        changePctStr = formatChangePct(changePct);
+        changeClass  = getChangeClass(changeAbs);
+      } else {
+        changeAbsStr = '-';
+        changePctStr = '-%';
+        changeClass  = 'change-neutral';
+      }
+
+      html += `
+      <div class="item-block">
+        <div class="item-header-row">
+          <div class="item-name-badge">${itemName}</div>
+          <button class="commentary-label" onclick="focusCommentary('${itemName}')">
+            commentary
+          </button>
+        </div>
+        <div class="item-data-row">
+          <div class="price-box">${priceDisplay}</div>
+          <div class="change-box ${changeClass}">
+            ${changeAbsStr}<br>
+            <span style="font-size:12px;">(${changePctStr})</span>
+          </div>
+          <textarea
+            class="commentary-input"
+            id="commentary_${itemName}"
+            rows="2"
+            placeholder="코멘터리를 입력하세요..."
+            onblur="saveCommentary('${itemName}', this.value)"
+          >${escapeHtml(String(commentary))}</textarea>
+        </div>
+      </div>`;
+    });
+
+    document.getElementById('mainContent').innerHTML = html;
+  }
+
+  // ── 빈 데이터 렌더링 ─────────────────────────────────────
+  function renderEmptyData() {
+    var emptyItems = {};
+    ITEMS.forEach(function(item) {
+      emptyItems[item] = { price: '', unit: UNITS[item], change_abs: '', change_pct: '', commentary: '' };
+    });
+    document.getElementById('currentWeekLabel').textContent = getCurrentWeekStr();
+    renderData(emptyItems);
+  }
+
+  // ── 코멘터리 자동 저장 ───────────────────────────────────
+  async function saveCommentary(item, value) {
+    if (!currentWeek || currentWeek === '--') return;
+    await callGAS({ action: 'updateCommentary', week: currentWeek, item: item, commentary: value });
+  }
+
+  // ── 새로고침 ─────────────────────────────────────────────
+  function refreshData() {
+    loadWeekList();
+    showToast('✅ 새로고침 완료');
+  }
+
+  // ── 코멘터리 포커스 ──────────────────────────────────────
+  function focusCommentary(itemName) {
+    var el = document.getElementById('commentary_' + itemName);
+    if (el) el.focus();
+  }
+
+  // ── 등락 포맷팅 ─────────────────────────────────────────
+  function formatChange(val) {
+    var n = parseFloat(val);
+    if (isNaN(n)) return String(val);
+    return (n >= 0 ? '+' : '') + n.toFixed(1);
+  }
+
+  function formatChangePct(val) {
+    var n = parseFloat(val);
+    if (isNaN(n)) return String(val) + '%';
+    return (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+  }
+
+  // ── 등락 CSS 클래스 ──────────────────────────────────────
+  function getChangeClass(val) {
+    var n = parseFloat(val);
+    if (isNaN(n) || val === '' || val === null || val === undefined) return 'change-neutral';
+    if (n > 0) return 'change-positive';
+    if (n < 0) return 'change-negative';
+    return 'change-neutral';
+  }
+
+  // ── HTML 이스케이프 ──────────────────────────────────────
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── 모달 열기/닫기 ───────────────────────────────────────
+  function openModal() {
+    setCurrentWeek();
+    clearModalInputs();
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+
+  function setCurrentWeek() {
+    document.getElementById('modalWeek').value = getCurrentWeekStr();
+  }
+
+  // ── 현재 주차 계산 ───────────────────────────────────────
+  function getCurrentWeekStr() {
+    var now = new Date();
+    var startOfYear = new Date(now.getFullYear(), 0, 1);
+    var weekNum = Math.ceil(((now - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+    return now.getFullYear() + '-W' + String(weekNum).padStart(2, '0');
+  }
+
+  // ── 모달 품목 입력행 생성 ────────────────────────────────
+  function buildModalRows() {
+    var container = document.getElementById('modalItemRows');
+    var html = '';
+    ITEMS.forEach(function(itemName) {
+      html += `
+      <div class="modal-item-row">
+        <div class="modal-item-label">${itemName}</div>
+        <input type="number" step="0.01"
+               class="modal-input" id="modal_price_${itemName}"
+               placeholder="${UNITS[itemName]}">
+        <input type="text"
+               class="modal-input" id="modal_comm_${itemName}"
+               placeholder="코멘터리">
+      </div>`;
+    });
+    container.innerHTML = html;
+  }
+
+  // ── 모달 입력값 초기화 ───────────────────────────────────
+  function clearModalInputs() {
+    ITEMS.forEach(function(itemName) {
+      ['modal_price_', 'modal_comm_'].forEach(function(prefix) {
+        var el = document.getElementById(prefix + itemName);
+        if (el) el.value = '';
+      });
+    });
+  }
+
+  // ── 모달 저장 ────────────────────────────────────────────
+  async function saveEntry() {
+    var week = document.getElementById('modalWeek').value.trim();
+    if (!week) { showToast('⚠️ 주차를 입력해주세요.'); return; }
+
+    var itemsData = {};
+    ITEMS.forEach(function(itemName) {
+      itemsData[itemName] = {
+        price:      document.getElementById('modal_price_' + itemName).value,
+        commentary: document.getElementById('modal_comm_'  + itemName).value
+      };
+    });
+
+    showToast('저장 중...');
+    var result = await callGAS({ action: 'saveEntry', data: { week: week, items: itemsData } });
+
+    if (result.success) {
+      showToast('✅ ' + result.message);
+      closeModal();
+      await loadWeekList();
+      document.getElementById('weekSelector').value = week;
+      loadWeekData(week);
+    } else {
+      showToast('⚠️ 저장 실패: ' + (result.message || '오류 발생'));
+    }
+  }
+
+  // ── 오버레이 클릭 시 모달 닫기 ──────────────────────────
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ── 토스트 표시 ─────────────────────────────────────────
+  function showToast(msg) {
+    var toast = document.getElementById('toastMsg');
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function() { toast.style.display = 'none'; }, 3000);
+  }
+</script>
+</body>
+</html>
