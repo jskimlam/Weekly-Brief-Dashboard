@@ -4,133 +4,70 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>LAM Weekly Chemical Brief</title>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* ── 전역 스타일 및 변수 ── */
     :root {
-      --main-orange: #FF8C00;
-      --border-color: #d1d8e0;
-      --card-bg: #ffffff;
-      --up-red: #e74c3c;
-      --down-blue: #3498db;
-      --none-black: #2d3436; 
+      --main-orange: #FF8C00; --border-color: #d1d8e0;
+      --up-red: #e74c3c; --down-blue: #3498db; --none-black: #2d3436; 
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background-color: #f0f2f5;
-      color: var(--none-black);
-      font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-      line-height: 1.6;
-    }
+    body { background-color: #f0f2f5; color: var(--none-black); font-family: 'Pretendard', sans-serif; }
 
-    /* ── 헤더 ── */
     .header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 15px 25px; background: #ffffff; border-bottom: 4px solid var(--main-orange);
       position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    .lam-badge {
-      background: var(--main-orange); color: #fff; font-weight: 900;
-      font-size: 24px; padding: 5px 15px; border-radius: 8px;
-    }
-    .title-text { font-size: 22px; font-weight: 800; margin-left: 10px; }
-    .title-text span { color: #ff3e3e; }
-
-    /* ── 버튼 ── */
-    .btn-group { display: flex; gap: 6px; align-items: center; overflow-x: auto; }
-    .btn {
-      padding: 10px 14px; border-radius: 6px; font-weight: 700; cursor: pointer;
-      border: none; font-size: 13px; white-space: nowrap; transition: 0.2s;
-    }
+    .lam-badge { background: var(--main-orange); color: #fff; font-weight: 900; font-size: 24px; padding: 5px 15px; border-radius: 8px; }
+    .btn { padding: 10px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; font-size: 13px; white-space: nowrap; transition: 0.2s; }
     .btn-copy { background: #2ecc71; color: white; }
     .btn-save { background: #3498db; color: white; }
     .btn-new { background: #ff3e3e; color: white; }
     .btn-refresh { background: #636e72; color: white; }
 
-    /* ── 리포트 컨테이너 ── */
     .main-content { padding: 20px; max-width: 1400px; margin: 0 auto; }
-    .report-container { 
-      background: white; padding: 25px; border-radius: 12px; 
-      border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
+    .report-container { background: white; padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 
-    /* ── 품목 카드 (기본: PC/Fold 레이아웃) ── */
     .item-card {
-      background: var(--card-bg); border: 2.5px solid var(--border-color);
-      border-radius: 12px; padding: 20px; margin-bottom: 18px;
-      display: grid; grid-template-columns: 180px 140px 150px 1fr 80px;
-      align-items: center; gap: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+      background: white; border: 2.5px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 18px;
+      display: grid; grid-template-columns: 180px 140px 150px 1fr 80px; align-items: center; gap: 20px;
     }
-
-    /* 품목명 스타일 (검은색 굵게) */
-    .item-name {
-      font-size: 24px; font-weight: 900; color: var(--none-black); 
-      background: #fff5e6; padding: 12px; border-radius: 8px; text-align: center;
-      border: 1.5px solid #ffe0b2;
-    }
-    
+    .item-name { font-size: 24px; font-weight: 900; color: var(--none-black); background: #fff5e6; padding: 12px; border-radius: 8px; text-align: center; border: 1.5px solid #ffe0b2; }
     .item-price { font-size: 24px; font-weight: 900; text-align: center; line-height: 1.2; }
-    .item-price small { font-size: 13px; color: #888; display: block; font-weight: 500; }
-    
-    .price-up { color: var(--up-red) !important; }
-    .price-down { color: var(--down-blue) !important; }
-    .price-none { color: var(--none-black) !important; }
-
+    .price-up { color: var(--up-red) !important; } .price-down { color: var(--down-blue) !important; } .price-none { color: var(--none-black) !important; }
     .item-change { font-size: 17px; font-weight: 700; text-align: center; padding: 10px; border-radius: 8px; }
-    .change-up { color: var(--up-red); background: #fdedec; border: 1px solid #fadbd8; }
-    .change-down { color: var(--down-blue); background: #ebf5fb; border: 1px solid #d6eaf8; }
-    .change-none { color: #7f8c8d; background: #f4f6f7; border: 1px solid #e5e8e8; }
+    .change-up { color: var(--up-red); background: #fdedec; } .change-down { color: var(--down-blue); background: #ebf5fb; } .change-none { color: #7f8c8d; background: #f4f6f7; }
+    .item-comm { font-size: 18px; color: #1e272e; border-left: 6px solid var(--main-orange); padding: 5px 20px; font-weight: 700; word-break: keep-all; }
+    
+    /* 차트 영역 */
+    .wti-chart-area { width: 100%; height: 60px; margin-top: 10px; border-radius: 4px; overflow: hidden; }
 
-    .item-comm { 
-      font-size: 18px; color: #1e272e; border-left: 6px solid var(--main-orange); 
-      padding: 5px 20px; font-weight: 700; word-break: keep-all;
-    }
-    .btn-edit { background: #f1f2f6; border: 1px solid #ddd; padding: 6px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-
-    /* ── 모바일 최적화 (갤럭시 세로형) ── */
     @media (max-width: 767px) {
-      .item-card:not(.export-mode .item-card) {
-        grid-template-columns: 1fr 1fr;
-        grid-template-areas: "name price" "change change" "comm comm" "edit edit";
-        gap: 15px; padding: 20px;
-      }
-      .item-name { grid-area: name; font-size: 22px; padding: 15px 10px; }
-      .item-price { grid-area: price; text-align: right; font-size: 26px; }
-      .item-change { grid-area: change; width: 100%; font-size: 17px; padding: 12px; }
-      .item-comm { grid-area: comm; border-left: none; border-top: 4px solid var(--main-orange); padding: 15px 0 0 0; font-size: 17px; margin-top: 5px; }
-      .btn-edit { grid-area: edit; width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
+      .item-card:not(.export-mode .item-card) { grid-template-columns: 1fr 1fr; grid-template-areas: "name price" "change change" "comm comm" "edit edit"; gap: 15px; padding: 20px; }
+      .item-name { grid-area: name; font-size: 22px; } .item-price { grid-area: price; font-size: 26px; text-align: right; }
+      .item-change { grid-area: change; font-size: 17px; } .item-comm { grid-area: comm; border-left: none; border-top: 4px solid var(--main-orange); padding-top: 15px; font-size: 17px; }
+      .btn-edit { grid-area: edit; width: 100%; padding: 12px; }
     }
 
-    /* ── 저장용 고정 레이아웃 (강제 PC 모드) ── */
     .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
-    .export-mode .item-card {
-      grid-template-columns: 180px 140px 150px 1fr 80px !important;
-      grid-template-areas: none !important;
-      display: grid !important;
-    }
+    .export-mode .item-card { grid-template-columns: 180px 140px 150px 1fr 80px !important; grid-template-areas: none !important; display: grid !important; }
     .export-mode .item-comm { border-left: 6px solid var(--main-orange) !important; border-top: none !important; padding: 5px 20px !important; }
-    .export-mode .btn-edit { display: none !important; }
+    .export-mode .btn-edit, .export-mode .wti-chart-area { display: none !important; }
 
-    /* ── 모달 스타일 ── */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; }
     .modal-overlay.active { display: flex; }
     .modal-box { background: white; width: 100%; max-width: 850px; border-radius: 15px; padding: 30px; max-height: 90vh; overflow-y: auto; }
-    .smart-parser { background: #fff9f0; border: 2px dashed var(--main-orange); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-    .smart-textarea { width: 100%; height: 100px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: inherit; margin-top: 10px; }
+    .daily-input-section { background: #f0f7ff; border: 1.5px solid #3498db; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
     .modal-grid { display: grid; grid-template-columns: 120px 120px 1fr; gap: 10px; margin-top: 10px; align-items: center; }
-    .modal-label { background: var(--main-orange); color: white; padding: 8px; border-radius: 4px; text-align: center; font-weight: 700; }
     .modal-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; }
-
-    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 30px; border-radius: 30px; display: none; z-index: 5000; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 30px; border-radius: 30px; display: none; z-index: 5000; font-weight: 700; }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <div style="display:flex; align-items:center;">
-    <div class="lam-badge">LAM</div>
-    <div class="title-text">Weekly <span>Market</span> Brief</div>
-  </div>
+  <div style="display:flex; align-items:center;"><div class="lam-badge">LAM</div><div class="title-text">Weekly <span>Market</span> Brief</div></div>
   <div class="btn-group">
     <button class="btn btn-refresh" onclick="refreshData()">↻</button>
     <button class="btn btn-copy" onclick="copyToClipboard()">📋 카톡복사</button>
@@ -143,126 +80,117 @@
 
 <div class="main-content">
   <div id="captureArea" class="report-container">
-    <div id="reportContent">
-      <h3 style="text-align:center; padding:50px;">데이터를 불러오는 중입니다...</h3>
-    </div>
+    <div id="reportContent"><h3>데이터 로딩 중...</h3></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box">
     <h2 id="modalTitle" style="color:var(--main-orange); margin-bottom:15px; font-size:22px;">📊 리포트 작성</h2>
-    
-    <div id="smartParserSection" class="smart-parser">
+    <div id="smartParserSection" style="background:#fff9f0; border:2px dashed var(--main-orange); padding:15px; border-radius:10px; margin-bottom:20px;">
       <strong>✨ 스마트 파싱 (붙여넣기)</strong>
-      <textarea id="smartInput" class="smart-textarea" placeholder="WTI&#10;1.가격&#10;78.5&#10;2.코멘터리&#10;내용..." oninput="parseSmartText()"></textarea>
+      <textarea id="smartInput" style="width:100%; height:100px; margin-top:10px; padding:10px; border:1px solid #ddd; border-radius:5px;" placeholder="WTI 78.5..." oninput="parseSmartText()"></textarea>
     </div>
-
-    <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
-      <span style="font-weight:800; font-size:16px;">해당 주차:</span>
-      <input type="text" id="modalWeek" class="modal-input" style="width:150px;" readonly>
+    <div id="dailyWtiSection" class="daily-input-section">
+      <strong style="display:block; margin-bottom:10px;">📉 WTI 이번 주 일별 가격 (월~금)</strong>
+      <div style="display:flex; gap:5px; flex-wrap:wrap;">
+        <input type="number" id="wti_mon" class="modal-input" style="width:18%;" placeholder="월">
+        <input type="number" id="wti_tue" class="modal-input" style="width:18%;" placeholder="화">
+        <input type="number" id="wti_wed" class="modal-input" style="width:18%;" placeholder="수">
+        <input type="number" id="wti_thu" class="modal-input" style="width:18%;" placeholder="목">
+        <input type="number" id="wti_fri" class="modal-input" style="width:18%;" placeholder="금">
+      </div>
     </div>
-
+    <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px;"><span style="font-weight:800;">주차:</span><input type="text" id="modalWeek" class="modal-input" style="width:150px;" readonly></div>
     <div id="modalItemRows"></div>
-
-    <div style="margin-top:25px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-      <button class="btn" onclick="closeModal()" style="background:#eee; color:#333;">닫기</button>
-      <button id="modalSubmitBtn" class="btn btn-new">저장하기</button>
-    </div>
+    <div style="margin-top:25px; text-align:right; display:flex; justify-content:flex-end; gap:10px;"><button class="btn" onclick="closeModal()" style="background:#eee;">닫기</button><button id="modalSubmitBtn" class="btn btn-new">저장하기</button></div>
   </div>
 </div>
 
 <div class="toast" id="toastMsg"></div>
 
 <script>
-  // ★ 본인의 GAS URL로 반드시 교체하세요 ★
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbxTZjLHMxfRCAvM1FietPXm7XVvLm-BeaD8Yyue2BBujzyyhDycj3Hm9arp5SsqQqOf/exec'; 
   const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
   const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
   let currentWeekData = null;
 
-  document.addEventListener('DOMContentLoaded', () => {
-    buildModalRows();
-    loadWeekList();
-  });
+  // 차트 엔진 로드
+  google.charts.load('current', {packages:['corechart']});
+
+  document.addEventListener('DOMContentLoaded', () => { buildModalRows(); loadWeekList(); });
 
   async function callGAS(payload) {
     try {
       const res = await fetch(GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)), { method: 'GET', redirect: 'follow' });
       return await res.json();
-    } catch (e) { showToast('⚠️ 서버 연결 실패'); return {success:false}; }
+    } catch (e) { return {success:false}; }
   }
 
   async function loadWeekList() {
     const res = await callGAS({action:'getWeekList'});
     if(res.success && res.weeks.length > 0) {
-      const sel = document.getElementById('weekSelector');
-      sel.innerHTML = res.weeks.map(w => `<option value="${w}">${w}</option>`).join('');
+      document.getElementById('weekSelector').innerHTML = res.weeks.map(w => `<option value="${w}">${w}</option>`).join('');
       loadWeekData(res.weeks[0]);
     }
   }
 
   async function loadWeekData(week) {
     const res = await callGAS({action:'getData', week: week});
-    if(res.success) {
-      currentWeekData = res;
-      renderMainUI(res);
-    }
+    if(res.success) { currentWeekData = res; renderMainUI(res); }
   }
 
   function renderMainUI(data) {
-    let html = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;">
-        <h2 style="font-size:24px; color:#333;">Weekly Chemical Market Report</h2>
-        <span style="font-weight:700; color:#666;">Week: ${data.week}</span>
-      </div>
-    `;
-    
+    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;"><h2 style="font-size:24px;">Weekly Chemical Market Report</h2><span style="font-weight:700;">Week: ${data.week}</span></div>`;
     ITEMS.forEach(name => {
       const d = data.items[name] || {};
       const abs = parseFloat(d.change_abs);
       const isNum = !isNaN(abs);
       const statusCls = isNum ? (abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none')) : 'none';
-      const priceColorCls = 'price-' + statusCls;
-      const changeBoxCls = 'change-' + statusCls;
-      const sign = isNum ? (abs > 0 ? '▲' : (abs < 0 ? '▼' : '-')) : '-';
-      
-      html += `
-        <div class="item-card">
-          <div class="item-name">${name}</div>
-          <div class="item-price ${priceColorCls}">${d.price || '-'}<small>(${UNITS[name]})</small></div>
-          <div class="item-change ${changeBoxCls}">${sign} ${isNum ? Math.abs(abs).toFixed(1) : '-'}(${isNum ? d.change_pct.toFixed(1) : '0.0'}%)</div>
-          <div class="item-comm">${d.commentary || '분석 코멘터리가 없습니다.'}</div>
-          <button class="btn-edit" onclick="quickEdit('${name}', '${d.price || ''}', '${d.commentary || ''}')">수정</button>
-        </div>
-      `;
+      html += `<div class="item-card">
+        <div class="item-name">${name}</div>
+        <div class="item-price price-${statusCls}">${d.price || '-'}<small>(${UNITS[name]})</small>${name === 'WTI' ? '<div id="wti_chart" class="wti-chart-area"></div>' : ''}</div>
+        <div class="item-change change-${statusCls}">${abs > 0 ? '▲' : (abs < 0 ? '▼' : '-')} ${isNum ? Math.abs(abs).toFixed(1) : '-'}(${isNum ? d.change_pct.toFixed(1) : '0.0'}%)</div>
+        <div class="item-comm">${d.commentary || '분석 데이터 없음'}</div>
+        <button class="btn btn-edit" onclick="quickEdit('${name}', '${d.price || ''}', '${d.commentary || ''}')">수정</button>
+      </div>`;
     });
     document.getElementById('reportContent').innerHTML = html;
+    // 타이밍 제어: 라이브러리 로드 후 차트 그리기
+    if(google.visualization) { drawWtiChart(); } else { google.charts.setOnLoadCallback(drawWtiChart); }
+  }
+
+  async function drawWtiChart() {
+    const res = await callGAS({action:'getDailyWti'});
+    const target = document.getElementById('wti_chart');
+    if(res.success && res.data.length > 0 && target) {
+      const gData = new google.visualization.DataTable();
+      gData.addColumn('string', 'Date'); gData.addColumn('number', 'Price');
+      res.data.forEach(d => gData.addRow([d.date, d.price]));
+      const chart = new google.visualization.LineChart(target);
+      chart.draw(gData, {
+        curveType: 'function', legend: 'none', interpolateNulls: true,
+        hAxis: { textPosition: 'none', gridlines: {color:'transparent'} },
+        vAxis: { textPosition: 'none', gridlines: {color:'transparent'} },
+        chartArea: {width:'100%', height:'85%'}, colors: ['#FF8C00'], lineWidth: 3
+      });
+    }
   }
 
   function quickEdit(name, oldPrice, oldComm) {
-    document.getElementById('modalTitle').textContent = `✏️ [${name}] 데이터 통합 수정`;
+    document.getElementById('modalTitle').textContent = `✏️ [${name}] 통합 수정`;
     document.getElementById('smartParserSection').style.display = 'none';
+    document.getElementById('dailyWtiSection').style.display = 'none';
     document.getElementById('modalWeek').value = currentWeekData.week;
-    document.getElementById('modalItemRows').innerHTML = `
-      <div class="modal-grid">
-        <div class="modal-label">${name}</div>
-        <input type="number" step="0.01" id="modal_price_${name}" class="modal-input" value="${oldPrice}">
-        <input type="text" id="modal_comm_${name}" class="modal-input" value="${oldComm}">
-      </div>
-    `;
-    const submitBtn = document.getElementById('modalSubmitBtn');
-    submitBtn.onclick = () => processUpdate(name);
-    submitBtn.textContent = '적용하기';
+    document.getElementById('modalItemRows').innerHTML = `<div class="modal-grid"><div class="modal-label">${name}</div><input type="number" step="0.01" id="modal_price_${name}" class="modal-input" value="${oldPrice}"><input type="text" id="modal_comm_${name}" class="modal-input" value="${oldComm}"></div>`;
+    const btn = document.getElementById('modalSubmitBtn');
+    btn.onclick = async () => {
+      const p = document.getElementById('modal_price_'+name).value, c = document.getElementById('modal_comm_'+name).value;
+      const res = await callGAS({action:'updateItemData', week:currentWeekData.week, item:name, price:p, commentary:c});
+      if(res.success) { closeModal(); loadWeekData(currentWeekData.week); showToast('✅ 수정 완료'); }
+    };
+    btn.textContent = '적용하기';
     document.getElementById('modalOverlay').classList.add('active');
-  }
-
-  async function processUpdate(name) {
-    const price = document.getElementById('modal_price_' + name).value;
-    const commentary = document.getElementById('modal_comm_' + name).value;
-    showToast(`💾 ${name} 업데이트 중...`);
-    const res = await callGAS({ action: 'updateItemData', week: currentWeekData.week, item: name, price: price, commentary: commentary });
-    if (res.success) { showToast('✅ 업데이트 완료'); closeModal(); loadWeekData(currentWeekData.week); }
   }
 
   async function saveAsImage() {
@@ -270,18 +198,10 @@
     document.body.classList.add('export-mode');
     showToast('🖼️ 이미지 생성 중...');
     html2canvas(area, { scale: 2, useCORS: true, width: 1200, windowWidth: 1200 }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `LAM_Report_${currentWeekData.week}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-      document.body.classList.remove('export-mode');
-      showToast('✅ 저장 완료');
+      const link = document.createElement('a'); link.download = `LAM_Report_${currentWeekData.week}.png`;
+      link.href = canvas.toDataURL(); link.click();
+      document.body.classList.remove('export-mode'); showToast('✅ 저장 완료');
     });
-  }
-
-  function saveAsPDF() { 
-    document.body.classList.add('export-mode');
-    setTimeout(() => { window.print(); document.body.classList.remove('export-mode'); }, 500);
   }
 
   function parseSmartText() {
@@ -289,74 +209,54 @@
     const itemRegex = new RegExp(`(${ITEMS.join('|')})`, 'gi');
     let sections = text.split(itemRegex);
     for (let i = 1; i < sections.length; i += 2) {
-      const name = sections[i].toUpperCase();
-      const content = sections[i+1];
-      const pMatch = content.match(/1\.가격\s*[\r\n]+([\d.,]+)/i) || content.match(/(\d+(\.\d+)?)/);
-      const cMatch = content.match(/2\.코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\d\.|$)/i);
-      if(pMatch) document.getElementById('modal_price_'+name).value = pMatch[1].replace(/,/g,'');
-      if(cMatch) document.getElementById('modal_comm_'+name).value = cMatch[1].trim();
+      const name = sections[i].toUpperCase(), content = sections[i+1];
+      const pMatch = content.match(/(\d+(\.\d+)?)/);
+      if(pMatch) document.getElementById('modal_price_'+name).value = pMatch[0];
     }
   }
 
   function copyToClipboard() {
-    if(!currentWeekData) return;
-    let text = `[LAM Weekly Market Brief - ${currentWeekData.week}]\n\n`;
+    let text = `[LAM Weekly Brief - ${currentWeekData.week}]\n\n`;
     ITEMS.forEach(name => {
       const d = currentWeekData.items[name];
       const abs = parseFloat(d.change_abs) || 0;
-      text += `${name}: ${d.price} (${abs > 0 ? '▲' : '▼'}${Math.abs(abs).toFixed(1)})\n- ${d.commentary || '내용없음'}\n\n`;
+      text += `${name}: ${d.price} (${abs > 0 ? '▲' : (abs < 0 ? '▼' : '-')}${Math.abs(abs).toFixed(1)})\n- ${d.commentary || '내용없음'}\n\n`;
     });
     navigator.clipboard.writeText(text.trim()).then(() => showToast('✅ 텍스트 복사됨'));
   }
 
   function openModal() {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
-    document.getElementById('modalTitle').textContent = '📊 리포트 작성';
+    document.getElementById('modalTitle').textContent = '📊 위클리 리포트 작성';
     document.getElementById('smartParserSection').style.display = 'block';
+    document.getElementById('dailyWtiSection').style.display = 'block';
+    const now = new Date(), start = new Date(now.getFullYear(), 0, 1);
+    const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
     document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0');
-    buildModalRows();
-    clearModalInputs();
-    const submitBtn = document.getElementById('modalSubmitBtn');
-    submitBtn.onclick = saveEntry;
-    submitBtn.textContent = '저장하기';
+    buildModalRows(); clearModalInputs();
+    document.getElementById('modalSubmitBtn').onclick = saveEntry;
     document.getElementById('modalOverlay').classList.add('active');
   }
 
+  function buildModalRows() { document.getElementById('modalItemRows').innerHTML = ITEMS.map(name => `<div class="modal-grid"><div class="modal-label">${name}</div><input type="number" step="0.01" id="modal_price_${name}" class="modal-input" placeholder="가격"><input type="text" id="modal_comm_${name}" class="modal-input" placeholder="분석 코멘트"></div>`).join(''); }
+  function clearModalInputs() { 
+    document.getElementById('smartInput').value = ''; 
+    ITEMS.forEach(n => { document.getElementById('modal_price_'+n).value = ''; document.getElementById('modal_comm_'+n).value = ''; }); 
+    ['wti_mon','wti_tue','wti_wed','wti_thu','wti_fri'].forEach(id => document.getElementById(id).value = '');
+  }
   function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
 
-  function buildModalRows() {
-    document.getElementById('modalItemRows').innerHTML = ITEMS.map(name => `
-      <div class="modal-grid">
-        <div class="modal-label">${name}</div>
-        <input type="number" step="0.01" id="modal_price_${name}" class="modal-input" placeholder="가격">
-        <input type="text" id="modal_comm_${name}" class="modal-input" placeholder="코멘터리">
-      </div>
-    `).join('');
-  }
-
-  function clearModalInputs() { 
-    document.getElementById('smartInput').value = '';
-    ITEMS.forEach(n => { document.getElementById('modal_price_'+n).value = ''; document.getElementById('modal_comm_'+n).value = ''; }); 
-  }
-
   async function saveEntry() {
-    const week = document.getElementById('modalWeek').value;
-    const items = {};
+    const week = document.getElementById('modalWeek').value, items = {};
     ITEMS.forEach(n => { items[n] = { price: document.getElementById('modal_price_'+n).value, commentary: document.getElementById('modal_comm_'+n).value }; });
-    showToast('💾 DB 저장 중...');
-    const res = await callGAS({action:'saveEntry', data: {week, items}});
-    if(res.success) { showToast('✅ 저장 완료'); closeModal(); loadWeekList(); }
+    const days = ['월','화','수','목','금'], ids = ['wti_mon','wti_tue','wti_wed','wti_thu','wti_fri'];
+    const dailyWti = ids.map((id, idx) => ({ date: days[idx], price: document.getElementById(id).value })).filter(d => d.price);
+    showToast('💾 서버 저장 중...');
+    const res = await callGAS({action:'saveEntry', data: {week, items, dailyWti}});
+    if(res.success) { closeModal(); loadWeekList(); showToast('✅ 저장 완료'); }
   }
 
-  function refreshData() { loadWeekList(); showToast('↻ 데이터 새로고침 중...'); }
-
-  function showToast(msg) {
-    const t = document.getElementById('toastMsg');
-    t.textContent = msg; t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', 3000);
-  }
+  function refreshData() { loadWeekList(); showToast('↻ 데이터 새로고침'); }
+  function showToast(msg) { const t = document.getElementById('toastMsg'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
 </script>
 </body>
 </html>
