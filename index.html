@@ -6,7 +6,7 @@
   <title>LAM Weekly Chemical Brief</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* ── 디자인 변수 및 전역 스타일 ── */
+    /* ── 전역 스타일 및 변수 ── */
     :root {
       --main-orange: #FF8C00;
       --border-color: #d1d8e0;
@@ -19,11 +19,11 @@
     body {
       background-color: #f0f2f5;
       color: var(--none-black);
-      font-family: 'Pretendard', sans-serif;
+      font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
       line-height: 1.6;
     }
 
-    /* ── 상단 헤더 영역 ── */
+    /* ── 헤더 ── */
     .header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 15px 25px; background: #ffffff; border-bottom: 4px solid var(--main-orange);
@@ -36,7 +36,7 @@
     .title-text { font-size: 22px; font-weight: 800; margin-left: 10px; }
     .title-text span { color: #ff3e3e; }
 
-    /* ── 버튼 디자인 ── */
+    /* ── 버튼 ── */
     .btn-group { display: flex; gap: 6px; align-items: center; overflow-x: auto; }
     .btn {
       padding: 10px 14px; border-radius: 6px; font-weight: 700; cursor: pointer;
@@ -47,14 +47,14 @@
     .btn-new { background: #ff3e3e; color: white; }
     .btn-refresh { background: #636e72; color: white; }
 
-    /* ── 리포트 본문 영역 ── */
+    /* ── 리포트 컨테이너 ── */
     .main-content { padding: 20px; max-width: 1400px; margin: 0 auto; }
     .report-container { 
       background: white; padding: 25px; border-radius: 12px; 
       border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
-    /* ── 품목 카드 레이아웃 (PC 고정) ── */
+    /* ── 품목 카드 (PC/저장 고정 레이아웃) ── */
     .item-card {
       background: var(--card-bg); border: 2.5px solid var(--border-color);
       border-radius: 12px; padding: 20px; margin-bottom: 18px;
@@ -62,14 +62,12 @@
       align-items: center; gap: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.05);
     }
 
-    /* 품목명 텍스트 강조 (검정색) */
     .item-name {
       font-size: 24px; font-weight: 900; color: var(--none-black); 
       background: #fff5e6; padding: 12px; border-radius: 8px; text-align: center;
       border: 1.5px solid #ffe0b2;
     }
     
-    /* 현재 가격 (상태별 색상 반영) */
     .item-price { font-size: 24px; font-weight: 900; text-align: center; line-height: 1.2; }
     .item-price small { font-size: 13px; color: #888; display: block; font-weight: 500; }
     
@@ -77,20 +75,18 @@
     .price-down { color: var(--down-blue) !important; }
     .price-none { color: var(--none-black) !important; }
 
-    /* 등락 폭 표시 박스 */
     .item-change { font-size: 17px; font-weight: 700; text-align: center; padding: 10px; border-radius: 8px; }
     .change-up { color: var(--up-red); background: #fdedec; border: 1px solid #fadbd8; }
     .change-down { color: var(--down-blue); background: #ebf5fb; border: 1px solid #d6eaf8; }
     .change-none { color: #7f8c8d; background: #f4f6f7; border: 1px solid #e5e8e8; }
 
-    /* 코멘터리 (세로선 포인트) */
     .item-comm { 
       font-size: 18px; color: #1e272e; border-left: 6px solid var(--main-orange); 
       padding: 5px 20px; font-weight: 700; word-break: keep-all;
     }
     .btn-edit { background: #f1f2f6; border: 1px solid #ddd; padding: 6px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-    /* ── 모바일 가시성 최적화 (세로 모드) ── */
+    /* ── 모바일 최적화 (갤럭시 세로형) ── */
     @media (max-width: 767px) {
       .item-card {
         grid-template-columns: 1fr 1fr;
@@ -104,7 +100,7 @@
       .btn-edit { grid-area: edit; width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
     }
 
-    /* ── ★ 이미지 저장 시 PC 가로형 레이아웃 고정 ★ ── */
+    /* ── 저장용 고정 레이아웃 ── */
     .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
     .export-mode .item-card {
       grid-template-columns: 180px 140px 150px 1fr 80px !important;
@@ -114,30 +110,18 @@
     .export-mode .item-comm { border-left: 6px solid var(--main-orange) !important; border-top: none !important; padding: 5px 20px !important; }
     .export-mode .btn-edit { display: none !important; }
 
-    /* ── 통합 모달 스타일 (입력 및 수정) ── */
-    .modal-overlay { 
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-      background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; 
-    }
+    /* ── 통합 모달 스타일 (입력/수정 공용) ── */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; }
     .modal-overlay.active { display: flex; }
-    .modal-box { 
-      background: white; width: 100%; max-width: 850px; border-radius: 15px; 
-      padding: 30px; max-height: 90vh; overflow-y: auto; 
-    }
+    .modal-box { background: white; width: 100%; max-width: 850px; border-radius: 15px; padding: 30px; max-height: 90vh; overflow-y: auto; }
     .smart-parser { background: #fff9f0; border: 2px dashed var(--main-orange); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
     .smart-textarea { width: 100%; height: 100px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: inherit; margin-top: 10px; }
-    
     .modal-grid { display: grid; grid-template-columns: 120px 120px 1fr; gap: 10px; margin-top: 10px; align-items: center; }
     .modal-label { background: var(--main-orange); color: white; padding: 8px; border-radius: 4px; text-align: center; font-weight: 700; }
     .modal-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; }
 
-    /* ── 토스트 메시지 ── */
-    .toast { 
-      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); 
-      background: #333; color: #fff; padding: 12px 30px; border-radius: 30px; 
-      display: none; z-index: 5000; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
-    }
-
+    /* ── 토스트 ── */
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 30px; border-radius: 30px; display: none; z-index: 5000; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     @media print {
       body { background: white; }
       .header, .btn-edit, .btn-refresh, .btn-new { display: none !important; }
@@ -164,11 +148,9 @@
 </div>
 
 <div class="main-content">
-  <div id="captureWrapper">
-    <div id="captureArea" class="report-container">
-      <div id="reportContent">
-        <h3 style="text-align:center; padding:50px;">데이터를 불러오는 중입니다...</h3>
-      </div>
+  <div id="captureArea" class="report-container">
+    <div id="reportContent">
+      <h3 style="text-align:center; padding:50px;">데이터를 불러오는 중입니다...</h3>
     </div>
   </div>
 </div>
@@ -178,8 +160,8 @@
     <h2 id="modalTitle" style="color:var(--main-orange); margin-bottom:15px; font-size:22px;">📊 리포트 작성</h2>
     
     <div id="smartParserSection" class="smart-parser">
-      <strong>✨ 스마트 파싱 (붙여넣기)</strong>
-      <textarea id="smartInput" class="smart-textarea" placeholder="WTI&#10;1.가격&#10;78.5&#10;2.코멘터리&#10;내용..." oninput="parseSmartText()"></textarea>
+      <strong>✨ 스마트 파싱 (붙여넣기 전용)</strong>
+      <textarea id="smartInput" class="smart-textarea" placeholder="WTI&#10;1.가격&#10;78.5&#10;2.코멘터리&#10;내용 입력..." oninput="parseSmartText()"></textarea>
     </div>
 
     <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
@@ -191,7 +173,7 @@
 
     <div style="margin-top:25px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
       <button class="btn" onclick="closeModal()" style="background:#eee; color:#333;">닫기</button>
-      <button id="modalSubmitBtn" class="btn btn-new">저장하기</button>
+      <button id="modalSubmitBtn" class="btn btn-new">데이터 저장하기</button>
     </div>
   </div>
 </div>
@@ -199,8 +181,8 @@
 <div class="toast" id="toastMsg"></div>
 
 <script>
-  // GAS 배포 URL
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbxTZjLHMxfRCAvM1FietPXm7XVvLm-BeaD8Yyue2BBujzyyhDycj3Hm9arp5SsqQqOf/exec';
+  // 배포된 GAS 웹앱 URL을 이곳에 입력하세요.
+  const GAS_URL = 'YOUR_GAS_DEPLOYMENT_URL_HERE'; 
   const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
   const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
   let currentWeekData = null;
@@ -214,7 +196,7 @@
     try {
       const res = await fetch(GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)), { method: 'GET', redirect: 'follow' });
       return await res.json();
-    } catch (e) { showToast('⚠️ 서버 통신 오류'); return {success:false}; }
+    } catch (e) { showToast('⚠️ 서버 연결 실패'); return {success:false}; }
   }
 
   async function loadWeekList() {
@@ -256,7 +238,7 @@
           <div class="item-name">${name}</div>
           <div class="item-price ${priceColorCls}">${d.price || '-'}<small>(${UNITS[name]})</small></div>
           <div class="item-change ${changeBoxCls}">${sign} ${isNum ? Math.abs(abs).toFixed(1) : '-'}(${isNum ? d.change_pct.toFixed(1) : '0.0'}%)</div>
-          <div class="item-comm">${d.commentary || '내용 없음'}</div>
+          <div class="item-comm">${d.commentary || '분석 코멘터리가 없습니다.'}</div>
           <button class="btn-edit" onclick="quickEdit('${name}', '${d.price || ''}', '${d.commentary || ''}')">수정</button>
         </div>
       `;
@@ -264,59 +246,56 @@
     document.getElementById('reportContent').innerHTML = html;
   }
 
-  // ★ Quick Edit: 가격과 코멘터리 통합 모달 오픈 ★
+  // ★ Quick Edit: 가격과 코멘터리 통합 수정 모달 로직 ★
   function quickEdit(name, oldPrice, oldComm) {
-    document.getElementById('modalTitle').textContent = `✏️ [${name}] 데이터 수정`;
-    document.getElementById('smartParserSection').style.display = 'none';
+    document.getElementById('modalTitle').textContent = `✏️ [${name}] 데이터 통합 수정`;
+    document.getElementById('smartParserSection').style.display = 'none'; // 수정 시 파서 숨김
     document.getElementById('modalWeek').value = currentWeekData.week;
     
+    // 수정할 해당 품목 한 줄만 표시하도록 행 빌드
     document.getElementById('modalItemRows').innerHTML = `
       <div class="modal-grid">
         <div class="modal-label">${name}</div>
-        <input type="number" step="0.01" id="modal_price_${name}" class="modal-input" value="${oldPrice}">
-        <input type="text" id="modal_comm_${name}" class="modal-input" value="${oldComm}">
+        <input type="number" step="0.01" id="modal_price_${name}" class="modal-input" value="${oldPrice}" placeholder="가격">
+        <input type="text" id="modal_comm_${name}" class="modal-input" value="${oldComm}" placeholder="분석 내용">
       </div>
     `;
 
     const submitBtn = document.getElementById('modalSubmitBtn');
-    submitBtn.onclick = () => processUpdate(name);
-    submitBtn.textContent = '적용하기';
+    submitBtn.onclick = () => processQuickUpdate(name);
+    submitBtn.textContent = '변경사항 저장';
     
     document.getElementById('modalOverlay').classList.add('active');
   }
 
-  async function processUpdate(name) {
-    const price = document.getElementById('modal_price_' + name).value;
-    const commentary = document.getElementById('modal_comm_' + name).value;
+  async function processQuickUpdate(name) {
+    const newPrice = document.getElementById('modal_price_' + name).value;
+    const newComm = document.getElementById('modal_comm_' + name).value;
 
     showToast(`💾 ${name} 업데이트 중...`);
     const res = await callGAS({
       action: 'updateItemData',
       week: currentWeekData.week,
       item: name,
-      price: price,
-      commentary: commentary
+      price: newPrice,
+      commentary: newComm
     });
 
     if (res.success) {
       showToast('✅ 업데이트 완료');
       closeModal();
       loadWeekData(currentWeekData.week);
+    } else {
+      showToast('⚠️ 실패: ' + res.message);
     }
   }
 
-  // ★ 이미지 저장: 고정 레이아웃 강제 부여 ★
   async function saveAsImage() {
     const area = document.getElementById('captureArea');
     document.body.classList.add('export-mode');
     showToast('🖼️ 리포트 이미지 생성 중...');
     
-    html2canvas(area, { 
-      scale: 2, 
-      useCORS: true, 
-      width: 1200, 
-      windowWidth: 1200 
-    }).then(canvas => {
+    html2canvas(area, { scale: 2, useCORS: true, width: 1200, windowWidth: 1200 }).then(canvas => {
       const link = document.createElement('a');
       link.download = `LAM_Report_${currentWeekData.week}.png`;
       link.href = canvas.toDataURL();
@@ -347,13 +326,13 @@
 
   function copyToClipboard() {
     if(!currentWeekData) return;
-    let text = `[LAM Weekly Market Brief - ${currentWeekData.week}]\n\n`;
+    let text = `[LAM Weekly Brief - ${currentWeekData.week}]\n\n`;
     ITEMS.forEach(name => {
       const d = currentWeekData.items[name];
       const abs = parseFloat(d.change_abs) || 0;
-      text += `${name}: ${d.price} (${abs > 0 ? '▲' : (abs < 0 ? '▼' : '-')}${Math.abs(abs).toFixed(1)})\n- ${d.commentary || '내용없음'}\n\n`;
+      text += `${name}: ${d.price} (${abs > 0 ? '▲' : '▼'}${Math.abs(abs).toFixed(1)})\n- ${d.commentary || '내용없음'}\n\n`;
     });
-    navigator.clipboard.writeText(text.trim()).then(() => showToast('✅ 텍스트 복사됨'));
+    navigator.clipboard.writeText(text.trim()).then(() => showToast('✅ 텍스트 복사 완료!'));
   }
 
   function openModal() {
@@ -361,7 +340,7 @@
     const start = new Date(now.getFullYear(), 0, 1);
     const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
     
-    document.getElementById('modalTitle').textContent = '📊 리포트 작성';
+    document.getElementById('modalTitle').textContent = '📊 위클리 리포트 작성';
     document.getElementById('smartParserSection').style.display = 'block';
     document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0');
     
@@ -370,7 +349,7 @@
     
     const submitBtn = document.getElementById('modalSubmitBtn');
     submitBtn.onclick = saveEntry;
-    submitBtn.textContent = '저장하기';
+    submitBtn.textContent = '데이터 저장하기';
     
     document.getElementById('modalOverlay').classList.add('active');
   }
@@ -382,7 +361,7 @@
       <div class="modal-grid">
         <div class="modal-label">${name}</div>
         <input type="number" step="0.01" id="modal_price_${name}" class="modal-input" placeholder="가격">
-        <input type="text" id="modal_comm_${name}" class="modal-input" placeholder="코멘터리">
+        <input type="text" id="modal_comm_${name}" class="modal-input" placeholder="분석 코멘트">
       </div>
     `).join('');
   }
@@ -396,12 +375,12 @@
     const week = document.getElementById('modalWeek').value;
     const items = {};
     ITEMS.forEach(n => { items[n] = { price: document.getElementById('modal_price_'+n).value, commentary: document.getElementById('modal_comm_'+n).value }; });
-    showToast('💾 DB 저장 중...');
+    showToast('💾 서버에 저장 중...');
     const res = await callGAS({action:'saveEntry', data: {week, items}});
     if(res.success) { showToast('✅ 저장 완료'); closeModal(); loadWeekList(); }
   }
 
-  function refreshData() { loadWeekList(); showToast('↻ 새로고침 중...'); }
+  function refreshData() { loadWeekList(); showToast('↻ 데이터 새로고침 중...'); }
 
   function showToast(msg) {
     const t = document.getElementById('toastMsg');
