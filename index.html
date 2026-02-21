@@ -11,6 +11,9 @@
       --main-orange: #FF8C00;
       --border-color: #d1d8e0;
       --card-bg: #ffffff;
+      --up-red: #e74c3c;
+      --down-blue: #3498db;
+      --none-black: #2d3436;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -51,36 +54,43 @@
       border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
-    /* ── 품목 카드 (기본: PC/Fold 펼침 레이아웃) ── */
+    /* ── 품목 카드 (PC/Fold 펼침 레이아웃) ── */
     .item-card {
-      background: var(--card-bg); border: 2px solid var(--border-color);
-      border-radius: 10px; padding: 18px; margin-bottom: 15px;
-      display: grid; grid-template-columns: 150px 110px 130px 1fr 80px;
-      align-items: center; gap: 15px; transition: transform 0.2s;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      background: var(--card-bg); border: 2.5px solid var(--border-color);
+      border-radius: 12px; padding: 20px; margin-bottom: 18px;
+      display: grid; grid-template-columns: 180px 140px 150px 1fr 80px;
+      align-items: center; gap: 20px; transition: transform 0.2s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
     }
-    /* 저장/복사용 강제 PC 모드 클래스 */
+    /* 저장/복사용 강제 PC 모드 */
     .export-mode .item-card {
-      grid-template-columns: 150px 110px 130px 1fr 80px !important;
+      grid-template-columns: 180px 140px 150px 1fr 80px !important;
       display: grid !important;
     }
 
     .item-name {
-      font-size: 20px; font-weight: 900; color: var(--main-orange);
-      background: #fff5e6; padding: 10px; border-radius: 6px; text-align: center;
+      font-size: 24px; font-weight: 900; color: var(--main-orange);
+      background: #fff5e6; padding: 12px; border-radius: 8px; text-align: center;
       border: 1px solid #ffe0b2;
     }
-    .item-price { font-size: 19px; font-weight: 800; text-align: center; color: #2d3436; }
-    .item-price small { font-size: 12px; color: #888; display: block; font-weight: 500; }
     
-    .item-change { font-size: 16px; font-weight: 700; text-align: center; padding: 8px; border-radius: 6px; }
-    .change-up { color: #e74c3c; background: #fdedec; border: 1px solid #fadbd8; }
-    .change-down { color: #3498db; background: #ebf5fb; border: 1px solid #d6eaf8; }
+    /* 현재 가격 스타일링 (동적 색상 적용 대상) */
+    .item-price { font-size: 24px; font-weight: 900; text-align: center; line-height: 1.2; }
+    .item-price small { font-size: 13px; color: #888; display: block; font-weight: 500; }
+    
+    /* 가격 조건부 색상 클래스 */
+    .price-up { color: var(--up-red) !important; }
+    .price-down { color: var(--down-blue) !important; }
+    .price-none { color: var(--none-black) !important; }
+
+    .item-change { font-size: 17px; font-weight: 700; text-align: center; padding: 10px; border-radius: 8px; }
+    .change-up { color: var(--up-red); background: #fdedec; border: 1px solid #fadbd8; }
+    .change-down { color: var(--down-blue); background: #ebf5fb; border: 1px solid #d6eaf8; }
     .change-none { color: #7f8c8d; background: #f4f6f7; border: 1px solid #e5e8e8; }
 
     .item-comm { 
-      font-size: 17px; color: #1e272e; border-left: 5px solid var(--main-orange); 
-      padding: 5px 15px; font-weight: 700; word-break: keep-all;
+      font-size: 18px; color: #1e272e; border-left: 6px solid var(--main-orange); 
+      padding: 5px 20px; font-weight: 700; word-break: keep-all;
     }
     .btn-edit { background: #f1f2f6; border: 1px solid #ddd; padding: 6px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
@@ -93,16 +103,17 @@
           "change change"
           "comm comm"
           "edit edit";
-        gap: 12px;
+        gap: 15px;
+        padding: 20px;
       }
-      .item-name { grid-area: name; }
-      .item-price { grid-area: price; text-align: right; }
-      .item-change { grid-area: change; width: 100%; }
+      .item-name { grid-area: name; font-size: 22px; padding: 15px 10px; }
+      .item-price { grid-area: price; text-align: right; font-size: 26px; }
+      .item-change { grid-area: change; width: 100%; font-size: 17px; padding: 12px; }
       .item-comm { 
-        grid-area: comm; border-left: none; border-top: 3px solid var(--main-orange);
-        padding: 12px 0 0 0; font-size: 16px; margin-top: 5px;
+        grid-area: comm; border-left: none; border-top: 4px solid var(--main-orange);
+        padding: 15px 0 0 0; font-size: 17px; margin-top: 5px;
       }
-      .btn-edit { grid-area: edit; width: 100%; padding: 10px; }
+      .btn-edit { grid-area: edit; width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
     }
 
     /* ── 스마트 파서 & 모달 ── */
@@ -115,12 +126,12 @@
     .modal-label { background: var(--main-orange); color: white; padding: 8px; border-radius: 4px; text-align: center; font-weight: 700; }
     .modal-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; }
 
-    /* ── 공통 ── */
+    /* ── 기타 ── */
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 30px; border-radius: 30px; display: none; z-index: 5000; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     @media print {
       .header, .btn-edit, .btn-refresh, .btn-new { display: none !important; }
       .report-container { border: none; box-shadow: none; }
-      .item-card { border: 2px solid #000; page-break-inside: avoid; }
+      .item-card { border: 2.5px solid #000; page-break-inside: avoid; }
     }
   </style>
 </head>
@@ -217,14 +228,22 @@
       const d = data.items[name] || {};
       const abs = parseFloat(d.change_abs);
       const isNum = !isNaN(abs);
-      const cls = isNum ? (abs > 0 ? 'change-up' : (abs < 0 ? 'change-down' : 'change-none')) : 'change-none';
+      
+      // 가격 변화에 따른 클래스 결정 (상승/하락/보합)
+      const statusCls = isNum ? (abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none')) : 'none';
+      const priceColorCls = 'price-' + statusCls;
+      const changeBoxCls = 'change-' + statusCls;
       const sign = isNum ? (abs > 0 ? '▲' : (abs < 0 ? '▼' : '-')) : '-';
       
       html += `
         <div class="item-card">
           <div class="item-name">${name}</div>
-          <div class="item-price">${d.price || '-'}<small>(${UNITS[name]})</small></div>
-          <div class="item-change ${cls}">${sign} ${isNum ? Math.abs(abs).toFixed(1) : '-'}(${isNum ? d.change_pct.toFixed(1) : '0.0'}%)</div>
+          <div class="item-price ${priceColorCls}">
+            ${d.price || '-'}<small>(${UNITS[name]})</small>
+          </div>
+          <div class="item-change ${changeBoxCls}">
+            ${sign} ${isNum ? Math.abs(abs).toFixed(1) : '-'}(${isNum ? d.change_pct.toFixed(1) : '0.0'}%)
+          </div>
           <div class="item-comm">${d.commentary || '분석 코멘터리가 없습니다.'}</div>
           <button class="btn-edit" onclick="quickEdit('${name}', '${d.commentary || ''}')">수정</button>
         </div>
@@ -260,7 +279,7 @@
 
   async function saveAsImage() {
     const area = document.getElementById('captureArea');
-    area.classList.add('export-mode'); // 캡처 시 PC 레이아웃 강제 적용
+    area.classList.add('export-mode'); 
     showToast('🖼️ 이미지를 생성하고 있습니다...');
     
     html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
@@ -268,7 +287,7 @@
       link.download = `LAM_Report_${currentWeekData.week}.png`;
       link.href = canvas.toDataURL();
       link.click();
-      area.classList.remove('export-mode'); // 원래 모드로 복구
+      area.classList.remove('export-mode'); 
       showToast('✅ 이미지 저장 완료');
     });
   }
