@@ -8,22 +8,20 @@
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    /* ── 변수 및 스타일 설정 ── */
+    /* ── 변수 및 디자인 테마 ── */
     :root { 
-      --orange: #FF8C00; 
+      --orange: #FF8C00; /* 메인 테마 색상 [cite: 1] */
       --bg-gray: #f4f7f9; 
-      --bg-label: #fff9f0; /* 품목명 베이지 배경 */
+      --bg-label: #fff9f0; /* 품목명 베이지 배경 [cite: 67] */
       --border-label: #ffe8cc; 
-      --text-main: #2d3436;
-      --up: #e74c3c; 
-      --down: #3498db; 
-      --black: #000000; /* 블랙 그래프 색상 */
+      --up: #e74c3c; --down: #3498db; 
+      --graph-black: #000000; /* WTI 그래프 검정색 요청 반영 */
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
-    body { background-color: var(--bg-gray); color: var(--text-main); overflow-x: hidden; }
+    body { background-color: var(--bg-gray); color: #2d3436; overflow-x: hidden; }
 
-    /* ── 헤더 ── */
+    /* ── 헤더 스타일 ── */
     .header { 
       background: white; padding: 15px 25px; border-bottom: 4px solid var(--orange);
       display: flex; justify-content: space-between; align-items: center;
@@ -37,68 +35,73 @@
       padding: 8px 15px; border-radius: 8px; border: 1px solid #d1d8e0; background: white; 
       cursor: pointer; font-weight: 800; font-size: 0.85em; display: flex; align-items: center; gap: 6px; 
     }
-    .btn-kakao { background: #fae100; border-color: #fae100; }
-    .btn-img { background: #3498db; border-color: #3498db; color: white; }
+    .btn-kakao { background: #fae100; border: none; }
+    .btn-img { background: #3498db; color: white; border: none; }
     .btn-new { background: #ff4757; color: white; border: none; padding: 8px 18px; }
 
-    /* ── 리포트 영역 ── */
+    /* ── 메인 리포트 컨테이너 ── */
     .container { max-width: 1400px; margin: 0 auto; padding: 25px; }
     .report-card { background: white; border-radius: 15px; padding: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
     .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
     .report-title { font-size: 1.7em; font-weight: 900; color: #333; }
-    .week-text { font-weight: 800; color: #666; font-size: 1.1em; }
+    .week-tag { font-weight: 800; color: #666; font-size: 1.1em; }
 
-    /* ── 품목 카드 레이아웃 ── */
+    /* ── 품목 카드 레이아웃 (GitHub 전용) [cite: 13, 14] ── */
     .item-row { 
       background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; 
       display: flex; align-items: center; gap: 0; border: 1.5px solid #edf2f7;
     }
     
+    /* 품목명: 베이지색 라운드 박스 [cite: 15] */
     .name-box { 
       flex: 0 0 170px; height: 75px; display: flex; align-items: center; justify-content: center; 
       background: var(--bg-label); border: 2px solid var(--border-label); border-radius: 10px; 
       font-size: 1.5em; font-weight: 950; color: #444; 
     }
     
-    .price-col { flex: 0 0 180px; text-align: right; padding-right: 25px; }
-    .p-main { font-size: 2em; font-weight: 950; display: block; line-height: 1; }
-    .p-unit { font-size: 0.45em; color: #999; margin-left: 3px; }
-    .change-badge { margin-top: 8px; display: inline-block; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 1em; }
+    .price-col { flex: 0 0 180px; text-align: right; padding-right: 25px; [cite: 16] }
+    .p-main { font-size: 2.1em; font-weight: 950; display: block; line-height: 1; [cite: 17] }
+    .change-badge { 
+      margin-top: 8px; display: inline-block; padding: 4px 10px; border-radius: 6px; 
+      font-weight: 800; font-size: 1em; 
+    }
     .up-bg { background: #fff1f0; color: var(--up); }
     .down-bg { background: #f0f7ff; color: var(--down); }
     .flat-bg { background: #f5f6f7; color: #777; }
 
-    /* 코멘트 영역 (오렌지 라인 포인트) */
+    /* 코멘트: 좌측 굵은 오렌지 라인 포인트  */
     .comm-col { 
       flex: 1; font-size: 1.35em; font-weight: 900; color: #2d3436; line-height: 1.6; 
       white-space: pre-wrap; padding: 5px 25px; border-left: 6px solid var(--orange); margin: 0 20px; 
     }
 
+    /* WTI 액션 및 그래프 영역 [cite: 19, 21] */
     .action-col { flex: 0 0 430px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
     .chart-area { width: 100%; display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
-    #wti_chart_div { width: 260px; height: 130px; }
-    .wti-mini-table { font-size: 0.75em; width: 120px; border-collapse: collapse; }
-    .wti-mini-table td { border: 1px solid #f1f5f9; padding: 3px; text-align: center; font-weight: 800; }
+    #wti_chart_div { width: 260px; height: 130px; [cite: 22] }
+    .wti-table { font-size: 0.72em; width: 120px; border-collapse: collapse; [cite: 23] }
+    .wti-table td { border: 1px solid #f1f5f9; padding: 3px; text-align: center; font-weight: 800; [cite: 24] }
     .edit-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid #ddd; background: #fafafa; font-size: 0.75em; font-weight: 800; cursor: pointer; }
 
-    /* ── 반응형 및 캡쳐 ── */
+    /* ── 반응형 및 캡쳐 모드 ── */
     @media (max-width: 1200px) {
-      .item-row { flex-direction: column; align-items: flex-start; gap: 15px; }
-      .name-box, .price-col, .comm-col, .action-col { width: 100%; text-align: left; padding: 0; flex: none; border: none; margin: 0; }
+      .item-row { flex-direction: column; align-items: flex-start; gap: 15px; [cite: 26] }
+      .name-box, .price-col, .comm-col, .action-col { width: 100%; text-align: left; padding: 0; flex: none; border: none; margin: 0; [cite: 27] }
       .comm-col { padding: 15px; background: #fcfcfc; border-left: 6px solid var(--orange); border-radius: 0 8px 8px 0; }
     }
-    .capture-mode { width: 1800px !important; padding: 40px !important; }
+    /* 캡쳐 시 PC 레이아웃 고정 (1800px) [cite: 29, 85] */
+    .capture-mode { width: 1800px !important; padding: 40px !important; background: var(--bg-gray) !important; }
     .capture-mode .item-row { flex-direction: row !important; display: flex !important; }
 
-    /* ── 모달 ── */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
-    .modal-content { background: white; width: 95%; max-width: 650px; padding: 30px; border-radius: 20px; max-height: 90vh; overflow-y: auto; }
-    .m-title { font-weight: 950; font-size: 1.6em; color: var(--orange); margin-bottom: 20px; border-bottom: 3px solid var(--orange); padding-bottom: 10px; }
-    .m-input { width: 100%; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 1.1em; }
-    .m-save-btn { background: var(--orange); color: white; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 950; cursor: pointer; font-size: 1.3em; }
+    /* ── 모달 스타일 ── */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; [cite: 30] }
+    .modal-content { background: white; width: 95%; max-width: 650px; padding: 30px; border-radius: 20px; max-height: 90vh; overflow-y: auto; [cite: 31] }
+    .m-title { font-weight: 950; font-size: 1.6em; color: var(--orange); margin-bottom: 20px; border-bottom: 3px solid var(--orange); padding-bottom: 10px; [cite: 32] }
+    .m-input { width: 100%; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 1.1em; [cite: 33] }
+    .m-save-btn { background: var(--orange); color: white; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 950; cursor: pointer; font-size: 1.3em; [cite: 36] }
 
-    #toast { visibility: hidden; position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); color: #fff; padding: 15px 40px; border-radius: 50px; z-index: 5000; font-weight: 900; }
-    #toast.show { visibility: visible; animation: fadein 0.5s; }
+    #toast { visibility: hidden; position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); color: #fff; padding: 15px 40px; border-radius: 50px; z-index: 5000; font-weight: 900; [cite: 37, 38] }
+    #toast.show { visibility: visible; animation: fadein 0.5s; [cite: 39] }
     @keyframes fadein { from {opacity: 0; bottom: 30px;} to {opacity: 1; bottom: 50px;} }
   </style>
 </head>
@@ -119,7 +122,7 @@
     <div class="report-card" id="captureArea">
       <div class="report-header">
         <h2 class="report-title">Weekly Market Status Report</h2>
-        <div class="week-text" id="displayWeek">Week: 2026-W00</div>
+        <div class="week-tag" id="displayWeek">Week: 2026-W00</div>
       </div>
       <div id="mainRows"></div>
     </div>
@@ -130,40 +133,41 @@
       <div class="m-title" id="mTitle">데이터 관리</div>
       <div id="mFields"></div>
       <button class="m-save-btn" id="mSaveBtn">업데이트 완료</button>
-      <button onclick="closeModal('mModal')" style="width:100%; margin-top:15px; border:none; background:none; color:#94a3b8; cursor:pointer; font-weight:bold;">취소하기</button>
+      <button onclick="closeModal()" style="width:100%; margin-top:15px; border:none; background:none; color:#94a3b8; cursor:pointer; font-weight:bold;">취소하기</button>
     </div>
   </div>
 
   <div id="toast"></div>
 
   <script>
-    // ── 외부 GAS Web App URL 설정 ──
+    /**
+     * GitHub 배포 시 아래 GAS_URL을 본인의 배포 URL로 교체하세요.
+     * 기존 Code.gs의 함수명(getWeekData, saveData 등)을 그대로 호출합니다[cite: 96, 103].
+     */
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzkWjkEd1ZWQPCDSq7YeWllYhTQo5OK010xb24j8i4Cag6NNQjtj0vx7oHClcaFbBk/exec';
-    const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
-    const UNITS = { 'WTI': '$/bbl', 'Styrene': '$/MT', 'Acrylonitrile': '$/MT', 'Butadiene': '$/MT', 'BPA': '$/MT', 'MMA': '$/MT' };
+    const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA']; [cite: 91]
+    const UNITS = { 'WTI': '$/bbl', 'Styrene': '$/MT', 'Acrylonitrile': '$/MT', 'Butadiene': '$/MT', 'BPA': '$/MT', 'MMA': '$/MT' }; [cite: 92]
     let currentData = null;
     let chartType = 'LineChart';
 
     google.charts.load('current', {packages: ['corechart']});
     window.onload = init;
 
-    // ── 공통 통신 함수 (GitHub -> GAS) ──
-    async function callGAS(func, params) {
-      try {
-        const url = `${GAS_URL}?func=${func}&params=${encodeURIComponent(JSON.stringify(params))}`;
-        const response = await fetch(url);
-        return await response.json();
-      } catch (e) {
-        console.error("GAS 통신 에러:", e);
-        return { success: false };
-      }
+    // ── 외부 POST 통신 전용 함수 (기존 GS 연동) ──
+    async function callGAS(action, params) {
+      const response = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: action, params: params })
+      });
+      return await response.json();
     }
 
-    function init() {
-      const curWeek = getCurrentISOWeek();
+    async function init() {
+      const curWeek = getCurrentISOWeek(); [cite: 46]
       const sel = document.getElementById('weekSelector');
       let opt = "";
-      for (let y = 2033; y >= 2026; y--) {
+      for (let y = 2033; y >= 2026; y--) { [cite: 43]
         for (let w = 52; w >= 1; w--) {
           let ws = (w < 10) ? "0" + w : w;
           let val = `${y}-W${ws}`;
@@ -172,23 +176,24 @@
       }
       sel.innerHTML = opt;
       
-      callGAS('getWeekList', {}).then(res => {
-        if(res.weeks && res.weeks.indexOf(curWeek) !== -1) { sel.value = curWeek; loadData(curWeek); }
-        else if(res.weeks && res.weeks.length > 0) { sel.value = res.weeks[0]; loadData(res.weeks[0]); }
-      });
+      const res = await callGAS('getWeekList', {}); [cite: 116]
+      if(res.weeks && res.weeks.length > 0) {
+        sel.value = res.weeks.indexOf(curWeek) !== -1 ? curWeek : res.weeks[0];
+        loadData(sel.value);
+      }
     }
 
     function getCurrentISOWeek() {
-      const d = new Date(); d.setHours(0,0,0,0);
+      const d = new Date(); d.setHours(0,0,0,0); [cite: 47]
       d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-      const year = d.getFullYear();
+      const year = d.getFullYear(); [cite: 48]
       const week = Math.ceil((((d - new Date(year, 0, 1)) / 86400000) + 1) / 7);
-      return year + "-W" + (week < 10 ? '0' + week : week);
+      return year + "-W" + (week < 10 ? '0' + week : week); [cite: 49]
     }
 
     async function loadData(week) {
       document.getElementById('displayWeek').innerText = "Week: " + week;
-      const res = await callGAS('getWeekData', week);
+      const res = await callGAS('getWeekData', week); [cite: 96]
       if(res.success) { currentData = res.data; render(res.data); }
     }
 
@@ -197,86 +202,84 @@
       list.innerHTML = ITEMS.map(name => {
         const i = data.items[name];
         const diff = parseFloat(i.change_abs);
-        const colorCls = diff > 0 ? 'up-bg' : (diff < 0 ? 'down-bg' : 'flat-bg');
-        const arrow = diff > 0 ? '▲' : (diff < 0 ? '▼' : '-');
+        const bg = diff > 0 ? 'up-bg' : (diff < 0 ? 'down-bg' : 'flat-bg');
         const isWTI = (name === 'WTI');
         
-        let actionContent = isWTI ? `
-          <div style="display:flex; gap:4px; margin-bottom:5px;">
-            <button class="edit-btn" onclick="setChart('LineChart')">Line</button>
-            <button class="edit-btn" onclick="setChart('AreaChart')">Area</button>
-            <button class="edit-btn" onclick="setChart('ColumnChart')">Bar</button>
-          </div>
-          <div class="chart-area">
-            <table class="wti-mini-table" id="wti_list_view"></table>
-            <div id="wti_chart_div"></div>
-          </div>
-          <button class="edit-btn" onclick="openWtiEdit()">6거래일 통합 수정</button>
-        ` : `<button class="edit-btn" onclick="openSingleEdit('${name}')">수정</button>`;
-
         return `
           <div class="item-row">
             <div class="name-box">${name}</div>
             <div class="price-col">
-              <span class="p-main">${i.price.toLocaleString()}<small class="p-unit">${UNITS[name]}</small></span>
-              <div class="change-badge ${colorCls}">${arrow} ${Math.abs(diff).toFixed(1)} (${i.change_rate}%)</div>
+              <span class="p-main" style="color:${diff>0?'#e74c3c':(diff<0?'#3498db':'#2d3436')}">${i.price.toLocaleString()}<small style="font-size:0.4em; color:#999;">(${UNITS[name]})</small></span>
+              <div class="change-badge ${bg}">${diff>0?'▲':(diff<0?'▼':'-')} ${Math.abs(diff).toFixed(1)} (${i.change_rate}%) [cite: 101, 102]</div>
             </div>
-            <div class="comm-col">${i.commentary || '분석 데이터가 존재하지 않습니다.'}</div>
-            <div class="action-col">${actionContent}</div>
+            <div class="comm-col">${i.commentary || '분석 리포트 데이터가 존재하지 않습니다.'} [cite: 102]</div>
+            <div class="action-col">
+              ${isWTI ? `
+                <div style="display:flex; gap:4px; margin-bottom:5px;">
+                  <button class="edit-btn" onclick="setChart('LineChart')">Line</button>
+                  <button class="edit-btn" onclick="setChart('AreaChart')">Area</button>
+                  <button class="edit-btn" onclick="setChart('ColumnChart')">Bar</button>
+                </div>
+                <div class="chart-area"><table class="wti-table" id="wti_list_view"></table><div id="wti_chart_div"></div></div>
+                <button class="edit-btn" style="margin-top:5px;" onclick="openWtiEdit()">6거래일 통합 수정</button>
+              ` : `<button class="edit-btn" onclick="openSingleEdit('${name}')">수정</button>`}
+            </div>
           </div>
         `;
       }).join('');
-      google.charts.setOnLoadCallback(drawWti);
+      google.charts.setOnLoadCallback(drawWti); [cite: 57]
     }
 
-    function setChart(t) { chartType = t; drawWti(); }
+    function setChart(t) { chartType = t; drawWti(); [cite: 58] }
 
     async function drawWti() {
-      const history = await callGAS('getWtiHistory', {});
+      const history = await callGAS('getWtiHistory', {}); [cite: 109]
       if(!history || !history.length) return;
-      const last6 = history.slice(-6);
-      document.getElementById('wti_list_view').innerHTML = last6.map(h => `<tr><td>${h.label}</td><td style="color:black">${h.price}</td></tr>`).join('');
+      const last6 = history.slice(-6); // 6거래일 데이터 슬라이싱
+      document.getElementById('wti_list_view').innerHTML = last6.map(h => `<tr><td>${h.label}</td><td style="font-weight:900;">${h.price}</td></tr>`).join(''); [cite: 59]
       
       const dt = new google.visualization.DataTable();
       dt.addColumn('string', '날짜'); dt.addColumn('number', '가격'); dt.addColumn({type: 'string', role: 'annotation'});
       last6.forEach(h => dt.addRow([h.label, h.price, h.price.toString()]));
       
       new google.visualization[chartType](document.getElementById('wti_chart_div')).draw(dt, {
-        curveType: 'function', legend: 'none', colors: ['#000000'],
-        chartArea: {width: '85%', height: '70%', top: 10, right: 10},
+        legend: 'none', colors: ['#000000'], // 블랙 그래프 적용 
+        chartArea: {width: '85%', height: '70%'},
         annotations: { alwaysOutside: true, textStyle: { fontSize: 10, bold: true, color: '#000' } },
         vAxis: { gridlines: {color: 'transparent'}, textPosition: 'none' },
-        hAxis: { textStyle: {fontSize: 9, color: '#94a3b8'} }
+        hAxis: { textStyle: {fontSize: 9} }
       });
     }
 
     function openSingleEdit(n) {
       const i = currentData.items[n];
       document.getElementById('mTitle').innerText = n + " 리포트 수정";
-      document.getElementById('mFields').innerHTML = `<input type="number" step="0.01" id="mP" class="m-input" value="${i.price}"><textarea id="mC" class="m-input" style="height:220px; font-weight:800;">${i.commentary}</textarea>`;
+      document.getElementById('mFields').innerHTML = `<input type="number" step="0.01" id="mP" class="m-input" value="${i.price}"><textarea id="mC" class="m-input" style="height:220px; font-weight:900;">${i.commentary}</textarea>`;
       document.getElementById('mSaveBtn').onclick = async () => {
-        msg('저장 중...', 'var(--orange)');
-        await callGAS('saveData', {week: currentData.week, item: n, price: document.getElementById('mP').value, commentary: document.getElementById('mC').value});
-        msg('✓ 완료', '#27ae60'); closeModal('mModal'); loadData(currentData.week);
+        msg("저장 중...", "var(--orange)");
+        await callGAS('saveData', { week: currentData.week, item: n, price: document.getElementById('mP').value, commentary: document.getElementById('mC').value }); [cite: 103]
+        msg("✓ 완료", "#27ae60"); closeModal(); loadData(currentData.week);
       };
       document.getElementById('mModal').style.display = 'flex';
     }
 
     function openWtiEdit() {
       document.getElementById('mTitle').innerText = "WTI 6거래일 통합 수정";
-      let h = `<div style="padding:12px; background:#f8fafc; border-radius:12px; margin-bottom:15px;"><strong>영업일 기준 6일 역산</strong>`;
+      let h = `<div style="background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:15px;"><strong>영업일 기준 6일 (금-목-수-화-월-전주금)</strong>`;
       let dates = []; let tempD = new Date();
-      while(dates.length < 6) { if(tempD.getDay() !== 0 && tempD.getDay() !== 6) dates.push(new Date(tempD).toISOString().split('T')[0]); tempD.setDate(tempD.getDate() - 1); }
-      dates.reverse();
-      dates.forEach((d, i) => h += `<div style="display:flex; gap:6px; margin-top:8px;"><input type="date" id="wd_${i}" class="m-input" value="${d}" style="flex:1.2; margin:0;"><input type="number" step="0.01" id="wp_${i}" class="m-input" placeholder="가격" style="flex:1; margin:0;"></div>`);
-      h += `</div><input type="number" id="wP" class="m-input" value="${currentData.items['WTI'].price}"><textarea id="wC" class="m-input" style="height:120px; font-weight:800;">${currentData.items['WTI'].commentary}</textarea>`;
+      while(dates.length < 6) { [cite: 70]
+        if(tempD.getDay() !== 0 && tempD.getDay() !== 6) dates.push(new Date(tempD).toISOString().split('T')[0]);
+        tempD.setDate(tempD.getDate() - 1);
+      }
+      dates.reverse().forEach((d, i) => h += `<div style="display:flex; gap:5px; margin-top:8px;"><input type="date" id="wd_${i}" class="m-input" value="${d}" style="flex:1.2; margin:0;"><input type="number" step="0.01" id="wp_${i}" class="m-input" placeholder="가격" style="flex:1; margin:0;"></div>`);
+      h += `</div><strong>리포트 확정치</strong><input type="number" id="wP" class="m-input" value="${currentData.items['WTI'].price}"><textarea id="wC" class="m-input" style="height:120px; font-weight:900;">${currentData.items['WTI'].commentary}</textarea>`;
       document.getElementById('mFields').innerHTML = h;
       document.getElementById('mSaveBtn').onclick = async () => {
-        msg('데이터 전송 중...', 'var(--orange)');
+        msg("데이터 전송 중...", "var(--orange)");
         let es = []; for(let i=0; i<6; i++) { let p = document.getElementById("wp_"+i).value; if(p) es.push({date: document.getElementById("wd_"+i).value, price: parseFloat(p)}); }
-        await callGAS('saveDailyWtiBulk', es);
-        await callGAS('saveData', {week: currentData.week, item: 'WTI', price: document.getElementById('wP').value, commentary: document.getElementById('wC').value});
-        msg('✓ 완료', '#27ae60'); closeModal('mModal'); loadData(currentData.week);
+        await callGAS('saveDailyWtiBulk', es); [cite: 113]
+        await callGAS('saveData', { week: currentData.week, item: 'WTI', price: document.getElementById('wP').value, commentary: document.getElementById('wC').value });
+        msg("✓ 완료", "#27ae60"); closeModal(); loadData(currentData.week);
       };
       document.getElementById('mModal').style.display = 'flex';
     }
@@ -284,38 +287,33 @@
     function openNewReport() {
       const cur = getCurrentISOWeek();
       document.getElementById('mTitle').innerText = "신규 리포트 생성";
-      let h = `<select id="nw" class="m-input" style="font-weight:900;"><option value="${cur}">${cur}</option></select>`;
-      ITEMS.forEach(n => h += `<div style="font-weight:800; margin-top:10px; color:#666;">${n}</div><div style="display:flex; gap:10px;"><input type="number" id="np_${n}" class="m-input" placeholder="가격" style="flex:1;"><input type="text" id="nc_${n}" class="m-input" placeholder="분석 코멘트" style="flex:2.5;"></div>`);
+      let h = `<select id="nw" class="m-input" style="font-weight:900;"><option value="${cur}">${cur}</option></select>`; [cite: 76]
+      ITEMS.forEach(n => h += `<div style="font-weight:800; margin-top:10px; color:#666;">${n}</div><div style="display:flex; gap:10px;"><input type="number" id="np_${n}" class="m-input" placeholder="가격" style="flex:1;"><input type="text" id="nc_${n}" class="m-input" placeholder="코멘트" style="flex:2.5;"></div>`); [cite: 77]
       document.getElementById('mFields').innerHTML = h;
       document.getElementById('mSaveBtn').onclick = async () => {
-        msg('리포트 생성 중...', 'var(--orange)');
+        msg("생성 중...", "var(--orange)");
         const w = document.getElementById('nw').value;
-        for(let n of ITEMS) {
-          await callGAS('saveData', {week: w, item: n, price: document.getElementById('np_'+n).value, commentary: document.getElementById('nc_'+n).value});
-        }
-        msg('✓ 생성 성공', '#27ae60'); closeModal('mModal'); init();
+        for(let n of ITEMS) { await callGAS('saveData', { week: w, item: n, price: document.getElementById('np_'+n).value, commentary: document.getElementById('nc_'+n).value }); } [cite: 79]
+        msg("✓ 성공", "#27ae60"); closeModal(); init();
       };
       document.getElementById('mModal').style.display = 'flex';
     }
 
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function closeModal() { document.getElementById('mModal').style.display = 'none'; }
     function msg(m, bg) { const t = document.getElementById('toast'); t.innerText = m; t.style.background = bg; t.className = 'show'; setTimeout(()=>t.className='', 2500); }
-
-    function takeCapture() {
-      const area = document.getElementById('captureArea');
-      area.classList.add('capture-mode');
-      msg('🖼️ 이미지 생성 중...', 'var(--orange)');
-      html2canvas(area, { scale: 2.5, useCORS: true, width: 1800 }).then(canvas => {
-        const a = document.createElement('a'); a.download = `LAM_Brief_${currentData.week}.png`; a.href = canvas.toDataURL(); a.click();
+    
+    function takeCapture() { 
+      const area = document.getElementById('captureArea'); area.classList.add('capture-mode'); [cite: 84]
+      html2canvas(area, { scale: 2.5, useCORS: true, width: 1800 }).then(canvas => { [cite: 85]
+        const a = document.createElement('a'); a.download = `LAM_Report_${currentData.week}.png`; a.href = canvas.toDataURL(); a.click();
         area.classList.remove('capture-mode');
-        msg('✓ 저장 완료', '#27ae60');
       });
     }
-
-    function copyToKakao() {
+    
+    function copyToKakao() { [cite: 86]
       let t = `[LAM Weekly Brief - ${currentData.week}]\n\n`;
-      ITEMS.forEach(n => { const i = currentData.items[n]; t += `${n}: ${i.price} (${i.change_abs > 0 ? '▲':'▼'}${Math.abs(i.change_abs).toFixed(1)})\n- ${i.commentary}\n\n`; });
-      navigator.clipboard.writeText(t).then(() => msg('✓ 클립보드 복사됨', '#27ae60'));
+      ITEMS.forEach(n => { const i = currentData.items[n]; t += `${n}: ${i.price} (${i.change_abs > 0 ? '▲':'▼'}${Math.abs(i.change_abs).toFixed(1)})\n- ${i.commentary}\n\n`; }); [cite: 87]
+      navigator.clipboard.writeText(t).then(() => msg('✓ 복사됨', '#27ae60')); [cite: 88]
     }
   </script>
 </body>
