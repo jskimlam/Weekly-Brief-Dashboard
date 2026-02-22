@@ -6,7 +6,7 @@
   <title>LAM Weekly Chemical Brief</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* ── 전역 스타일 및 변수 (오리지널 복원) ── */
+    /* ── 전역 스타일 (오리지널 복원) ── */
     :root {
       --main-orange: #FF8C00;
       --border-color: #d1d8e0;
@@ -79,17 +79,17 @@
     .change-down { color: var(--down-blue); background: #ebf5fb; border: 1px solid #d6eaf8; }
     .change-none { color: #7f8c8d; background: #f4f6f7; border: 1px solid #e5e8e8; }
 
-    /* ── 코멘터리 스타일 (가시성 강화 요청 반영) ── */
+    /* ── 코멘터리 스타일 (가시성 대폭 강화) ── */
     .item-comm { 
-      font-size: 22px; /* 가독성을 위해 18px에서 확대 */
+      font-size: 22px; /* 가독성을 위해 확대 */
       color: #1e272e; border-left: 6px solid var(--main-orange); 
       padding: 5px 20px; 
-      font-weight: 900; /* 시인성을 위해 700에서 강화 */
+      font-weight: 900; /* 실무 시인성 강화 */
       word-break: keep-all;
     }
     .btn-edit { background: #f1f2f6; border: 1px solid #ddd; padding: 6px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-    /* ── 모바일 최적화 (오리지널 레이아웃 완벽 복원) ── */
+    /* ── 모바일 최적화 (오리지널 복원) ── */
     @media (max-width: 767px) {
       .item-card:not(.export-mode .item-card) {
         grid-template-columns: 1fr 1fr;
@@ -103,7 +103,7 @@
       .btn-edit { grid-area: edit; width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
     }
 
-    /* ── 이미지 저장용 레이아웃 ── */
+    /* ── 내보내기/저장 레이아웃 ── */
     .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
     .export-mode .item-card {
       grid-template-columns: 180px 140px 150px 1fr 80px !important;
@@ -157,7 +157,7 @@
     
     <div id="smartParserSection" class="smart-parser">
       <strong>✨ 스마트 파싱 (붙여넣기)</strong>
-      <textarea id="smartInput" class="smart-textarea" placeholder="WTI&#10;1.가격&#10;78.5&#10;2.코멘터리&#10;내용..." oninput="parseSmartText()"></textarea>
+      <textarea id="smartInput" class="smart-textarea" placeholder="WTI&#10;1.가격&#10;78.5..." oninput="parseSmartText()"></textarea>
     </div>
 
     <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
@@ -177,7 +177,7 @@
 <div class="toast" id="toastMsg"></div>
 
 <script>
-  // ★ 본인의 GAS URL 확인 ★
+  // ★ 본인의 GAS URL로 교체 확인 ★
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbxTZjLHMxfRCAvM1FietPXm7XVvLm-BeaD8Yyue2BBujzyyhDycj3Hm9arp5SsqQqOf/exec'; 
   const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
   const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
@@ -188,15 +188,23 @@
     loadWeekList();
   });
 
-  async function callGAS(payload) { // 공통 통신 함수
+  async function callGAS(action, payload) { // [핵심] POST 방식 통신 함수 (WTI 방식 적용)
     try {
-      const res = await fetch(GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)), { method: 'GET', redirect: 'follow' });
+      const isPost = (action === 'saveEntry' || action === 'updateItemData');
+      const fetchUrl = isPost ? GAS_URL : GAS_URL + '?data=' + encodeURIComponent(JSON.stringify({action, ...payload}));
+      const fetchOptions = {
+        method: isPost ? 'POST' : 'GET',
+        headers: { 'Content-Type': 'text/plain' },
+        body: isPost ? JSON.stringify({action, ...payload}) : null,
+        redirect: 'follow'
+      };
+      const res = await fetch(fetchUrl, fetchOptions);
       return await res.json();
     } catch (e) { showToast('⚠️ 서버 연결 실패'); return {success:false}; }
   }
 
-  async function loadWeekList() { // 주차 목록 로드
-    const res = await callGAS({action:'getWeekList'});
+  async function loadWeekList() {
+    const res = await callGAS('getWeekList', {});
     if(res.success && res.weeks.length > 0) {
       const sel = document.getElementById('weekSelector');
       sel.innerHTML = res.weeks.map(w => `<option value="${w}">${w}</option>`).join('');
@@ -204,15 +212,15 @@
     }
   }
 
-  async function loadWeekData(week) { // 데이터 조회
-    const res = await callGAS({action:'getData', week: week});
+  async function loadWeekData(week) {
+    const res = await callGAS('getData', {week});
     if(res.success) {
       currentWeekData = res;
       renderMainUI(res);
     }
   }
 
-  function renderMainUI(data) { // 메인 UI 렌더링
+  function renderMainUI(data) { // 오리지널 UI 렌더링 복원
     let html = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;">
         <h2 style="font-size:24px; color:#333;">Weekly Chemical Market Report</h2>
@@ -224,16 +232,14 @@
       const d = data.items[name] || {};
       const abs = parseFloat(d.change_abs);
       const isNum = !isNaN(abs);
-      const statusCls = isNum ? (abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none')) : 'none';
-      const priceColorCls = 'price-' + statusCls;
-      const changeBoxCls = 'change-' + statusCls;
       const sign = isNum ? (abs > 0 ? '▲' : (abs < 0 ? '▼' : '-')) : '-';
+      const cls = isNum ? (abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none')) : 'none';
       
       html += `
         <div class="item-card">
           <div class="item-name">${name}</div>
-          <div class="item-price ${priceColorCls}">${d.price || '-'}<small>(${UNITS[name]})</small></div>
-          <div class="item-change ${changeBoxCls}">${sign} ${isNum ? Math.abs(abs).toFixed(1) : '-'}(${isNum ? d.change_pct.toFixed(1) : '0.0'}%)</div>
+          <div class="item-price price-${cls}">${d.price || '-'}<small>(${UNITS[name]})</small></div>
+          <div class="item-change change-${cls}">${sign} ${isNum ? Math.abs(abs).toFixed(1) : '-'}(${isNum ? d.change_pct.toFixed(1) : '0.0'}%)</div>
           <div class="item-comm">${d.commentary || '분석 코멘터리가 없습니다.'}</div>
           <button class="btn-edit" onclick="quickEdit('${name}', '${d.price || ''}', '${d.commentary || ''}')">수정</button>
         </div>
@@ -242,16 +248,15 @@
     document.getElementById('reportContent').innerHTML = html;
   }
 
-  function quickEdit(name, oldPrice, oldComm) { // 직접 수정 모달
+  function quickEdit(name, price, comm) { // 개별 수정 모달 설정 (WTI 스타일)
     document.getElementById('modalTitle').textContent = `✏️ [${name}] 데이터 통합 수정`;
     document.getElementById('smartParserSection').style.display = 'none';
     document.getElementById('modalWeek').value = currentWeekData.week;
-    // ID를 고유하게 설정하여 값 누락 방지
     document.getElementById('modalItemRows').innerHTML = `
       <div class="modal-grid">
         <div class="modal-label">${name}</div>
-        <input type="number" step="0.01" id="m_p_${name}" class="modal-input" value="${oldPrice}">
-        <input type="text" id="m_c_${name}" class="modal-input" value="${oldComm}">
+        <input type="number" step="0.01" id="m_p_${name}" class="modal-input" value="${price}">
+        <input type="text" id="m_c_${name}" class="modal-input" value="${comm}">
       </div>
     `;
     const submitBtn = document.getElementById('modalSubmitBtn');
@@ -260,13 +265,21 @@
     document.getElementById('modalOverlay').classList.add('active');
   }
 
-  async function processUpdate(name) { // 수정사항 시트 반영 요청
-    const price = document.getElementById('m_p_' + name).value;
-    const commentary = document.getElementById('m_c_' + name).value;
+  async function processUpdate(name) { // 수정 데이터 POST 전송
+    const p = document.getElementById('m_p_' + name).value;
+    const c = document.getElementById('m_c_' + name).value;
     showToast(`💾 ${name} 업데이트 중...`);
-    // 백엔드의 updateItemData 액션 호출 (직접 수정 문제 해결)
-    const res = await callGAS({ action: 'updateItemData', week: currentWeekData.week, item: name, price: price, commentary: commentary });
-    if (res.success) { showToast('✅ 업데이트 완료'); closeModal(); loadWeekData(currentWeekData.week); }
+    const res = await callGAS('updateItemData', { week: currentWeekData.week, item: name, price: p, commentary: c });
+    if (res.success) { showToast('✅ 수정 완료'); closeModal(); loadWeekData(currentWeekData.week); }
+  }
+
+  async function saveEntry() { // 전체 데이터 POST 전송
+    const week = document.getElementById('modalWeek').value;
+    const items = {};
+    ITEMS.forEach(n => { items[n] = { price: document.getElementById('modal_price_'+n).value, commentary: document.getElementById('modal_comm_'+n).value }; });
+    showToast('💾 DB 저장 중...');
+    const res = await callGAS('saveEntry', { data: {week, items} });
+    if(res.success) { showToast('✅ 저장 완료'); closeModal(); loadWeekList(); }
   }
 
   async function saveAsImage() { // 이미지 저장
@@ -283,10 +296,7 @@
     });
   }
 
-  function saveAsPDF() { // PDF 인쇄
-    document.body.classList.add('export-mode');
-    setTimeout(() => { window.print(); document.body.classList.remove('export-mode'); }, 500);
-  }
+  function saveAsPDF() { document.body.classList.add('export-mode'); setTimeout(() => { window.print(); document.body.classList.remove('export-mode'); }, 500); }
 
   function parseSmartText() { // 스마트 파싱
     const text = document.getElementById('smartInput').value;
@@ -321,7 +331,6 @@
     document.getElementById('smartParserSection').style.display = 'block';
     document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0');
     buildModalRows();
-    clearModalInputs();
     const submitBtn = document.getElementById('modalSubmitBtn');
     submitBtn.onclick = saveEntry;
     submitBtn.textContent = '저장하기';
@@ -329,38 +338,9 @@
   }
 
   function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
-
-  function buildModalRows() { // 입력 폼 행 생성
-    document.getElementById('modalItemRows').innerHTML = ITEMS.map(name => `
-      <div class="modal-grid">
-        <div class="modal-label">${name}</div>
-        <input type="number" step="0.01" id="modal_price_${name}" class="modal-input" placeholder="가격">
-        <input type="text" id="modal_comm_${name}" class="modal-input" placeholder="코멘터리">
-      </div>
-    `).join('');
-  }
-
-  function clearModalInputs() { // 폼 비우기
-    document.getElementById('smartInput').value = '';
-    ITEMS.forEach(n => { document.getElementById('modal_price_'+n).value = ''; document.getElementById('modal_comm_'+n).value = ''; }); 
-  }
-
-  async function saveEntry() { // 전체 시트 저장
-    const week = document.getElementById('modalWeek').value;
-    const items = {};
-    ITEMS.forEach(n => { items[n] = { price: document.getElementById('modal_price_'+n).value, commentary: document.getElementById('modal_comm_'+n).value }; });
-    showToast('💾 DB 저장 중...');
-    const res = await callGAS({action:'saveEntry', data: {week, items}});
-    if(res.success) { showToast('✅ 저장 완료'); closeModal(); loadWeekList(); }
-  }
-
+  function showToast(msg) { const t = document.getElementById('toastMsg'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
   function refreshData() { loadWeekList(); showToast('↻ 데이터 새로고침 중...'); }
-
-  function showToast(msg) { // 알림 토스트
-    const t = document.getElementById('toastMsg');
-    t.textContent = msg; t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', 3000);
-  }
+  function buildModalRows() { document.getElementById('modalItemRows').innerHTML = ITEMS.map(n => `<div class="modal-grid"><div class="modal-label">${n}</div><input type="number" step="0.01" id="modal_price_${n}" class="modal-input" placeholder="가격"><input type="text" id="modal_comm_${n}" class="modal-input" placeholder="코멘터리"></div>`).join(''); }
 </script>
 </body>
 </html>
