@@ -6,7 +6,7 @@
   <title>LAM Weekly Chemical Brief</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* ── 전역 스타일 (오리지널 복원) ── */
+    /* ── 전역 스타일 및 오렌지 테마 복원 ── */
     :root {
       --main-orange: #FF8C00;
       --border-color: #d1d8e0;
@@ -23,7 +23,7 @@
       line-height: 1.6;
     }
 
-    /* ── 헤더 ── */
+    /* ── 헤더 스타일 ── */
     .header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 15px 25px; background: #ffffff; border-bottom: 4px solid var(--main-orange);
@@ -36,7 +36,7 @@
     .title-text { font-size: 22px; font-weight: 800; margin-left: 10px; }
     .title-text span { color: #ff3e3e; }
 
-    /* ── 버튼 ── */
+    /* ── 버튼 및 공통 UI ── */
     .btn-group { display: flex; gap: 6px; align-items: center; overflow-x: auto; }
     .btn {
       padding: 10px 14px; border-radius: 6px; font-weight: 700; cursor: pointer;
@@ -53,23 +53,20 @@
       border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
-    /* ── 품목 카드 레이아웃 ── */
+    /* ── 품목 카드 레이아웃 (PC/Fold) ── */
     .item-card {
       background: var(--card-bg); border: 2.5px solid var(--border-color);
       border-radius: 12px; padding: 20px; margin-bottom: 18px;
       display: grid; grid-template-columns: 180px 140px 150px 1fr 80px;
       align-items: center; gap: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.05);
     }
-
     .item-name {
       font-size: 24px; font-weight: 900; color: var(--none-black); 
       background: #fff5e6; padding: 12px; border-radius: 8px; text-align: center;
       border: 1.5px solid #ffe0b2;
     }
-    
     .item-price { font-size: 24px; font-weight: 900; text-align: center; line-height: 1.2; }
     .item-price small { font-size: 13px; color: #888; display: block; font-weight: 500; }
-    
     .price-up { color: var(--up-red) !important; }
     .price-down { color: var(--down-blue) !important; }
     .price-none { color: var(--none-black) !important; }
@@ -79,17 +76,14 @@
     .change-down { color: var(--down-blue); background: #ebf5fb; border: 1px solid #d6eaf8; }
     .change-none { color: #7f8c8d; background: #f4f6f7; border: 1px solid #e5e8e8; }
 
-    /* ── 코멘터리 스타일 (가시성 대폭 강화) ── */
+    /* ── 코멘터리 스타일 (가시성 및 시인성 대폭 강화) ── */
     .item-comm { 
-      font-size: 22px; /* 가독성을 위해 확대 */
-      color: #1e272e; border-left: 6px solid var(--main-orange); 
-      padding: 5px 20px; 
-      font-weight: 900; /* 실무 시인성 강화 */
-      word-break: keep-all;
+      font-size: 22px; color: #1e272e; border-left: 6px solid var(--main-orange); 
+      padding: 5px 20px; font-weight: 900; word-break: keep-all;
     }
     .btn-edit { background: #f1f2f6; border: 1px solid #ddd; padding: 6px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-    /* ── 모바일 최적화 (오리지널 복원) ── */
+    /* ── 모바일 최적화 레이아웃 복원 ── */
     @media (max-width: 767px) {
       .item-card:not(.export-mode .item-card) {
         grid-template-columns: 1fr 1fr;
@@ -103,7 +97,7 @@
       .btn-edit { grid-area: edit; width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
     }
 
-    /* ── 내보내기/저장 레이아웃 ── */
+    /* ── 저장용 모드 ── */
     .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
     .export-mode .item-card {
       grid-template-columns: 180px 140px 150px 1fr 80px !important;
@@ -122,7 +116,6 @@
     .modal-grid { display: grid; grid-template-columns: 120px 120px 1fr; gap: 10px; margin-top: 10px; align-items: center; }
     .modal-label { background: var(--main-orange); color: white; padding: 8px; border-radius: 4px; text-align: center; font-weight: 700; }
     .modal-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; }
-
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 30px; border-radius: 30px; display: none; z-index: 5000; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
   </style>
 </head>
@@ -146,7 +139,7 @@
 <div class="main-content">
   <div id="captureArea" class="report-container">
     <div id="reportContent">
-      <h3 style="text-align:center; padding:50px;">데이터를 불러오는 중입니다...</h3>
+      <h3 style="text-align:center; padding:50px;">데이터 로딩 중...</h3>
     </div>
   </div>
 </div>
@@ -154,19 +147,15 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box">
     <h2 id="modalTitle" style="color:var(--main-orange); margin-bottom:15px; font-size:22px;">📊 리포트 작성</h2>
-    
     <div id="smartParserSection" class="smart-parser">
       <strong>✨ 스마트 파싱 (붙여넣기)</strong>
       <textarea id="smartInput" class="smart-textarea" placeholder="WTI&#10;1.가격&#10;78.5..." oninput="parseSmartText()"></textarea>
     </div>
-
     <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
       <span style="font-weight:800; font-size:16px;">해당 주차:</span>
       <input type="text" id="modalWeek" class="modal-input" style="width:150px;" placeholder="YYYY-Wnn">
     </div>
-
     <div id="modalItemRows"></div>
-
     <div style="margin-top:25px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
       <button class="btn" onclick="closeModal()" style="background:#eee; color:#333;">닫기</button>
       <button id="modalSubmitBtn" class="btn btn-new">저장하기</button>
@@ -177,7 +166,7 @@
 <div class="toast" id="toastMsg"></div>
 
 <script>
-  // ★ 본인의 GAS URL로 교체 확인 ★
+  // ★ 배포 후 생성된 본인의 웹앱 URL을 반드시 아래에 입력하세요 ★
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbwpcJes47YD1vujB5OWjFEYY0MQmLWXzx9TN4q_uePv4DWStrySRVeXW3EqOlabasON/exec'; 
   const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
   const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
@@ -188,7 +177,8 @@
     loadWeekList();
   });
 
-  async function callGAS(action, payload) { // [핵심] POST 방식 통신 함수 (WTI 방식 적용)
+  // POST 방식을 지원하는 서버 통신 함수 (WTI 방식 적용)
+  async function callGAS(action, payload) {
     try {
       const isPost = (action === 'saveEntry' || action === 'updateItemData');
       const fetchUrl = isPost ? GAS_URL : GAS_URL + '?data=' + encodeURIComponent(JSON.stringify({action, ...payload}));
@@ -214,19 +204,11 @@
 
   async function loadWeekData(week) {
     const res = await callGAS('getData', {week});
-    if(res.success) {
-      currentWeekData = res;
-      renderMainUI(res);
-    }
+    if(res.success) { currentWeekData = res; renderMainUI(res); }
   }
 
-  function renderMainUI(data) { // 오리지널 UI 렌더링 복원
-    let html = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;">
-        <h2 style="font-size:24px; color:#333;">Weekly Chemical Market Report</h2>
-        <span style="font-weight:700; color:#666;">Week: ${data.week}</span>
-      </div>
-    `;
+  function renderMainUI(data) {
+    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;"><h2 style="font-size:24px; color:#333;">Weekly Chemical Market Report</h2><span style="font-weight:700; color:#666;">Week: ${data.week}</span></div>`;
     
     ITEMS.forEach(name => {
       const d = data.items[name] || {};
@@ -248,7 +230,7 @@
     document.getElementById('reportContent').innerHTML = html;
   }
 
-  function quickEdit(name, price, comm) { // 개별 수정 모달 설정 (WTI 스타일)
+  function quickEdit(name, price, comm) {
     document.getElementById('modalTitle').textContent = `✏️ [${name}] 데이터 통합 수정`;
     document.getElementById('smartParserSection').style.display = 'none';
     document.getElementById('modalWeek').value = currentWeekData.week;
@@ -265,7 +247,7 @@
     document.getElementById('modalOverlay').classList.add('active');
   }
 
-  async function processUpdate(name) { // 수정 데이터 POST 전송
+  async function processUpdate(name) {
     const p = document.getElementById('m_p_' + name).value;
     const c = document.getElementById('m_c_' + name).value;
     showToast(`💾 ${name} 업데이트 중...`);
@@ -273,7 +255,7 @@
     if (res.success) { showToast('✅ 수정 완료'); closeModal(); loadWeekData(currentWeekData.week); }
   }
 
-  async function saveEntry() { // 전체 데이터 POST 전송
+  async function saveEntry() {
     const week = document.getElementById('modalWeek').value;
     const items = {};
     ITEMS.forEach(n => { items[n] = { price: document.getElementById('modal_price_'+n).value, commentary: document.getElementById('modal_comm_'+n).value }; });
@@ -282,7 +264,21 @@
     if(res.success) { showToast('✅ 저장 완료'); closeModal(); loadWeekList(); }
   }
 
-  async function saveAsImage() { // 이미지 저장
+  function parseSmartText() {
+    const text = document.getElementById('smartInput').value;
+    const itemRegex = new RegExp(`(${ITEMS.join('|')})`, 'gi');
+    let sections = text.split(itemRegex);
+    for (let i = 1; i < sections.length; i += 2) {
+      const name = sections[i].toUpperCase();
+      const content = sections[i+1];
+      const pMatch = content.match(/1\.가격\s*[\r\n]+([\d.,]+)/i) || content.match(/(\d+(\.\d+)?)/);
+      const cMatch = content.match(/2\.코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\d\.|$)/i);
+      if(pMatch) document.getElementById('modal_price_'+name).value = pMatch[1].replace(/,/g,'');
+      if(cMatch) document.getElementById('modal_comm_'+name).value = cMatch[1].trim();
+    }
+  }
+
+  async function saveAsImage() {
     const area = document.getElementById('captureArea');
     document.body.classList.add('export-mode');
     showToast('🖼️ 이미지 생성 중...');
@@ -297,50 +293,12 @@
   }
 
   function saveAsPDF() { document.body.classList.add('export-mode'); setTimeout(() => { window.print(); document.body.classList.remove('export-mode'); }, 500); }
-
-  function parseSmartText() { // 스마트 파싱
-    const text = document.getElementById('smartInput').value;
-    const itemRegex = new RegExp(`(${ITEMS.join('|')})`, 'gi');
-    let sections = text.split(itemRegex);
-    for (let i = 1; i < sections.length; i += 2) {
-      const name = sections[i].toUpperCase();
-      const content = sections[i+1];
-      const pMatch = content.match(/1\.가격\s*[\r\n]+([\d.,]+)/i) || content.match(/(\d+(\.\d+)?)/);
-      const cMatch = content.match(/2\.코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\d\.|$)/i);
-      if(pMatch) document.getElementById('modal_price_'+name).value = pMatch[1].replace(/,/g,'');
-      if(cMatch) document.getElementById('modal_comm_'+name).value = cMatch[1].trim();
-    }
-  }
-
-  function copyToClipboard() { // 텍스트 복사
-    if(!currentWeekData) return;
-    let text = `[LAM Weekly Market Brief - ${currentWeekData.week}]\n\n`;
-    ITEMS.forEach(name => {
-      const d = currentWeekData.items[name];
-      const abs = parseFloat(d.change_abs) || 0;
-      text += `${name}: ${d.price} (${abs > 0 ? '▲' : '▼'}${Math.abs(abs).toFixed(1)})\n- ${d.commentary || '내용없음'}\n\n`;
-    });
-    navigator.clipboard.writeText(text.trim()).then(() => showToast('✅ 텍스트 복사됨'));
-  }
-
-  function openModal() { // 신규 작성 모달
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
-    document.getElementById('modalTitle').textContent = '📊 리포트 작성';
-    document.getElementById('smartParserSection').style.display = 'block';
-    document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0');
-    buildModalRows();
-    const submitBtn = document.getElementById('modalSubmitBtn');
-    submitBtn.onclick = saveEntry;
-    submitBtn.textContent = '저장하기';
-    document.getElementById('modalOverlay').classList.add('active');
-  }
-
   function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
   function showToast(msg) { const t = document.getElementById('toastMsg'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
   function refreshData() { loadWeekList(); showToast('↻ 데이터 새로고침 중...'); }
   function buildModalRows() { document.getElementById('modalItemRows').innerHTML = ITEMS.map(n => `<div class="modal-grid"><div class="modal-label">${n}</div><input type="number" step="0.01" id="modal_price_${n}" class="modal-input" placeholder="가격"><input type="text" id="modal_comm_${n}" class="modal-input" placeholder="코멘터리"></div>`).join(''); }
+  function copyToClipboard() { if(!currentWeekData) return; let text = `[LAM Weekly Market Brief - ${currentWeekData.week}]\n\n`; ITEMS.forEach(name => { const d = currentWeekData.items[name]; const abs = parseFloat(d.change_abs) || 0; text += `${name}: ${d.price} (${abs > 0 ? '▲' : '▼'}${Math.abs(abs).toFixed(1)})\n- ${d.commentary || '내용없음'}\n\n`; }); navigator.clipboard.writeText(text.trim()).then(() => showToast('✅ 텍스트 복사됨')); }
+  function openModal() { const now = new Date(); const start = new Date(now.getFullYear(), 0, 1); const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7); document.getElementById('modalTitle').textContent = '📊 리포트 작성'; document.getElementById('smartParserSection').style.display = 'block'; document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0'); buildModalRows(); const submitBtn = document.getElementById('modalSubmitBtn'); submitBtn.onclick = saveEntry; submitBtn.textContent = '저장하기'; document.getElementById('modalOverlay').classList.add('active'); }
 </script>
 </body>
 </html>
