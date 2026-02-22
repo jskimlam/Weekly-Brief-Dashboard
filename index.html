@@ -19,7 +19,7 @@
     body {
       background-color: #f0f2f5;
       color: var(--none-black);
-      font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+      font-family: 'Pretendard', sans-serif;
       line-height: 1.6;
     }
 
@@ -79,17 +79,17 @@
     .change-down { color: var(--down-blue); background: #ebf5fb; border: 1px solid #d6eaf8; }
     .change-none { color: #7f8c8d; background: #f4f6f7; border: 1px solid #e5e8e8; }
 
-    /* ── 코멘터리 스타일 (가시성 강화) ── */
+    /* ── 코멘터리 스타일 (가시성 강화 요청 반영) ── */
     .item-comm { 
-      font-size: 22px; /* 폰트 확대 */
+      font-size: 22px; /* 가독성을 위해 18px에서 확대 */
       color: #1e272e; border-left: 6px solid var(--main-orange); 
       padding: 5px 20px; 
-      font-weight: 900; /* 굵기 강화 */
+      font-weight: 900; /* 시인성을 위해 700에서 강화 */
       word-break: keep-all;
     }
     .btn-edit { background: #f1f2f6; border: 1px solid #ddd; padding: 6px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-    /* ── 모바일 최적화 (오리지널 UI 복원) ── */
+    /* ── 모바일 최적화 (오리지널 레이아웃 완벽 복원) ── */
     @media (max-width: 767px) {
       .item-card:not(.export-mode .item-card) {
         grid-template-columns: 1fr 1fr;
@@ -103,7 +103,7 @@
       .btn-edit { grid-area: edit; width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
     }
 
-    /* ── 내보내기 고정 레이아웃 ── */
+    /* ── 이미지 저장용 레이아웃 ── */
     .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
     .export-mode .item-card {
       grid-template-columns: 180px 140px 150px 1fr 80px !important;
@@ -177,7 +177,7 @@
 <div class="toast" id="toastMsg"></div>
 
 <script>
-  // ★ 본인의 GAS URL로 교체 ★
+  // ★ 본인의 GAS URL 확인 ★
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbxTZjLHMxfRCAvM1FietPXm7XVvLm-BeaD8Yyue2BBujzyyhDycj3Hm9arp5SsqQqOf/exec'; 
   const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
   const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
@@ -188,7 +188,7 @@
     loadWeekList();
   });
 
-  async function callGAS(payload) { // 공통 통신
+  async function callGAS(payload) { // 공통 통신 함수
     try {
       const res = await fetch(GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)), { method: 'GET', redirect: 'follow' });
       return await res.json();
@@ -204,7 +204,7 @@
     }
   }
 
-  async function loadWeekData(week) { // 데이터 로드
+  async function loadWeekData(week) { // 데이터 조회
     const res = await callGAS({action:'getData', week: week});
     if(res.success) {
       currentWeekData = res;
@@ -212,7 +212,7 @@
     }
   }
 
-  function renderMainUI(data) { // UI 렌더링
+  function renderMainUI(data) { // 메인 UI 렌더링
     let html = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px;">
         <h2 style="font-size:24px; color:#333;">Weekly Chemical Market Report</h2>
@@ -242,11 +242,11 @@
     document.getElementById('reportContent').innerHTML = html;
   }
 
-  function quickEdit(name, oldPrice, oldComm) { // 개별 수정 모달
+  function quickEdit(name, oldPrice, oldComm) { // 직접 수정 모달
     document.getElementById('modalTitle').textContent = `✏️ [${name}] 데이터 통합 수정`;
     document.getElementById('smartParserSection').style.display = 'none';
     document.getElementById('modalWeek').value = currentWeekData.week;
-    // 고유 ID 부여 (수정 반영 해결)
+    // ID를 고유하게 설정하여 값 누락 방지
     document.getElementById('modalItemRows').innerHTML = `
       <div class="modal-grid">
         <div class="modal-label">${name}</div>
@@ -260,11 +260,11 @@
     document.getElementById('modalOverlay').classList.add('active');
   }
 
-  async function processUpdate(name) { // 수정 데이터 전송 (개별 수정 해결)
+  async function processUpdate(name) { // 수정사항 시트 반영 요청
     const price = document.getElementById('m_p_' + name).value;
     const commentary = document.getElementById('m_c_' + name).value;
     showToast(`💾 ${name} 업데이트 중...`);
-    // 백엔드 통합 수정 액션 호출
+    // 백엔드의 updateItemData 액션 호출 (직접 수정 문제 해결)
     const res = await callGAS({ action: 'updateItemData', week: currentWeekData.week, item: name, price: price, commentary: commentary });
     if (res.success) { showToast('✅ 업데이트 완료'); closeModal(); loadWeekData(currentWeekData.week); }
   }
@@ -283,7 +283,7 @@
     });
   }
 
-  function saveAsPDF() { // PDF 출력
+  function saveAsPDF() { // PDF 인쇄
     document.body.classList.add('export-mode');
     setTimeout(() => { window.print(); document.body.classList.remove('export-mode'); }, 500);
   }
@@ -330,7 +330,7 @@
 
   function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
 
-  function buildModalRows() { // 입력 폼 생성
+  function buildModalRows() { // 입력 폼 행 생성
     document.getElementById('modalItemRows').innerHTML = ITEMS.map(name => `
       <div class="modal-grid">
         <div class="modal-label">${name}</div>
@@ -340,12 +340,12 @@
     `).join('');
   }
 
-  function clearModalInputs() { // 폼 초기화
+  function clearModalInputs() { // 폼 비우기
     document.getElementById('smartInput').value = '';
     ITEMS.forEach(n => { document.getElementById('modal_price_'+n).value = ''; document.getElementById('modal_comm_'+n).value = ''; }); 
   }
 
-  async function saveEntry() { // 전체 데이터 저장
+  async function saveEntry() { // 전체 시트 저장
     const week = document.getElementById('modalWeek').value;
     const items = {};
     ITEMS.forEach(n => { items[n] = { price: document.getElementById('modal_price_'+n).value, commentary: document.getElementById('modal_comm_'+n).value }; });
@@ -356,7 +356,7 @@
 
   function refreshData() { loadWeekList(); showToast('↻ 데이터 새로고침 중...'); }
 
-  function showToast(msg) { // 토스트 메시지
+  function showToast(msg) { // 알림 토스트
     const t = document.getElementById('toastMsg');
     t.textContent = msg; t.style.display = 'block';
     setTimeout(() => t.style.display = 'none', 3000);
