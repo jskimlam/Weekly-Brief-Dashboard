@@ -1,905 +1,1088 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Daily Chemical Brief</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-:root {
-  --up:#DC2626; --dn:#1D4ED8; --flt:#111827;
-  --up-bg:#FEF2F2; --dn-bg:#EFF6FF; --flt-bg:#F9FAFB;
-  --lotte:#E31837; --g1:#111827; --g2:#374151; --g3:#6B7280; --g4:#9CA3AF;
-  --g6:#F3F4F6; --g7:#F9FAFB; --white:#FFFFFF;
-  --bd:#E5E7EB; --sh:0 4px 12px rgba(0,0,0,0.08);
-  --sans:'Noto Sans KR',sans-serif; --disp:'Montserrat',sans-serif; --mono:'DM Mono',monospace;
-  --highlight-bg:#FFEB3B; --brand-orange:#FF9800;
-  --wti:#DC2626; --sm:#7C3AED; --bz:#0369A1; --bd2:#047857;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--sans);background:var(--g7);color:var(--g1);min-height:100vh;-webkit-font-smoothing:antialiased;}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>LAM Weekly Chemical Brief</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    :root {
+      --main-orange: #FF8C00;
+      --border-color: #d1d8e0;
+      --card-bg: #ffffff;
+      --up-red: #e74c3c;
+      --down-blue: #3498db;
+      --none-black: #2d3436;
+      --soft-orange: #fff5e6;
+      --soft-gray: #f7f8fa;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #f0f2f5;
+      color: var(--none-black);
+      font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+      line-height: 1.6;
+    }
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 15px 25px; background: #ffffff; border-bottom: 4px solid var(--main-orange);
+      position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .lam-badge {
+      background: var(--main-orange); color: #fff; font-weight: 900;
+      font-size: 24px; padding: 5px 15px; border-radius: 8px;
+    }
+    .title-text { font-size: 22px; font-weight: 800; margin-left: 10px; }
+    .title-text span { color: #ff3e3e; }
+    .btn-group { display: flex; gap: 6px; align-items: center; overflow-x: auto; }
+    .btn {
+      padding: 10px 14px; border-radius: 6px; font-weight: 700; cursor: pointer;
+      border: none; font-size: 13px; white-space: nowrap; transition: 0.2s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-copy { background: #2ecc71; color: white; }
+    .btn-save { background: #3498db; color: white; }
+    .btn-new { background: #ff3e3e; color: white; }
+    .btn-refresh { background: #636e72; color: white; }
+    .btn-detail {
+      background: #fff7ec; color: #c96d00; border: 1px solid #ffd59a;
+      padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer;
+    }
+    .btn-edit {
+      background: #f1f2f6; border: 1px solid #ddd; padding: 8px 10px;
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 700;
+    }
+    .main-content { padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .report-container {
+      background: white; padding: 25px; border-radius: 12px;
+      border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .item-card {
+      background: var(--card-bg); border: 2.5px solid var(--border-color);
+      border-radius: 12px; padding: 20px; margin-bottom: 18px;
+      display: grid; grid-template-columns: 180px 140px 150px 1fr 190px;
+      align-items: center; gap: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    }
+    .item-name {
+      font-size: 24px; font-weight: 900; color: var(--none-black);
+      background: var(--soft-orange); padding: 12px; border-radius: 8px; text-align: center;
+      border: 1.5px solid #ffe0b2;
+    }
+    .item-price { font-size: 24px; font-weight: 900; text-align: center; line-height: 1.2; }
+    .item-price small { font-size: 13px; color: #888; display: block; font-weight: 500; }
+    .price-up { color: var(--up-red) !important; }
+    .price-down { color: var(--down-blue) !important; }
+    .price-none { color: var(--none-black) !important; }
+    .item-change { font-size: 17px; font-weight: 700; text-align: center; padding: 10px; border-radius: 8px; }
+    .change-up { color: var(--up-red); background: #fdedec; border: 1px solid #fadbd8; }
+    .change-down { color: var(--down-blue); background: #ebf5fb; border: 1px solid #d6eaf8; }
+    .change-none { color: #7f8c8d; background: #f4f6f7; border: 1px solid #e5e8e8; }
+    .item-comm {
+      font-size: 21px; color: #1e272e; border-left: 6px solid var(--main-orange);
+      padding: 5px 20px; font-weight: 900; word-break: keep-all;
+    }
+    .item-actions { display:flex; flex-direction:column; gap:8px; }
 
-/* ── 헤더 ── */
-.hdr{background:var(--white);border-bottom:3px solid var(--lotte);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.08);}
-.hdr-inner{max-width:1600px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;gap:20px;}
-.hdr-brand{display:flex;align-items:center;gap:14px;flex-shrink:0;}
-.hdr-mark{width:50px;height:38px;background:var(--brand-orange);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-size:14px;font-weight:900;color:#000;border:2px solid #000;}
-.hdr-title{font-family:var(--disp);font-size:18px;font-weight:900;color:#000;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px;}
-.hdr-title span{color:var(--lotte);}
-.hdr-title span.copyright-text{color:#000 !important;}
-.copyright-text{font-family:var(--sans);font-size:13px;font-weight:800;color:#000;margin-left:14px;border-left:2.5px solid #000;padding-left:14px;white-space:nowrap;}
-.hdr-center{display:flex;align-items:center;gap:8px;flex:1;justify-content:center;}
-.hdr-date-nav{display:flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:8px;padding:6px 12px;border:1px solid var(--bd);}
-.hdr-date-lbl{font-family:var(--mono);font-size:16px;font-weight:700;min-width:105px;text-align:center;}
-.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000;
+      justify-content: center; align-items: center; padding: 15px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: white; width: 100%; max-width: 900px; border-radius: 15px;
+      padding: 30px; max-height: 92vh; overflow-y: auto;
+    }
+    .smart-parser {
+      background: #fff9f0; border: 2px dashed var(--main-orange); padding: 15px;
+      border-radius: 10px; margin-bottom: 20px;
+    }
+    .smart-textarea, .modal-input, .modal-textarea, .detail-graph-type {
+      width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-family: inherit;
+      font-size: 14px;
+    }
+    .smart-textarea { height: 100px; margin-top: 10px; }
+    .modal-textarea { min-height: 92px; resize: vertical; }
+    .modal-grid {
+      display: grid; grid-template-columns: 120px 120px 1fr; gap: 10px; margin-top: 10px; align-items: center;
+    }
+    .modal-label, .section-label {
+      background: var(--main-orange); color: white; padding: 8px; border-radius: 6px; text-align: center; font-weight: 700;
+    }
+    .modal-stack {
+      display:grid; grid-template-columns: 120px 1fr; gap:10px; align-items:start; margin-top: 12px;
+    }
+    .modal-subtitle {
+      margin-top:18px; padding-top:16px; border-top:2px solid #f0f0f0; font-size:16px; font-weight:900; color:#444;
+    }
 
-/* ── 버튼 ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;border:1px solid transparent;white-space:nowrap;}
-.btn-primary{background:var(--lotte);color:#fff;}
-.btn-outline{background:var(--white);color:var(--g2);border:1px solid var(--bd);}
-.btn-primary:hover{background:#c41230;}
-.btn-outline:hover{background:var(--g6);}
+    .detail-header {
+      display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;
+      margin-bottom: 18px; padding-bottom: 15px; border-bottom: 3px solid var(--main-orange);
+    }
+    .detail-title { font-size: 28px; font-weight: 900; }
+    .detail-meta { display:flex; gap:10px; flex-wrap:wrap; }
+    .meta-chip {
+      background:#fff4e5; border:1px solid #ffd39e; color:#9a5600; padding:8px 12px; border-radius:999px; font-weight:800; font-size:13px;
+    }
+    .detail-grid {
+      display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-top: 18px;
+    }
+    .detail-card {
+      background: var(--soft-gray); border: 1px solid #e5e9ef; border-radius: 14px; padding: 18px;
+    }
+    .detail-card h3 {
+      color:#2d3436; font-size:18px; font-weight:900; margin-bottom:10px; display:flex; align-items:center; gap:8px;
+    }
+    .detail-card .content {
+      white-space: pre-wrap; word-break: keep-all; font-size: 15px; color:#374151;
+    }
+    .detail-card.full { grid-column: 1 / -1; }
+    .detail-chart-wrap {
+      margin-top:18px; background:#fff; border:1px solid #e5e9ef; border-radius:14px; padding:18px;
+    }
+    .detail-chart-top {
+      display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px;
+    }
+    .detail-chart-area { height: 320px; position: relative; }
+    .detail-table-wrap { margin-top: 16px; overflow-x:auto; }
+    .detail-table {
+      width:100%; border-collapse:collapse; min-width:420px; font-size:14px;
+    }
+    .detail-table th, .detail-table td {
+      border:1px solid #e6e8eb; padding:10px 12px; text-align:center;
+    }
+    .detail-table th { background:#fff7ec; color:#8a5200; font-weight:900; }
+    .detail-empty {
+      background:#fafafa; border:1px dashed #d7dbe1; padding:18px; border-radius:12px; color:#666; font-size:14px;
+    }
 
-/* ── 레이아웃 ── */
-.layout{max-width:1600px;margin:0 auto;padding:24px 32px 80px;display:flex;gap:20px;}
-.sidebar{width:210px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;}
-.mini-wk-wrap{background:var(--white);border:1px solid var(--bd);border-radius:10px;padding:10px 8px;margin-top:4px;}
-.mini-wk-title{font-size:10px;font-weight:800;color:var(--g3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-.mini-wk-table{width:100%;border-collapse:collapse;font-size:10px;}
-.mini-wk-table th{font-size:9px;color:var(--g4);background:var(--g7);padding:3px 4px;text-align:center;border-bottom:1px solid var(--bd);font-weight:600;white-space:nowrap;}
-.mini-wk-table th:first-child{text-align:left;}
-.mini-wk-table td{padding:3px 4px;text-align:center;border-bottom:1px solid var(--g6);font-family:var(--mono);font-size:9px;color:var(--g2);white-space:nowrap;}
-.mini-wk-table td:first-child{text-align:left;font-weight:700;font-size:9px;color:var(--g1);}
-.mini-wk-table td.wt-up{color:var(--up)!important;font-weight:700;}
-.mini-wk-table td.wt-dn{color:var(--dn)!important;font-weight:700;}
-.mini-wk-table td.wt-flt{color:var(--flt)!important;font-weight:700;}
-.main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px;}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+    .toast {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+      background: #333; color: #fff; padding: 12px 30px; border-radius: 30px; display: none;
+      z-index: 5000; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
 
-/* ── 아카이브 드롭다운 ── */
-.arc-select-wrap{position:relative;width:100%;}
-.arc-select-btn{width:100%;padding:12px 15px;background:var(--white);border:2px solid #000;border-radius:8px;font-family:var(--mono);font-size:14px;font-weight:700;color:#000;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--sh);}
-.arc-select-btn:hover{background:var(--g6);}
-.arc-select-btn::after{content:'▼';font-size:10px;margin-left:10px;}
-.arc-dropdown{position:absolute;top:100%;left:0;width:100%;max-height:350px;overflow-y:auto;background:var(--white);border:2px solid #000;border-top:none;border-radius:0 0 8px 8px;z-index:100;display:none;box-shadow:0 10px 25px rgba(0,0,0,0.15);}
-.arc-dropdown.show{display:block;}
-.arc-item{padding:11px 15px;font-family:var(--mono);font-size:13px;color:var(--g2);cursor:pointer;border-bottom:1px solid var(--g6);display:flex;justify-content:space-between;align-items:center;}
-.arc-item:hover{background:#FFF9C4;color:#000;font-weight:700;}
-.arc-item.active{background:#FEF2F2;color:var(--lotte);font-weight:800;}
-
-/* ── 카드 ── */
-.p-card{background:var(--white);border:1px solid var(--bd);border-radius:14px;overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;}
-.card-bar{height:6px;}
-.card-bar.wti{background:var(--wti);}
-.card-bar.sm{background:var(--sm);}
-.card-bar.bz{background:var(--bz);}
-.card-bar.bd{background:var(--bd2);}
-.card-hdr{padding:16px 18px 10px;display:flex;justify-content:space-between;align-items:center;}
-.card-prod{font-family:var(--disp);font-size:22px;font-weight:900;}
-.card-prod.wti{color:var(--wti);}
-.card-prod.sm{color:var(--sm);}
-.card-prod.bz{color:var(--bz);}
-.card-prod.bd{color:var(--bd2);}
-.card-price{padding:0 18px 10px;display:flex;align-items:baseline;justify-content:space-between;}
-.p-val{font-family:var(--disp);font-size:46px;font-weight:900;line-height:1;}
-.p-val.up{color:var(--up);}.p-val.dn{color:var(--dn);}.p-val.flt{color:var(--flt);}
-.d-abs{font-family:var(--mono);font-size:18px;font-weight:700;}
-.d-abs.up{color:var(--up);}.d-abs.dn{color:var(--dn);}.d-abs.flt{color:var(--flt);}
-.dir-badge{display:inline-block;padding:6px 16px;border-radius:30px;font-size:15px;font-weight:900;border:2px solid black;margin-bottom:15px;margin-left:18px;}
-.dir-badge.up{background:var(--up);color:white;}
-.dir-badge.dn{background:var(--dn);color:white;}
-.dir-badge.flt{background:var(--g3);color:white;}
-
-/* ── 섹션 레이블 박스 ── */
-.section-label-box{display:inline-block;background-color:var(--highlight-bg);border:2px solid #000;padding:4px 12px;margin:15px 18px 8px;border-radius:4px;}
-.section-label-text{font-family:var(--mono);font-size:13px;font-weight:900;color:#000;text-transform:uppercase;}
-.section-body-text{padding:0 18px 14px;font-size:15px;line-height:1.7;color:#000;word-break:keep-all;}
-.text-bold{font-weight:800;}
-.no-data{padding:40px;text-align:center;color:#999;font-size:13px;}
-
-/* ── 주간 테이블 ── */
-.wk-wrap{background:var(--white);border:1px solid var(--bd);border-radius:14px;padding:20px;box-shadow:var(--sh);}
-.wk-title{font-family:var(--sans);font-size:16px;font-weight:900;letter-spacing:.02em;color:var(--g1);margin-bottom:14px;}
-.wk-table{width:100%;border-collapse:collapse;font-size:13px;}
-.wk-table th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--g4);background:var(--g7);padding:8px 14px;text-align:right;font-weight:500;border-bottom:1px solid var(--bd);}
-.wk-table th:first-child{text-align:left;}
-.wk-table td{padding:9px 14px;text-align:right;border-bottom:1px solid var(--g6);font-family:var(--mono);font-size:12px;color:var(--g2);}
-.wk-table td:first-child{text-align:left;font-weight:700;font-family:var(--sans);font-size:13px;}
-.wk-table td.wt-up{color:var(--up)!important;font-weight:700;}
-.wk-table td.wt-dn{color:var(--dn)!important;font-weight:700;}
-.wk-table td.wt-flt{color:var(--flt)!important;font-weight:700;}
-
-/* ── 모달 ── */
-#overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
-#overlay.open{display:flex;}
-#modal{width:880px;max-width:96vw;max-height:94vh;background:var(--white);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;}
-.m-tab{flex:1;padding:15px;border:none;background:none;cursor:pointer;font-weight:800;font-size:14px;border-bottom:3px solid transparent;transition:all .15s;}
-.m-tab.active{border-bottom:3px solid var(--lotte);color:var(--lotte);}
-.pfield{margin-bottom:12px;}
-.pfield label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--g2);}
-.pfield input,.pfield select,.pfield textarea{width:100%;padding:9px 12px;border:1px solid var(--bd);border-radius:6px;font-size:13px;font-family:var(--sans);outline:none;color:var(--g1);background:var(--white);}
-.pfield input:focus,.pfield select:focus,.pfield textarea:focus{border-color:var(--lotte);}
-.pfield textarea{resize:vertical;line-height:1.65;}
-.m-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-.m-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.parse-status{padding:8px 14px;border-radius:6px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;}
-.parse-status.ok{display:block;background:#D1FAE5;color:#065F46;}
-.parse-status.warn{display:block;background:#FEF3C7;color:#92400E;}
-.parse-status.err{display:block;background:#FEE2E2;color:#991B1B;}
-
-/* ── 토스트 ── */
-#toast{position:fixed;bottom:30px;right:30px;z-index:9999;padding:15px 25px;border-radius:10px;font-weight:700;color:#fff;opacity:0;transition:0.3s;box-shadow:var(--sh);}
-#toast.show{opacity:1;}
-
-/* ── 프린트/PDF ── */
-@media print{
-  body{background:#fff;}
-  .hdr{position:static;box-shadow:none;}
-  .hdr-right,.sidebar,.wk-wrap{display:none;}
-  .layout{padding:10px;flex-direction:row;}
-  .main{width:100%;}
-  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;}
-  .p-card{break-inside:avoid;page-break-inside:avoid;}
-  .p-val{font-size:28px;}
-  .d-abs{font-size:12px;}
-  .section-body-text{font-size:11px;}
-  .card-prod{font-size:16px;}
-  .section-label-box{padding:2px 8px;margin:8px 10px 4px;}
-  .section-label-text{font-size:10px;}
-  .dir-badge{font-size:11px;padding:3px 10px;}
-}
-
-/* ── 반응형 ── */
-/* ── 모바일 (갤럭시 S25 등) ── */
-@media(max-width:480px){
-  .hdr-inner{height:auto;flex-direction:column;padding:15px 16px;gap:15px;}
-  .copyright-text{display:block;border-left:none;padding-left:0;margin-left:0;margin-top:5px;font-size:11px;text-align:center;}
-  .hdr-right{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .layout{padding:16px 12px;flex-direction:column;}
-  .sidebar{width:100%;}
-  .grid4{grid-template-columns:1fr;}
-  /* 가격 숫자 + 변동가격/변동률 모바일 최적화 */
-  .p-val{font-size:32px;}
-  .d-abs{font-size:13px;}
-  .card-price{flex-wrap:wrap;gap:4px;}
-}
-/* ── 태블릿 / 폴드 접힌 화면 ── */
-@media(min-width:481px) and (max-width:1024px){
-  .grid4{grid-template-columns:1fr 1fr;}
-  .layout{padding:20px 20px;}
-  .sidebar{width:200px;}
-}
-/* ── 폴드7 펼친 화면 (~1024px 세로형 태블릿) ── */
-@media(min-width:768px) and (max-width:1024px){
-  .hdr-inner{padding:0 16px;height:56px;}
-  .hdr-title{font-size:15px;}
-  .copyright-text{font-size:11px;}
-  /* 사이드바를 상단으로 올려 전체 폭 활용 */
-  .layout{padding:16px 16px 60px;flex-direction:column;gap:14px;}
-  .sidebar{width:100%;flex-direction:row;align-items:center;gap:12px;}
-  .arc-select-wrap{max-width:280px;}
-  /* 2컬럼 그리드, 전체 폭 활용 */
-  .grid4{grid-template-columns:repeat(2,1fr);gap:14px;}
-  .p-val{font-size:38px;}
-  .card-prod{font-size:20px;}
-  .section-body-text{font-size:14px;}
-  .wk-wrap{overflow-x:auto;}
-}
-</style>
+    @media (max-width: 980px) {
+      .item-card { grid-template-columns: 160px 130px 130px 1fr 160px; gap: 14px; }
+      .item-comm { font-size: 18px; }
+    }
+    @media (max-width: 767px) {
+      .header { padding: 12px 14px; }
+      .title-text { font-size: 18px; }
+      .main-content { padding: 12px; }
+      .report-container { padding: 14px; }
+      .item-card:not(.export-mode .item-card) {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "name price"
+          "change change"
+          "comm comm"
+          "actions actions";
+        gap: 15px; padding: 18px;
+      }
+      .item-name { grid-area: name; font-size: 22px; padding: 15px 10px; }
+      .item-price { grid-area: price; text-align: right; font-size: 26px; }
+      .item-change { grid-area: change; width: 100%; font-size: 17px; padding: 12px; }
+      .item-comm { grid-area: comm; border-left: none; border-top: 4px solid var(--main-orange); padding: 15px 0 0 0; font-size: 18px; }
+      .item-actions { grid-area: actions; flex-direction: row; }
+      .item-actions button { flex: 1; }
+      .modal-box { padding: 18px; }
+      .modal-grid { grid-template-columns: 90px 100px 1fr; }
+      .modal-stack { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .detail-chart-area { height: 260px; }
+    }
+    .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
+    .export-mode .item-card {
+      grid-template-columns: 180px 140px 150px 1fr 190px !important;
+      grid-template-areas: none !important;
+      display: grid !important;
+    }
+    .export-mode .item-comm { border-left: 6px solid var(--main-orange) !important; border-top: none !important; padding: 5px 20px !important; }
+  </style>
 </head>
 <body>
-
-<header class="hdr">
-  <div class="hdr-inner">
-    <div class="hdr-brand">
-      <div class="hdr-mark">LAM</div>
-      <div class="hdr-title">Daily <span>Chemical</span> Brief
-        <span class="copyright-text">created by JSKIM of LAM (첨단구매1팀)</span>
-      </div>
-    </div>
-    <div class="hdr-center">
-      <div class="hdr-date-nav">
-        <button onclick="moveDate(1)" style="background:none;border:none;cursor:pointer;font-size:24px;">&#8249;</button>
-        <div class="hdr-date-lbl" id="hdr-date-lbl">—</div>
-        <button onclick="moveDate(-1)" style="background:none;border:none;cursor:pointer;font-size:24px;">&#8250;</button>
-      </div>
-    </div>
-    <div class="hdr-right">
-      <button class="btn btn-outline" onclick="loadData()">↺ 새로고침</button>
-      <button class="btn btn-primary" onclick="openModal()">+ NEW ENTRY</button>
-    </div>
+<div class="header">
+  <div style="display:flex; align-items:center;">
+    <div class="lam-badge">LAM</div>
+    <div class="title-text">Weekly <span>Market</span> Brief</div>
   </div>
-</header>
-
-<div class="layout">
-  <aside class="sidebar">
-    <div class="arc-select-wrap">
-      <div style="font-size:11px;font-weight:800;color:var(--g3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Archive</div>
-      <button class="arc-select-btn" id="arc-selected-label" onclick="toggleArc()">날짜 선택</button>
-      <div class="arc-dropdown" id="arc-dropdown"></div>
-    </div>
-    <div class="mini-wk-wrap">
-      <div class="mini-wk-title">📊 주간 요약 <span id="mini-wk-label" style="font-size:9px;color:#6b7280;"></span></div>
-      <table class="mini-wk-table"><thead><tr id="mini-wk-thead"></tr></thead><tbody id="mini-wk-tbody"></tbody></table>
-    </div>
-  </aside>
-
-  <main class="main">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-      <div style="font-family:var(--disp);font-size:28px;font-weight:900;" id="main-date">—</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-outline" onclick="dlImage()">📷 이미지</button>
-        <button class="btn btn-outline" onclick="window.print()">🖨 PDF</button>
-        <button class="btn btn-outline" onclick="copyMsg()">💬 메신저</button>
-      </div>
-    </div>
-    <div class="grid4" id="grid"></div>
-    <div class="wk-wrap">
-      <div class="wk-title">📊 주간 가격 요약 <span id="wk-label" style="font-size:11px;color:#6b7280;margin-left:8px;"></span></div>
-      <table class="wk-table"><thead><tr id="wk-thead"></tr></thead><tbody id="wk-tbody"></tbody></table>
-    </div>
-  </main>
+  <div class="btn-group">
+    <button class="btn btn-refresh" onclick="refreshData()">↻</button>
+    <button class="btn btn-copy" onclick="copyToClipboard()">📋 카톡복사</button>
+    <button class="btn btn-save" onclick="saveAsImage()">🖼️ 이미지</button>
+    <button class="btn btn-save" style="background:#17a2b8;" onclick="saveAsPDF()">📄 PDF</button>
+    <select id="weekSelector" onchange="loadWeekData(this.value)" class="btn" style="background:white; border:2px solid var(--main-orange); color:var(--main-orange);"></select>
+    <button class="btn btn-new" onclick="openModal()">+ NEW</button>
+  </div>
 </div>
 
-<div id="overlay">
-  <div id="modal">
-    <div style="padding:20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;background:#f9fafb;">
-      <div style="font-weight:900;font-size:18px;" id="modal-title">NEW BRIEFING ENTRY</div>
-      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;font-size:28px;">&times;</button>
-    </div>
-    <div style="display:flex;border-bottom:1px solid #eee;overflow-x:auto;" id="tab-bar"></div>
-    <div id="tab-panels" style="flex:1;overflow-y:auto;padding:22px;"></div>
-    <div style="padding:15px 22px;background:#f9fafb;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-outline" onclick="doParse()">🔍 현재 품목 파싱</button>
-      <button class="btn btn-outline" onclick="doSaveCurrentTab()">💾 현재 품목 저장</button>
-      <button class="btn btn-primary" onclick="doSaveAll()">▶ 전체 저장</button>
+<div class="main-content">
+  <div id="captureArea" class="report-container">
+    <div id="reportContent">
+      <h3 style="text-align:center; padding:50px;">데이터 로딩 중...</h3>
     </div>
   </div>
 </div>
-<div id="toast"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h2 id="modalTitle" style="color:var(--main-orange); margin-bottom:15px; font-size:22px;">📊 리포트 작성</h2>
+    <div id="smartParserSection" class="smart-parser">
+      <strong>✨ 스마트 파싱 (붙여넣기)</strong>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+        <input type="password" id="parserPassword" class="modal-input" style="width:140px;" placeholder="파싱 비밀번호">
+        <button class="btn" type="button" onclick="unlockParser()" style="padding:8px 14px;">파싱 잠금해제</button>
+        <span id="parserLockStatus" style="font-size:13px; font-weight:700; color:#c0392b;">🔒 잠금 상태</span>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+        <select id="parseTargetItem" class="modal-input" style="width:220px;" disabled>
+          <option value="">파싱 대상 품목 선택</option>
+          <option value="WTI">WTI</option>
+          <option value="Styrene">SM</option>
+          <option value="Acrylonitrile">AN</option>
+          <option value="Butadiene">BD</option>
+          <option value="BPA">BPA</option>
+          <option value="MMA">MMA</option>
+        </select>
+        <button class="btn" type="button" id="parseApplyBtn" onclick="parseSelectedSmartText()" style="padding:8px 14px; background:#ff8c00; color:#fff;" disabled>선택 품목 파싱 적용</button>
+        <button class="btn" type="button" id="parseSaveBtn" onclick="saveSelectedItemFromModal()" style="padding:8px 14px; background:#16a34a; color:#fff;" disabled>선택 품목만 저장</button>
+      </div>
+      <textarea id="smartInput" class="smart-textarea" placeholder="선택한 품목의 텍스트만 붙여넣어 주세요.&#10;&#10;예: ACN 종목 브리핑 (2026-03-10)&#10;1. 가격&#10;...&#10;2. 코멘터리&#10;...&#10;3. 변동요인&#10;...&#10;4. 결론 및 전망&#10;...&#10;5. 기타 추가 정보&#10;..." disabled></textarea>
+      <div style="margin-top:8px; font-size:12px; color:#666;">비밀번호 해제 후 품목을 먼저 선택한 다음 텍스트를 넣어주세요. AN 샘플처럼 Markdown의 *, ** 형식도 파싱되며, WTI/SM/BD는 주중 흐름 일별 가격도 자동 반영됩니다.</div>
+    </div>
+    <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <span style="font-weight:800; font-size:16px;">해당 주차:</span>
+      <input type="text" id="modalWeek" class="modal-input" style="width:150px;" placeholder="YYYY-Wnn" oninput="refreshModalWeekLabel()">
+      <span id="modalWeekLabel" style="font-weight:800; color:var(--main-orange);">-</span>
+    </div>
+    <div id="modalItemRows"></div>
+    <div style="margin-top:25px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn" onclick="closeModal()" style="background:#eee; color:#333;">닫기</button>
+      <button id="modalSubmitBtn" class="btn btn-new">저장하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="detailOverlay">
+  <div class="modal-box" style="max-width: 980px;">
+    <div class="detail-header">
+      <div>
+        <div id="detailTitle" class="detail-title">상세 정보</div>
+        <div id="detailWeek" style="font-weight:700; color:#666; margin-top:4px;"></div>
+      </div>
+      <div class="detail-meta" id="detailMeta"></div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-card">
+        <h3>📌 변동요인</h3>
+        <div id="detailFactors" class="content"></div>
+      </div>
+      <div class="detail-card">
+        <h3>🔎 결론 및 전망</h3>
+        <div id="detailOutlook" class="content"></div>
+      </div>
+      <div class="detail-card full">
+        <h3>➕ 추가정보</h3>
+        <div id="detailAdditional" class="content"></div>
+      </div>
+    </div>
+
+    <div id="detailChartSection" class="detail-chart-wrap" style="display:none;">
+      <div class="detail-chart-top">
+        <div style="font-size:18px; font-weight:900;">📈 데일리 가격 추이</div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:13px; font-weight:800; color:#555;">그래프 형태</span>
+          <select id="detailGraphType" class="detail-graph-type" style="width:140px;" onchange="changeDetailGraphType()">
+            <option value="line">직선</option>
+            <option value="curve">곡선</option>
+          </select>
+        </div>
+      </div>
+      <div class="detail-chart-area">
+        <canvas id="detailChartCanvas"></canvas>
+      </div>
+      <div class="detail-table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr><th>일자</th><th>가격</th></tr>
+          </thead>
+          <tbody id="detailPriceTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="detailNoChart" class="detail-empty" style="display:none; margin-top:18px;">
+      이 품목은 현재 상세 텍스트만 표시하도록 구성되어 있습니다.
+    </div>
+
+    <div style="margin-top:22px; display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn" onclick="closeDetailModal()" style="background:#eee; color:#333;">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastMsg"></div>
 
 <script>
-const GAS='https://script.google.com/macros/s/AKfycby5jabEVuz3z0IWccf-ucvbhNUXBdp0c4L9oVDJ2lnFDF9guN1Q3462EBvK3Tlo5fWI/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycby5jabEVuz3z0IWccf-ucvbhNUXBdp0c4L9oVDJ2lnFDF9guN1Q3462EBvK3Tlo5fWI/exec';
+  const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
+  const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
+  const GRAPH_ITEMS = ['WTI', 'Styrene', 'Butadiene'];
+  const PARSER_PASSWORD = '0111';
+  const ITEM_ALIASES = { 'SM': 'Styrene', 'BD': 'Butadiene', 'AN': 'Acrylonitrile' };
 
-const PRODS=['WTI','Styrene','Benzene','Butadiene'];
-const PCLS={WTI:'wti',Styrene:'sm',Benzene:'bz',Butadiene:'bd'};
-const UNITS={WTI:'$/bbl',Styrene:'$/MT',Benzene:'$/MT',Butadiene:'$/MT'};
-const LABELS={WTI:'WTI Crude Oil',Styrene:'Styrene Monomer',Benzene:'Benzene',Butadiene:'Butadiene'};
-let allData={}, allDates=[], curDate='', activeTab='WTI', editMode={}, tabDone={};
+  let currentWeekData = null;
+  let detailChart = null;
+  let currentDetailItem = null;
+  let parserUnlocked = false;
 
-// ── 관리자 체크 ──
-function checkAdmin(){
-  const pw=prompt("관리자 비밀번호를 입력하세요:");
-  if(pw==="0111")return true;
-  if(pw!==null)alert("비밀번호가 올바르지 않습니다.");
-  return false;
-}
-
-// ── 아카이브 드롭다운 ──
-function toggleArc(){document.getElementById('arc-dropdown').classList.toggle('show');}
-window.addEventListener('click',function(e){
-  if(!e.target.matches('.arc-select-btn'))document.getElementById('arc-dropdown').classList.remove('show');
-});
-function buildArc(){
-  document.getElementById('arc-dropdown').innerHTML=allDates.map(d=>
-    `<div class="arc-item${d===curDate?' active':''}" onclick="selDate('${d}')"><span>${getWeekDisplay(d)}</span><span style="font-size:11px;color:#6b7280;">${d.slice(5)}</span></div>`
-  ).join('');
-}
-
-// ── 날짜 이동 ──
-function moveDate(offset){
-  const idx=allDates.indexOf(curDate);
-  const next=allDates[idx+offset];
-  if(next)selDate(next);
-}
-function selDate(d){
-  curDate=d;
-  document.getElementById('hdr-date-lbl').textContent=getWeekDisplay(d);
-  document.getElementById('main-date').textContent=getWeekDisplay(d)+' · 기준일 '+d;
-  document.getElementById('arc-selected-label').textContent=getWeekDisplay(d);
-  document.getElementById('arc-dropdown').classList.remove('show');
-  document.getElementById('grid').innerHTML=PRODS.map(p=>renderCard(p,(allData[p]||[]).find(e=>e.date===d),d)).join('');
-  buildArc();
-  buildWkTable();
-  buildMiniWkTable();
-}
-
-// ── 데이터 로드 ──
-async function loadData(){
-  try{
-    const res=await fetch(GAS+'?action=load');
-    const json=await res.json();
-    if(!json.success)throw new Error(json.message);
-    allData=json.data; allDates=json.dates;
-    buildArc();
-    if(!curDate&&allDates.length>0)curDate=allDates[0];
-    if(curDate)selDate(curDate);
-    buildWkTable();
-    buildMiniWkTable();
-  }catch(e){toast('❌ 데이터 로드 실패: '+e.message,'err');}
-}
-
-// ── 카드 렌더 ──
-function renderCard(prod,entry,date){
-  const cls=PCLS[prod];
-  if(!entry)return `<div class="p-card">
-    <div class="card-bar ${cls}"></div>
-    <div class="card-hdr"><div class="card-prod ${cls}">${prod}</div></div>
-    <div class="no-data">데이터 없음<br><button class="btn btn-primary" style="margin-top:12px;" onclick="openModal('${prod}','${date}')">+ 입력</button></div>
-  </div>`;
-  const dir=entry.direction==='상승'?'up':entry.direction==='하락'?'dn':'flt';
-  const ps=entry.changePct>=0?'+':'';
-  const as=entry.change!=null?(entry.change>=0?'+':'')+entry.change.toFixed(2)+' USD':'';
-  return `<div class="p-card">
-    <div class="card-bar ${cls}"></div>
-    <div class="card-hdr">
-      <div class="card-prod ${cls}">${prod}</div>
-      <div style="display:flex;gap:4px;">
-        <button style="border:none;cursor:pointer;background:none;font-size:18px;" onclick='openEditModal("${prod}","${date}")' title="수정">✎</button>
-        <button style="border:none;cursor:pointer;background:none;font-size:18px;color:red;" onclick="delEntry('${prod}','${date}')" title="삭제">&times;</button>
-      </div>
-    </div>
-    <div class="card-price">
-      <div class="p-val ${dir}">${entry.price.toFixed(2)}</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        <div class="d-abs ${dir}">${as}</div>
-        <div class="d-abs ${dir}" style="font-size:14px;">${ps}${entry.changePct.toFixed(2)}%</div>
-      </div>
-    </div>
-    <div><span class="dir-badge ${dir}">${entry.direction}</span></div>
-    ${entry.commentary?`<div class="section-label-box"><span class="section-label-text">Commentary</span></div>
-    <div class="section-body-text text-bold">${entry.commentary}</div>`:''}
-    ${entry.factors?`<div class="section-label-box"><span class="section-label-text">Market Factors</span></div>
-    <div class="section-body-text">${entry.factors.replace(/\n/g,'<br>')}</div>`:''}
-    ${entry.outlook?`<div class="section-label-box"><span class="section-label-text">Outlook</span></div>
-    <div class="section-body-text">${entry.outlook.replace(/\n/g,'<br>')}</div>`:''}
-  </div>`;
-}
-
-// ── 주간 테이블 ──
-// 날짜 → 'YYYY.MM.DD' 포맷 헬퍼
-function fmtD(dt){
-  return dt.getFullYear()+'.'+String(dt.getMonth()+1).padStart(2,'0')+'.'+String(dt.getDate()).padStart(2,'0');
-}
-// ISO 주차 계산
-function getISOWeek(dt){
-  const d=new Date(Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate()));
-  d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
-  const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  return'W'+String(Math.ceil((((d-yearStart)/86400000)+1)/7)).padStart(2,'0');
-}
-
-function getWeekDisplay(dateStr){
-  if(!dateStr)return '—';
-  const parts=dateStr.split('.');
-  const d=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
-  const dow=d.getDay();
-  const diffToFri=dow===6?6:(5-dow+7)%7;
-  const fri=new Date(d); fri.setDate(d.getDate()+diffToFri);
-  return `${getISOWeek(fri)} (${fri.getMonth()+1}/${fri.getDate()})`;
-}
-function toFridayDateStr(dateStr){
-  if(!dateStr)return '';
-  const parts=dateStr.split('.');
-  const d=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
-  const dow=d.getDay();
-  const diffToFri=dow===6?6:(5-dow+7)%7;
-  const fri=new Date(d); fri.setDate(d.getDate()+diffToFri);
-  return fmtD(fri);
-}
-// 선택 날짜 기준 주간 날짜 컬럼 생성: 전주금(1) + 당주 월~금(5) = 6개 평일 고정
-function getWeekColumns(dateStr){
-  const parts=dateStr.split('.');
-  const d=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
-  const dow=d.getDay(); // 0=일,1=월,...,5=금,6=토
-  // 해당 주 금요일 계산 (토=6이면 다음주 금요일)
-  const diffToFri=dow===6?6:(5-dow+7)%7;
-  const fri=new Date(d); fri.setDate(d.getDate()+diffToFri);
-  // 전주 금요일
-  const prevFri=new Date(fri); prevFri.setDate(fri.getDate()-7);
-  // 전주금 + 당주 월~금 = 6개 날짜 생성
-  const cols=[];
-  cols.push(fmtD(prevFri)); // 전주 금요일
-  // 당주 월요일 = 전주금 + 3일
-  const mon=new Date(prevFri); mon.setDate(prevFri.getDate()+3);
-  for(let i=0;i<5;i++){
-    const day=new Date(mon); day.setDate(mon.getDate()+i);
-    cols.push(fmtD(day)); // 월~금
-  }
-  return{cols, weekLabel:getISOWeek(fri), from:fmtD(prevFri), to:fmtD(fri)};
-}
-
-function buildWkTable(){
-  const thead=document.getElementById('wk-thead');
-  const tbody=document.getElementById('wk-tbody');
-  if(!thead||!tbody)return;
-
-  // 기준 날짜: curDate 없으면 allDates[0]
-  const base=curDate||allDates[0]||'';
-  let weekDates;
-  if(base){
-    const{cols,weekLabel,from,to}=getWeekColumns(base);
-    weekDates=cols; // 데이터 유무와 무관하게 6개 컬럼 고정
-    // 주간 타이틀 업데이트
-    const titleEl=document.getElementById('wk-label');
-    if(titleEl)titleEl.textContent=weekLabel+' ('+from.slice(5)+' → '+to.slice(5)+')';
-  } else {
-    weekDates=allDates.slice(0,7).reverse();
+  function getISOWeekFriday(weekStr) {
+    const m = String(weekStr || '').match(/^(\d{4})-W(\d{2})$/i);
+    if (!m) return '';
+    const year = Number(m[1]);
+    const week = Number(m[2]);
+    const jan4 = new Date(Date.UTC(year, 0, 4));
+    const day = jan4.getUTCDay() || 7;
+    const monday = new Date(jan4);
+    monday.setUTCDate(jan4.getUTCDate() - day + 1 + (week - 1) * 7);
+    const friday = new Date(monday);
+    friday.setUTCDate(monday.getUTCDate() + 4);
+    const mm = friday.getUTCMonth() + 1;
+    const dd = friday.getUTCDate();
+    return `${mm}/${dd}`;
   }
 
-  thead.innerHTML='<th>품목</th>'+weekDates.map(d=>`<th>${d.slice(5)}</th>`).join('');
-  tbody.innerHTML=PRODS.map(p=>{
-    const cells=weekDates.map(d=>{
-      const e=(allData[p]||[]).find(x=>x.date===d);
-      if(!e)return'<td style="color:#ccc;">—</td>';
-      // changePct 부호 기준으로 색상 결정: 양수=레드, 음수=블루, 0=검정
-      const dir=e.changePct>0?'up':e.changePct<0?'dn':'flt';
-      return`<td class="wt-${dir}">${e.price.toFixed(1)}<br><span style="font-size:10px;">${e.changePct>=0?'+':''}${e.changePct.toFixed(1)}%</span></td>`;
-    });
-    return`<tr><td>${p}</td>${cells.join('')}</tr>`;
-  }).join('');
-}
-
-// ── 사이드바 미니 주간 테이블 (전치: 날짜 6행 × 품목 4열) ──
-function buildMiniWkTable(){
-  const thead=document.getElementById('mini-wk-thead');
-  const tbody=document.getElementById('mini-wk-tbody');
-  if(!thead||!tbody)return;
-
-  const base=curDate||allDates[0]||'';
-  if(!base){thead.innerHTML='';tbody.innerHTML='';return;}
-
-  const{cols,weekLabel,from,to}=getWeekColumns(base);
-
-  // 타이틀 업데이트
-  const labelEl=document.getElementById('mini-wk-label');
-  if(labelEl)labelEl.textContent=weekLabel;
-
-  // 헤더: 품목명 4개
-  thead.innerHTML='<th>날짜</th>'+PRODS.map(p=>`<th>${p==='Butadiene'?'BD':p==='Styrene'?'SM':p==='Benzene'?'BZ':p}</th>`).join('');
-
-  // 바디: 날짜 6행, 각 행에 품목별 가격+변동률
-  tbody.innerHTML=cols.map(d=>{
-    const cells=PRODS.map(p=>{
-      const e=(allData[p]||[]).find(x=>x.date===d);
-      if(!e)return'<td style="color:#ccc;">—</td>';
-      const dir=e.changePct>0?'up':e.changePct<0?'dn':'flt';
-      return`<td class="wt-${dir}">${e.price.toFixed(0)}<br><span style="font-size:8px;">${e.changePct>=0?'+':''}${e.changePct.toFixed(1)}%</span></td>`;
-    });
-    // 전주금 강조 표시
-    const isFirst=d===cols[0];
-    const dateLabel=d.slice(5);
-    return`<tr${isFirst?' style="background:var(--g7);"':''}><td style="font-size:9px;${isFirst?'font-weight:900;':''}">${dateLabel}</td>${cells.join('')}</tr>`;
-  }).join('');
-}
-
-// ── 모달 ──
-function buildPanels(){
-  document.getElementById('tab-bar').innerHTML=PRODS.map(p=>
-    `<button class="m-tab${p===activeTab?' active':''}" onclick="switchTab('${p}')">${p}</button>`
-  ).join('');
-  document.getElementById('tab-panels').innerHTML=PRODS.map(p=>`
-    <div id="panel-${p}" style="display:${p===activeTab?'block':'none'}">
-      <div id="st-${p}" class="parse-status"></div>
-      <div class="pfield"><label>뉴스 텍스트 · ${LABELS[p]}</label>
-        <textarea id="ta-${p}" rows="6" placeholder="${p} 브리핑 전문 붙여넣기"></textarea></div>
-      <div class="m-grid3">
-        <div class="pfield"><label>가격 *</label><input type="number" id="f-price-${p}" step="0.01"></div>
-        <div class="pfield"><label>전일비 $</label><input type="number" id="f-change-${p}" step="0.01"></div>
-        <div class="pfield"><label>변동률 %</label><input type="number" id="f-pct-${p}" step="0.01"></div>
-      </div>
-      <div class="m-grid2">
-        <div class="pfield"><label style="color:var(--lotte);">주차 기준일 * <span style='font-weight:600;color:#6b7280;'>(금요일 기준, 예: W12 → 2026-03-13)</span></label><input type="date" id="f-date-${p}" style="border-color:var(--lotte);" onchange="syncWeekDates(this.value,'${p}')"><div style="margin-top:4px;font-size:12px;color:#6b7280;" id="f-weeklabel-${p}">—</div></div>
-        <div class="pfield"><label>시장판정</label>
-          <select id="f-dir-${p}"><option>상승</option><option>하락</option><option>보합</option></select></div>
-      </div>
-      <div class="pfield"><label>코멘터리</label><textarea id="f-co-${p}" rows="3" placeholder="자동 추출 후 수정 가능"></textarea></div>
-      <div class="pfield"><label>변동요인</label><textarea id="f-fa-${p}" rows="5" placeholder="자동 추출 후 수정 가능"></textarea></div>
-      <div class="pfield"><label>결론 및 전망</label><textarea id="f-ou-${p}" rows="2" placeholder="자동 추출 후 수정 가능"></textarea></div>
-    </div>`).join('');
-}
-
-function openModal(prod,date){
-  if(!checkAdmin())return;
-  editMode={};
-  document.getElementById('modal-title').textContent='NEW BRIEFING ENTRY';
-  document.getElementById('overlay').classList.add('open');
-  buildPanels();
-  const baseFriday=toFridayDateStr(date||curDate||fmtD(new Date())).replace(/\./g,'-');
-  PRODS.forEach(p=>{
-    document.getElementById('f-date-'+p).value=baseFriday;
-    syncWeekDates(baseFriday,p);
-  });
-  if(prod){
-    switchTab(prod);
-    const existing=(allData[prod]||[]).find(e=>e.date===baseFriday.replace(/-/g,'.'));
-    if(existing){
-      document.getElementById('modal-title').textContent='EDIT · '+prod+' · '+existing.date;
-      editMode={sheet:prod,date:existing.date};
-      fillForm(prod, existing);
-    }
+  function formatWeekLabel(weekStr) {
+    if (!weekStr || weekStr === '-') return '-';
+    const short = String(weekStr).replace(/^(\d{4})-W(\d{2})$/i, 'W$2');
+    const friday = getISOWeekFriday(weekStr);
+    return friday ? `${short} (${friday})` : String(weekStr);
   }
-}
 
-function openEditModal(prod,date){
-  if(!checkAdmin())return;
-  const entry=(allData[prod]||[]).find(e=>e.date===date);
-  if(!entry)return;
-  editMode={sheet:prod,date};
-  document.getElementById('modal-title').textContent='EDIT · '+prod+' · '+date;
-  document.getElementById('overlay').classList.add('open');
-  buildPanels();
-  switchTab(prod);
-  fillForm(prod, entry);
-}
-
-
-function fillForm(prod, entry){
-  document.getElementById('f-price-'+prod).value=entry.price ?? '';
-  document.getElementById('f-change-'+prod).value=entry.change ?? '';
-  document.getElementById('f-pct-'+prod).value=entry.changePct ?? '';
-  document.getElementById('f-date-'+prod).value=(entry.date||'').replace(/\./g,'-');
-  document.getElementById('f-dir-'+prod).value=entry.direction || '보합';
-  document.getElementById('f-co-'+prod).value=entry.commentary || '';
-  document.getElementById('f-fa-'+prod).value=entry.factors || '';
-  document.getElementById('f-ou-'+prod).value=entry.outlook || '';
-  syncWeekDates((entry.date||'').replace(/\./g,'-'), prod);
-}
-function syncWeekDates(dateValue, changedProd){
-  if(!dateValue)return;
-  const dotted=fmtDate(dateValue);
-  const friday=toFridayDateStr(dotted).replace(/\./g,'-');
-  const label=getWeekDisplay(dotted)+' · 저장키 '+toFridayDateStr(dotted);
-  const target=changedProd? [changedProd] : PRODS;
-  target.forEach(p=>{
-    const input=document.getElementById('f-date-'+p);
-    const lbl=document.getElementById('f-weeklabel-'+p);
-    if(input) input.value=friday;
-    if(lbl) lbl.textContent=label;
-  });
-}
-function closeModal(){document.getElementById('overlay').classList.remove('open');}
-function switchTab(p){
-  activeTab=p;
-  document.querySelectorAll('.m-tab').forEach(t=>t.classList.toggle('active',t.textContent===p));
-  document.querySelectorAll('[id^="panel-"]').forEach(el=>el.style.display=el.id==='panel-'+p?'block':'none');
-}
-function showSt(p,t,msg){const el=document.getElementById('st-'+p);if(el){el.textContent=msg;el.className='parse-status '+t;}}
-function updDots(){}
-function fmtDate(s){if(!s)return'';return String(s).replace(/-/g,'.');}
-
-// ── API (GET 방식) ──
-function toB64(obj){
-  const str=JSON.stringify(obj);
-  const arr=new TextEncoder().encode(str);
-  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  let b64='';
-  for(let i=0;i<arr.length;i+=3){
-    const a=arr[i],b=arr[i+1]??0,c=arr[i+2]??0;
-    b64+=chars[a>>2]+chars[((a&3)<<4)|(b>>4)]+
-      (i+1<arr.length?chars[((b&15)<<2)|(c>>6)]:'=')+
-      (i+2<arr.length?chars[c&63]:'=');
+  function refreshModalWeekLabel() {
+    const week = document.getElementById('modalWeek')?.value || '';
+    const el = document.getElementById('modalWeekLabel');
+    if (el) el.textContent = formatWeekLabel(week);
   }
-  return b64;
-}
-async function gasGet(params){
-  const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
-  const res=await fetch(GAS+'?'+qs);
-  return res.json();
-}
 
-async function doSaveCurrentTab(){
-  const p=activeTab;
-  const price=parseFloat(document.getElementById('f-price-'+p).value);
-  const date=document.getElementById('f-date-'+p).value;
-  if(!date||isNaN(price)){toast('현재 품목의 가격과 기준일을 입력하세요','err');return;}
-  const entryDate=fmtDate(date);
-  const existing=(allData[p]||[]).find(e=>e.date===entryDate);
-  const data={
-    date:entryDate,price,
-    change:(document.getElementById('f-change-'+p).value!==''?parseFloat(document.getElementById('f-change-'+p).value):null),
-    changePct:parseFloat(document.getElementById('f-pct-'+p).value)||0,
-    direction:document.getElementById('f-dir-'+p).value,
-    commentary:document.getElementById('f-co-'+p).value.trim(),
-    factors:document.getElementById('f-fa-'+p).value.trim(),
-    outlook:document.getElementById('f-ou-'+p).value.trim()
-  };
-  const payload={sheet:p,data,rowKey:existing?{date:existing.date}:null};
-  try{
-    const r=await gasGet({action:existing?'edit':'save',p:toB64(payload)});
-    if(r.success){
-      toast(`✅ ${p} 저장 완료 (${getWeekDisplay(entryDate)})`,'ok');
-      await loadData();
-      editMode={sheet:p,date:entryDate};
-    }else{
-      toast('❌ '+r.message,'err');
-    }
-  }catch(e){
-    toast('❌ '+p+' 저장 실패','err');
+  function itemHasModalInput(name) {
+    return !!(document.getElementById('modal_price_' + name) || document.getElementById('m_p_' + name));
   }
-}
-async function doSaveAll(){
-  let count=0;
-  for(const p of PRODS){
-    const price=parseFloat(document.getElementById('f-price-'+p).value);
-    const date=document.getElementById('f-date-'+p).value;
-    if(!date||isNaN(price))continue;
-    const isEdit=editMode.sheet===p;
-    const entryDate=fmtDate(date);
-    const existing=(allData[p]||[]).find(e=>e.date===entryDate);
-    const data={
-      date:entryDate,price,
-      change:(document.getElementById('f-change-'+p).value!==''?parseFloat(document.getElementById('f-change-'+p).value):null),
-      changePct:parseFloat(document.getElementById('f-pct-'+p).value)||0,
-      direction:document.getElementById('f-dir-'+p).value,
-      commentary:document.getElementById('f-co-'+p).value.trim(),
-      factors:document.getElementById('f-fa-'+p).value.trim(),
-      outlook:document.getElementById('f-ou-'+p).value.trim()
+
+  function collectItemPayloadFromModal(name) {
+    const prefix = document.getElementById('modal_price_' + name) ? 'modal_' : 'm_';
+    return {
+      price: document.getElementById(prefix + 'price_' + name)?.value ?? document.getElementById(prefix + 'p_' + name)?.value ?? '',
+      commentary: document.getElementById(prefix + 'comm_' + name)?.value ?? document.getElementById(prefix + 'c_' + name)?.value ?? '',
+      factors: document.getElementById(prefix + 'factors_' + name)?.value ?? document.getElementById(prefix + 'f_' + name)?.value ?? '',
+      outlook: document.getElementById(prefix + 'outlook_' + name)?.value ?? document.getElementById(prefix + 'o_' + name)?.value ?? '',
+      additional_info: document.getElementById(prefix + 'additional_' + name)?.value ?? document.getElementById(prefix + 'a_' + name)?.value ?? '',
+      daily_prices: GRAPH_ITEMS.includes(name) ? parseDailyPriceText(document.getElementById(prefix + 'daily_' + name)?.value ?? document.getElementById(prefix + 'd_' + name)?.value ?? '') : []
     };
-    const action=(isEdit||existing)?'edit':'save';
-    const payload={sheet:p,data,rowKey:(isEdit?{date:editMode.date}:(existing?{date:existing.date}:null))};
-    try{
-      const r=await gasGet({action,p:toB64(payload)});
-      if(r.success)count++;
-      else toast('❌ '+p+': '+r.message,'err');
-    }catch(e){toast('❌ '+p+' 저장 실패','err');}
   }
-  if(count>0){toast('✅ '+count+'개 품목 저장 완료','ok');closeModal();loadData();}
-}
-async function delEntry(prod,date){
-  if(!checkAdmin())return;
-  if(!confirm('['+prod+'] '+date+' 데이터를 삭제하시겠습니까?'))return;
-  try{
-    const r=await gasGet({action:'delete',p:toB64({sheet:prod,rowKey:{date}})});
-    if(r.success){toast('🗑 삭제 완료','ok');loadData();}
-    else toast('❌ '+r.message,'err');
-  }catch(e){toast('❌ 삭제 실패','err');}
-}
 
-// ── 파싱 ──
-// ── WTI: 일반 뉴스 기사 파싱 ──
-function parseWTI(txt){
-  const f={};let m;
-  m=txt.match(/(?:하락한|오른|밀린|내린|상승한)\s*배럴당\s*([\d.]+)달러/);if(m)f.price=parseFloat(m[1]);
-  if(!f.price){m=txt.match(/배럴당\s*([\d.]+)달러에\s*(?:거래|마감|체결)/);if(m)f.price=parseFloat(m[1]);}
-  if(!f.price){m=txt.match(/(?:오른|밀린|하락한|상승한|내린)\s*([\d.]+)달러에\s*(?:마감|거래|체결)/);if(m)f.price=parseFloat(m[1]);}
-  m=txt.match(/([\d.]+)달러\(([\d.]+)%\)\s*(?:하락|내린|밀린|떨어진)/);
-  if(m){f.change=-parseFloat(m[1]);f.pct=-parseFloat(m[2]);}
-  if(!f.change){m=txt.match(/([\d.]+)달러\(([\d.]+)%\)\s*(?:상승|오른|올라)/);if(m){f.change=parseFloat(m[1]);f.pct=parseFloat(m[2]);}}
-  if(!f.pct){m=txt.match(/([\d.]+)%\s*(하락|상승)/);if(m)f.pct=m[2]==='하락'?-parseFloat(m[1]):parseFloat(m[1]);}
-  if(!f.change&&f.price&&f.pct){const prev=f.price/(1+f.pct/100);f.change=parseFloat((f.price-prev).toFixed(2));}
-  // 날짜 파싱
-  let aY=null,aMo=null;
-  const ymM=txt.match(/(\d{4})[년.\-\/]\s*(\d{1,2})[월.\-\/]/);
-  if(ymM){aY=parseInt(ymM[1]);aMo=parseInt(ymM[2]);}
-  const trM=txt.match(/(\d{1,2})일\s+(?:소폭\s*)?(?:하락|상승|마감|거래|체결)/);
-  if(trM&&aY&&aMo){f.dateStr=`${aY}-${String(aMo).padStart(2,'0')}-${String(parseInt(trM[1])).padStart(2,'0')}`;}
-  else{
-    const lcM=txt.match(/(\d{1,2})일\s*\(현지시간\)/);
-    if(lcM&&aY&&aMo){
-      let day=parseInt(lcM[1])+1,mo=aMo,yr=aY;const mx=new Date(yr,mo,0).getDate();
-      if(day>mx){day=1;mo=mo%12+1;if(mo===1)yr++;}
-      f.dateStr=`${yr}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    }else{
-      const fdM=txt.match(/(\d{4})[年년.\-\/]\s*(\d{1,2})[月월.\-\/]\s*(\d{1,2})/);
-      if(fdM)f.dateStr=`${fdM[1]}-${fdM[2].padStart(2,'0')}-${fdM[3].padStart(2,'0')}`;
+  function hasAnyMeaningfulValue(item) {
+    return !!(String(item.price ?? '').trim() || String(item.commentary ?? '').trim() || String(item.factors ?? '').trim() || String(item.outlook ?? '').trim() || String(item.additional_info ?? '').trim() || (Array.isArray(item.daily_prices) && item.daily_prices.length));
+  }
+
+  async function fetchWeekBaseData(week) {
+    if (currentWeekData?.week === week) return normalizeWeekData(currentWeekData);
+    const res = await callGAS('getData', { week });
+    if (res && res.success) return normalizeWeekData(res);
+    return normalizeWeekData({ week, items: {} });
+  }
+
+  async function saveSelectedItemFromModal() {
+    const week = document.getElementById('modalWeek')?.value?.trim();
+    const item = document.getElementById('parseTargetItem')?.value?.trim();
+    if (!week || !item) { showToast('주차와 품목을 먼저 확인해 주세요.'); return; }
+    const payload = collectItemPayloadFromModal(item);
+    if (!hasAnyMeaningfulValue(payload)) { showToast('저장할 내용이 없습니다.'); return; }
+    showToast(`💾 ${formatWeekLabel(week)} / ${item} 저장 중...`);
+    const res = await callGAS('updateItemData', { week, item, ...payload });
+    if (res.success) {
+      showToast(`✅ ${item} 저장 완료`);
+      closeModal();
+      await loadWeekList();
+      const sel = document.getElementById('weekSelector');
+      if (sel) sel.value = week;
+      await loadWeekData(week);
+    } else {
+      showToast('⚠️ 저장 실패');
     }
   }
-  // WTI 코멘터리: 자동생성
-  if(f.price&&f.pct!=null){
-    const ps=f.pct>=0?'+':'';const as=f.change!=null?`${f.change>=0?'+':''}${f.change.toFixed(2)} USD, `:'';
-    const dir=(f.pct||0)>0?'상승':(f.pct||0)<0?'하락':'보합';
-    f.commentary=`WTI는 ${as}${ps}${f.pct.toFixed(2)}% 변동하여 배럴당 $${f.price.toFixed(2)}에 ${dir} 마감했다.`;
-  }
-  // WTI 변동요인/전망: 뉴스 기사 추출
-  const dir=(f.pct||0)>0?'상승':(f.pct||0)<0?'하락':'보합';
-  f.factors=extractFactors(txt,dir);
-  f.outlook=extractOutlook(txt);
-  return f;
-}
 
-// ── SM/BZ/BD: 구조화된 브리핑 양식 파싱 ──
-// 양식: "1. 가격" / "2. 코멘터리" / "3. 변동요인" / "4. 결론 및 전망"
-function parseBriefing(txt, prod){
-  const f={};
+  document.addEventListener('DOMContentLoaded', () => {
+    buildModalRows();
+    bindOverlayClose();
+    loadWeekList();
+  });
 
-  // ** 마크다운 볼드 제거 (있든 없든 동일하게 파싱)
-  txt=txt.replace(/\*\*/g,'');
-
-  // 날짜: 본문 어디에 있든 YYYY-MM-DD / YYYY.MM.DD / YYYY/MM/DD 허용
-  const dm=txt.match(/(\d{4})[.\/-](\d{1,2})[.\/-](\d{1,2})/);
-  if(dm)f.dateStr=dm[1]+'-'+dm[2].padStart(2,'0')+'-'+dm[3].padStart(2,'0');
-
-  // 라인 배열 (빈 줄 제거)
-  const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
-
-  // 섹션 추출: 소제목 키워드 포함 라인 다음부터 다음 "N." 시작 전까지
-  function getSection(keyword){
-    const si=lines.findIndex(l=>l.includes(keyword));
-    if(si<0)return[];
-    const result=[];
-    const stopWords=['결론 및 전망','기타 추가 정보','전문가 코멘트'];
-    for(let i=si+1;i<lines.length;i++){
-      if(/^\d+\./.test(lines[i]))break;
-      if(stopWords.some(sw=>lines[i].includes(sw)))break;
-      result.push(lines[i]);
+  async function callGAS(action, payload) {
+    try {
+      const isPost = ['saveEntry', 'updateItemData'].includes(action);
+      const fetchUrl = isPost ? GAS_URL : GAS_URL + '?data=' + encodeURIComponent(JSON.stringify({action, ...payload}));
+      const fetchOptions = {
+        method: isPost ? 'POST' : 'GET',
+        headers: { 'Content-Type': 'text/plain' },
+        body: isPost ? JSON.stringify({action, ...payload}) : null,
+        redirect: 'follow'
+      };
+      const res = await fetch(fetchUrl, fetchOptions);
+      return await res.json();
+    } catch (e) {
+      console.error(e);
+      showToast('⚠️ 서버 연결 실패');
+      return {success:false};
     }
-    return result;
   }
 
-  function getBullets(sectionLines){
-    return sectionLines
-      .filter(l=>l.startsWith('*') || l.startsWith('•') || l.startsWith('-'))
-      .map(l=>l.replace(/^[*•\-]\s*/,'').trim())
-      .filter(l=>l.length>0);
+
+  function bindOverlayClose() {
+    ['modalOverlay', 'detailOverlay'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('click', (e) => { if (e.target === el) el.classList.remove('active'); });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeDetailModal();
+      }
+    });
   }
 
-  // ── 1. 가격 파싱 ──
-  const sec1=getSection('가격');
-  const productKeywords={
-    WTI:['WTI','NYMEX'],
-    Styrene:['CFR China','Styrene','SM'],
-    Benzene:['FOB Korea','Benzene','BZ'],
-    Butadiene:['CFR China','CFR NEA','Butadiene','BD']
-  };
-  const keys=productKeywords[prod]||[prod];
-  const priceLine=sec1.find(l=>keys.some(k=>l.includes(k))) || sec1[0] || '';
-
-  if(priceLine){
-    // 가격: $972.00/mt, $1,270/mt, $65.42/bbl, $65.42/b 모두 허용
-    const pm=priceLine.match(/\$\s*([\d,]+(?:\.\d+)?)\s*\/(?:mt|bbl|b)\b/i);
-    if(pm)f.price=parseFloat(pm[1].replace(/,/g,''));
-
-    // 전일비: 전일대비 +$3.00 / -$0.21 / 0 / +3.00 모두 허용
-    let chgM=priceLine.match(/전일\s*대비\s*([+-])\s*\$?\s*([\d.]+)/);
-    if(chgM){
-      f.change=(chgM[1]==='-'?-1:1)*parseFloat(chgM[2]);
+  async function loadWeekList() {
+    const res = await callGAS('getWeekList', {});
+    if (res.success && res.weeks && res.weeks.length > 0) {
+      const sel = document.getElementById('weekSelector');
+      sel.innerHTML = res.weeks.map(w => `<option value="${w}">${formatWeekLabel(w)}</option>`).join('');
+      loadWeekData(res.weeks[0]);
+    } else {
+      const sel = document.getElementById('weekSelector');
+      sel.innerHTML = '<option value=>데이터 없음</option>';
+      renderMainUI({ week: '-', items: {} });
+      showToast('초기 데이터가 없으면 NEW로 첫 주차를 저장하세요.');
     }
-    if(f.change==null){
-      chgM=priceLine.match(/전일\s*대비\s*(?:\$\s*)?([+-]?\d+(?:\.\d+)?)(?:\s*\/|[,\s]|$)/);
-      if(chgM){
-        f.change=parseFloat(chgM[1]);
+  }
+
+  async function loadWeekData(week) {
+    const res = await callGAS('getData', {week});
+    if (res.success) {
+      currentWeekData = normalizeWeekData(res);
+      renderMainUI(currentWeekData);
+    }
+  }
+
+  function normalizeWeekData(data) {
+    const normalized = {...data, items: {...(data.items || {})}};
+    ITEMS.forEach(name => {
+      const d = normalized.items[name] || {};
+      normalized.items[name] = {
+        price: d.price ?? '',
+        commentary: d.commentary ?? d.comment ?? '',
+        change_abs: safeNumber(d.change_abs),
+        change_pct: safeNumber(d.change_pct),
+        factors: d.factors ?? d.변동요인 ?? '',
+        outlook: d.outlook ?? d['결론및전망'] ?? d['결론 및 전망'] ?? '',
+        additional_info: d.additional_info ?? d['추가정보'] ?? '',
+        daily_prices: normalizeDailyPrices(d.daily_prices ?? d.dailyPrice ?? d.daily_data ?? []),
+      };
+    });
+    return normalized;
+  }
+
+  function normalizeDailyPrices(raw) {
+    if (!raw) return [];
+    if (typeof raw === 'string') {
+      try { raw = JSON.parse(raw); }
+      catch (_) {
+        const lines = raw.split(/\n+/).map(v => v.trim()).filter(Boolean);
+        return lines.map(line => {
+          const parts = line.split(/[,:|]/).map(v => v.trim());
+          if (parts.length >= 2 && !isNaN(Number(parts[1]))) return {date: parts[0], price: Number(parts[1])};
+          return null;
+        }).filter(Boolean);
       }
     }
-
-    // 변동률 직접 표기 허용: (+1.23%), -0.55%, 0%
-    const pctM=priceLine.match(/([+-]?\d+(?:\.\d+)?)%/);
-    if(pctM)f.pct=parseFloat(pctM[1]);
-
-    // 방향: 텍스트 명시 우선, 없으면 수치 기준
-    const dirM=priceLine.match(/(상승|하락|보합)/);
-    if(dirM)f.dir=dirM[1];
+    if (Array.isArray(raw)) {
+      return raw.map(item => {
+        if (Array.isArray(item) && item.length >= 2) return {date: item[0], price: safeNumber(item[1])};
+        if (typeof item === 'object' && item) return {date: item.date ?? item.day ?? item.label ?? '', price: safeNumber(item.price ?? item.value ?? item.close)};
+        return null;
+      }).filter(v => v && v.date !== '' && !isNaN(v.price));
+    }
+    return [];
   }
 
-  // 변동률 계산
-  if(f.pct==null && f.price!=null && f.change!=null){
-    f.pct=f.change===0?0:parseFloat((f.change/(f.price-f.change)*100).toFixed(2));
-  }
-  if(!f.dir)f.dir=(f.change||0)===0?'보합':(f.pct||0)>0?'상승':'하락';
-
-  // ── 2. 코멘터리 ──
-  const b2=getBullets(getSection('코멘터리'));
-  if(b2.length>0)f.commentary=b2[0];
-  else if(f.price!=null){
-    const ps=(f.pct||0)>=0?'+':'';
-    const label=prod==='WTI'?'(NYMEX)':prod==='Benzene'?'(FOB Korea)':prod==='Butadiene'?'(CFR China / NEA)':'(CFR China)';
-    const unit=prod==='WTI'?'배럴당':'톤당';
-    f.commentary=prod+label+'는 '+ps+(f.pct||0).toFixed(2)+'% 변동하여 '+unit+' $'+f.price.toFixed(2)+'에 '+f.dir+' 마감했다.';
+  function safeNumber(value) {
+    const n = parseFloat(value);
+    return isNaN(n) ? 0 : n;
   }
 
-  // ── 3. 변동요인 (오타 "변둉요인"도 포함) ──
-  let b3=getBullets(getSection('변동요인'));
-  if(b3.length===0)b3=getBullets(getSection('변둉요인'));
-  if(b3.length>0)f.factors=b3.join('\n');
+  function renderMainUI(data) {
+    let html = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px; gap:10px; flex-wrap:wrap;">
+        <h2 style="font-size:24px; color:#333;">Weekly Chemical Market Report</h2>
+        <span style="font-weight:700; color:#666;">Week: ${formatWeekLabel(data.week || '-')}</span>
+      </div>`;
 
-  // ── 4. 결론 및 전망 ──
-  const b4=getBullets(getSection('결론 및 전망'));
-  if(b4.length>0)f.outlook=b4[0];
+    ITEMS.forEach(name => {
+      const d = data.items[name] || {};
+      const abs = safeNumber(d.change_abs);
+      const pct = safeNumber(d.change_pct);
+      const sign = abs > 0 ? '▲' : (abs < 0 ? '▼' : '-');
+      const cls = abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none');
+      html += `
+        <div class="item-card">
+          <div class="item-name">${name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name}</div>
+          <div class="item-price price-${cls}">${d.price || '-'}<small>(${UNITS[name]})</small></div>
+          <div class="item-change change-${cls}">${sign} ${Math.abs(abs).toFixed(1)} (${pct.toFixed(1)}%)</div>
+          <div class="item-comm">${escapeHtml(d.commentary || '분석 코멘터리가 없습니다.')}</div>
+          <div class="item-actions">
+            <button class="btn-detail" onclick="openDetailModal('${name}')">상세 정보 보기</button>
+            <button class="btn-edit" onclick="quickEdit('${name}')">수정</button>
+          </div>
+        </div>`;
+    });
 
-  return f;
-}
-
-
-function doParse(){
-  const p=activeTab,txt=(document.getElementById('ta-'+p)||{}).value?.trim();
-  if(!txt){showSt(p,'warn','텍스트 없음 — 수동 입력 모드');return;}
-
-  // 제품별 파싱 분기
-  const f=parseBriefing(txt,p);
-
-  // 공통 필드 적용
-  if(f.dateStr)document.getElementById(`f-date-${p}`).value=f.dateStr;
-  const dir=f.dir||(((f.pct||0)>0)?'상승':((f.pct||0)<0)?'하락':'보합');
-  document.getElementById(`f-dir-${p}`).value=dir;
-  if(f.price)document.getElementById(`f-price-${p}`).value=f.price.toFixed(2);
-  if(f.change!=null)document.getElementById(`f-change-${p}`).value=f.change.toFixed(2);
-  if(f.pct!=null)document.getElementById(`f-pct-${p}`).value=f.pct.toFixed(2);
-  if(f.commentary)document.getElementById(`f-co-${p}`).value=f.commentary;
-  if(f.factors)document.getElementById(`f-fa-${p}`).value=f.factors;
-  if(f.outlook)document.getElementById(`f-ou-${p}`).value=f.outlook;
-
-  tabDone[p]=true;updDots();
-  const ok=f.price&&f.pct!=null;
-  const saveDate=document.getElementById(`f-date-${p}`).value;
-  syncWeekDates(saveDate,p);
-  showSt(p,ok?'ok':'warn',ok
-    ?`✓ ${p} $${(f.price||0).toFixed(2)} (${(f.pct||0)>=0?'+':''}${(f.pct||0).toFixed(2)}%) ${dir} · ${getWeekDisplay(fmtDate(saveDate))}`
-    :'수치 일부 파싱 실패 — 수동 확인');
-}
-function splitSents(txt){
-  return txt.split(/(?<=[다습니다까요었다]\.)\s+|(?<=다\.\s)|(?<=\n)/)
-    .map(s=>s.trim()).filter(s=>s.length>10&&s.length<250);
-}
-function trimSent(s,max=120){
-  if(!s)return'';
-  s=s.replace(/^[^가-힣a-zA-Z$\d"]+/,'').trim();
-  if(s.length<=max)return s;
-  const cut=s.lastIndexOf(' ',max);
-  return(cut>50?s.slice(0,cut):s.slice(0,max))+'…';
-}
-function extractFactors(txt,dir){
-  const ss=splitSents(txt);
-  // 하락요인: OPEC증산, 재고증가, 이란합의, 달러강세, 경기침체 등
-  const bearKw=['증산','재고 증가','이란','합의','달러 강세','경기침체','수요 감소','공급 과잉'];
-  // 상승요인: 감산, 재고감소, 중동긴장, 달러약세, 호르무즈 등
-  const bullKw=['감산','재고 감소','중동','항모','호르무즈','달러 약세','저가 매수','수요 증가'];
-  const kws=dir==='하락'?bearKw:dir==='상승'?bullKw:[...bearKw,...bullKw];
-  const found=[];
-  for(const kw of kws){
-    const s=ss.find(x=>x.includes(kw)&&!found.includes(x));
-    if(s&&found.length<2)found.push(trimSent(s,100));
+    document.getElementById('reportContent').innerHTML = html;
   }
-  return found.join(' / ');
-}
-function extractOutlook(txt){
-  const ss=splitSents(txt);
-  const pp=[
-    /전망이다/,/예상된다/,/보일 것/,/것으로 보인다/,/것으로 예상/,
-    /할 것이라/,/될 것으로/,/이어질 것/,/지속될/,/주목된다/,
-    /향후/,/앞으로/
-  ];
-  for(const p of pp){
-    const s=ss.find(x=>p.test(x));
-    if(s)return trimSent(s,120);
+
+  function openDetailModal(name) {
+    if (!currentWeekData || !currentWeekData.items[name]) return;
+    currentDetailItem = name;
+    const d = currentWeekData.items[name];
+    const abs = safeNumber(d.change_abs);
+    const pct = safeNumber(d.change_pct);
+    const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name;
+
+    document.getElementById('detailTitle').textContent = `${displayName} 상세 정보`;
+    document.getElementById('detailWeek').textContent = `기준 주차: ${formatWeekLabel(currentWeekData.week || '-')}`;
+    document.getElementById('detailFactors').textContent = d.factors || '입력된 변동요인이 없습니다.';
+    document.getElementById('detailOutlook').textContent = d.outlook || '입력된 결론 및 전망이 없습니다.';
+    document.getElementById('detailAdditional').textContent = d.additional_info || '입력된 추가정보가 없습니다.';
+
+    document.getElementById('detailMeta').innerHTML = `
+      <div class="meta-chip">가격: ${d.price || '-'} ${UNITS[name]}</div>
+      <div class="meta-chip">변동폭: ${abs > 0 ? '+' : abs < 0 ? '' : ''}${abs.toFixed(1)}</div>
+      <div class="meta-chip">변동률: ${pct.toFixed(1)}%</div>`;
+
+    const hasChart = GRAPH_ITEMS.includes(name);
+    const chartSection = document.getElementById('detailChartSection');
+    const noChart = document.getElementById('detailNoChart');
+
+    if (hasChart) {
+      chartSection.style.display = 'block';
+      noChart.style.display = 'none';
+      renderDetailChart(name, d.daily_prices || []);
+    } else {
+      chartSection.style.display = 'none';
+      noChart.style.display = 'block';
+      destroyDetailChart();
+    }
+    document.getElementById('detailOverlay').classList.add('active');
   }
-  // 마지막 문장 fallback
-  if(ss.length>0)return trimSent(ss[ss.length-1],120);
-  return null;
-}
+
+  function renderDetailChart(name, dailyPrices) {
+    const tbody = document.getElementById('detailPriceTableBody');
+    const graphType = document.getElementById('detailGraphType').value;
+    const rows = dailyPrices && dailyPrices.length ? dailyPrices : buildFallbackDailySeries(name);
+
+    tbody.innerHTML = rows.map(row => `\n<tr><td>${escapeHtml(String(row.date))}</td><td>${formatPrice(row.price)}</td></tr>`).join('');
+
+    const ctx = document.getElementById('detailChartCanvas').getContext('2d');
+    destroyDetailChart();
+
+    detailChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: rows.map(r => r.date),
+        datasets: [{
+          label: `${name} Daily Price`,
+          data: rows.map(r => r.price),
+          borderWidth: 3,
+          tension: graphType === 'curve' ? 0.35 : 0,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            align: 'top',
+            anchor: 'end',
+            color: '#333',
+            formatter: (value) => formatPrice(value),
+            font: { weight: '700', size: 11 }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.label}: ${formatPrice(context.parsed.y)} ${UNITS[name]}`
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#555', font: { weight: '700' } } },
+          y: {
+            ticks: { color: '#555', callback: (value) => formatPrice(value) },
+            title: { display: true, text: UNITS[name], color: '#444', font: { weight: '700' } }
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+  }
+
+  function buildFallbackDailySeries(name) {
+    const base = safeNumber(currentWeekData?.items?.[name]?.price || 0);
+    if (!base) return [];
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+    return labels.map((day, idx) => ({ date: day, price: +(base + (idx - 2) * 0.6).toFixed(2) }));
+  }
+
+  function destroyDetailChart() {
+    if (detailChart) {
+      detailChart.destroy();
+      detailChart = null;
+    }
+  }
+
+  function changeDetailGraphType() {
+    if (!currentDetailItem) return;
+    const d = currentWeekData.items[currentDetailItem] || {};
+    renderDetailChart(currentDetailItem, d.daily_prices || []);
+  }
+
+  function closeDetailModal() {
+    document.getElementById('detailOverlay').classList.remove('active');
+    destroyDetailChart();
+    currentDetailItem = null;
+  }
+
+  function quickEdit(name) {
+    const d = currentWeekData?.items?.[name] || {};
+    document.getElementById('modalTitle').textContent = `✏️ [${name}] 데이터 통합 수정`;
+    document.getElementById('smartParserSection').style.display = 'none';
+    document.getElementById('modalWeek').value = currentWeekData.week || '';
+    refreshModalWeekLabel();
+    document.getElementById('modalItemRows').innerHTML = buildSingleItemEditor(name, d);
+    const submitBtn = document.getElementById('modalSubmitBtn');
+    submitBtn.onclick = () => processUpdate(name);
+    submitBtn.textContent = '적용하기';
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function buildSingleItemEditor(name, d) {
+    return `
+      <div class="modal-grid">
+        <div class="modal-label">${name}</div>
+        <input type="number" step="0.01" id="m_p_${name}" class="modal-input" value="${escapeAttr(d.price || '')}" placeholder="가격">
+        <input type="text" id="m_c_${name}" class="modal-input" value="${escapeAttr(d.commentary || '')}" placeholder="코멘터리">
+      </div>
+      <div class="modal-stack">
+        <div class="section-label">변동요인</div>
+        <textarea id="m_f_${name}" class="modal-textarea" placeholder="변동요인 입력">${escapeHtml(d.factors || '')}</textarea>
+      </div>
+      <div class="modal-stack">
+        <div class="section-label">결론/전망</div>
+        <textarea id="m_o_${name}" class="modal-textarea" placeholder="결론 및 전망 입력">${escapeHtml(d.outlook || '')}</textarea>
+      </div>
+      <div class="modal-stack">
+        <div class="section-label">추가정보</div>
+        <textarea id="m_a_${name}" class="modal-textarea" placeholder="추가정보 입력">${escapeHtml(d.additional_info || '')}</textarea>
+      </div>
+      ${GRAPH_ITEMS.includes(name) ? `
+      <div class="modal-stack">
+        <div class="section-label">데일리가격</div>
+        <textarea id="m_d_${name}" class="modal-textarea" placeholder="예: 03/10,90.1&#10;03/11,90.8&#10;03/12,91.4">${escapeHtml(formatDailyPricesForTextarea(d.daily_prices || []))}</textarea>
+      </div>` : ''}
+    `;
+  }
+
+  async function processUpdate(name) {
+    const payload = {
+      week: currentWeekData.week,
+      item: name,
+      price: document.getElementById('m_p_' + name)?.value || '',
+      commentary: document.getElementById('m_c_' + name)?.value || '',
+      factors: document.getElementById('m_f_' + name)?.value || '',
+      outlook: document.getElementById('m_o_' + name)?.value || '',
+      additional_info: document.getElementById('m_a_' + name)?.value || '',
+      daily_prices: parseDailyPriceText(document.getElementById('m_d_' + name)?.value || '')
+    };
+
+    showToast(`💾 ${name} 업데이트 중...`);
+    const res = await callGAS('updateItemData', payload);
+    if (res.success) {
+      showToast('✅ 수정 완료');
+      closeModal();
+      loadWeekData(currentWeekData.week);
+    } else {
+      showToast('⚠️ 저장 실패');
+    }
+  }
+
+  async function saveEntry() {
+    const week = (document.getElementById('modalWeek').value || '').trim();
+    if (!week) { showToast('주차를 입력해 주세요.'); return; }
+
+    const baseData = await fetchWeekBaseData(week);
+    const mergedItems = {...(baseData.items || {})};
+
+    ITEMS.forEach(n => {
+      const inputExists = itemHasModalInput(n);
+      if (!inputExists) return;
+      const payload = collectItemPayloadFromModal(n);
+      if (!hasAnyMeaningfulValue(payload)) return;
+      mergedItems[n] = { ...(mergedItems[n] || {}), ...payload };
+    });
+
+    showToast(`💾 ${formatWeekLabel(week)} 저장 중...`);
+    const res = await callGAS('saveEntry', { data: { week, items: mergedItems } });
+    if(res.success) {
+      showToast('✅ 저장 완료');
+      closeModal();
+      await loadWeekList();
+      const sel = document.getElementById('weekSelector');
+      if (sel) sel.value = week;
+      await loadWeekData(week);
+    } else {
+      showToast('⚠️ 저장 실패');
+    }
+  }
 
 
-// ── 유틸 ──
-function toast(m,t){
-  const e=document.getElementById('toast');
-  e.textContent=m;e.className='show';
-  e.style.background=t==='ok'?'#065F46':'#991B1B';
-  setTimeout(()=>e.className='',3000);
-}
-function dlImage(){
-  // 임시로 grid를 4컬럼 가로 레이아웃으로 강제 후 캡처
-  const el=document.getElementById('grid');
-  const origStyle=el.style.cssText;
-  el.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:16px;width:1400px;';
-  html2canvas(el,{backgroundColor:'#f9fafb',scale:2,width:1432,windowWidth:1600}).then(canvas=>{
-    el.style.cssText=origStyle;
-    const a=document.createElement('a');a.href=canvas.toDataURL();
-    a.download='DailyBrief_'+curDate+'.png';a.click();
-  }).catch(()=>el.style.cssText=origStyle);
-}
-function copyMsg(){
-  if(!curDate){toast('날짜를 먼저 선택하세요','err');return;}
-  const lines=PRODS.map(p=>{
-    const e=(allData[p]||[]).find(x=>x.date===curDate);
-    if(!e)return null;
-    const arr=e.direction==='상승'?'▲':e.direction==='하락'?'▼':'━';
-    return `[${p}] $${e.price.toFixed(2)} ${arr}${(e.changePct>=0?'+':'')+e.changePct.toFixed(2)}%`;
-  }).filter(Boolean);
-  navigator.clipboard.writeText(curDate+'\n'+lines.join('\n')).then(()=>toast('✅ 클립보드 복사 완료','ok'));
-}
+  function setParserLockState(isUnlocked) {
+    parserUnlocked = !!isUnlocked;
+    const pw = document.getElementById('parserPassword');
+    const ta = document.getElementById('smartInput');
+    const status = document.getElementById('parserLockStatus');
+    const target = document.getElementById('parseTargetItem');
+    const applyBtn = document.getElementById('parseApplyBtn');
+    const saveBtn = document.getElementById('parseSaveBtn');
+    if (ta) ta.disabled = !parserUnlocked;
+    if (target) target.disabled = !parserUnlocked;
+    if (applyBtn) applyBtn.disabled = !parserUnlocked;
+    if (saveBtn) saveBtn.disabled = !parserUnlocked;
+    if (pw) pw.disabled = parserUnlocked;
+    if (status) {
+      status.textContent = parserUnlocked ? '🔓 잠금 해제됨' : '🔒 잠금 상태';
+      status.style.color = parserUnlocked ? '#1e8449' : '#c0392b';
+    }
+  }
 
-loadData();
+  function unlockParser() {
+    const pw = document.getElementById('parserPassword')?.value || '';
+    if (pw !== PARSER_PASSWORD) {
+      showToast('⛔ 파싱 비밀번호가 올바르지 않습니다.');
+      setParserLockState(false);
+      return;
+    }
+    setParserLockState(true);
+    showToast('🔓 스마트 파싱이 활성화되었습니다.');
+    parseSmartText();
+  }
+
+  function normalizeMultilineSection(text) {
+    return (text || '')
+      .replace(/\r/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  function stripFlowSectionFromCommentary(text) {
+    return normalizeMultilineSection((text || '')
+      .replace(/주중\s*흐름[\s\S]*?(?=\n\s*(?:3\.|변동요인)|$)/i, '')
+      .replace(/^\s*\d{1,2}\/\d{1,2}\s*:\s*[^\n]+$/gm, '')
+    );
+  }
+
+  function extractDailyPrices(content) {
+    const rows = [];
+    const seen = new Set();
+    const regex = /(\d{1,2}\/\d{1,2})\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/g;
+    let match;
+    while ((match = regex.exec(content || '')) !== null) {
+      const date = match[1].trim();
+      const price = parseFloat(match[2].replace(/,/g, ''));
+      if (!isNaN(price) && !seen.has(date)) {
+        seen.add(date);
+        rows.push({ date, price });
+      }
+    }
+    return rows;
+  }
+
+  function extractPriceNumber(content) {
+    const patterns = [
+      /금주\s*가격\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/i,
+      /(?:CFR\s+China\s+Spot|CIF\s+India\s+Spot|FOB\s+Korea\s+S\s+Cost\s+Spot)\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/i,
+      /1\.\s*가격[\s\S]*?([\d,]+(?:\.\d+)?)/i
+    ];
+    for (const re of patterns) {
+      const m = (content || '').match(re);
+      if (m) return m[1].replace(/,/g, '');
+    }
+    return '';
+  }
+
+
+  function cleanParserText(text) {
+    return (text || '')
+      .replace(/\r/g, '')
+      .replace(/^\s*#+\s*/gm, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/^\s*[-*]\s+/gm, '')
+      .trim();
+  }
+
+  function normalizeSectionBody(text) {
+    return normalizeMultilineSection((text || '')
+      .replace(/^\s*[-*]\s+/gm, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+    );
+  }
+
+  function getParsedSections(content) {
+    const cleaned = cleanParserText(content);
+    const priceValue = extractPriceNumber(cleaned);
+    const commMatch = cleaned.match(/2\.\s*코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\s*3\.|$)/i);
+    const factorsMatch = cleaned.match(/3\.\s*변동요인\s*[\r\n]+([\s\S]+?)(?=\n\s*4\.|$)/i);
+    const outlookMatch = cleaned.match(/4\.\s*(?:결론\s*및\s*전망|결론및전망|전망)\s*[\r\n]+([\s\S]+?)(?=\n\s*5\.|$)/i);
+    const addMatch = cleaned.match(/5\.\s*(?:기타\s*추가\s*정보|기타추가정보|추가\s*정보|추가정보)\s*[\r\n]+([\s\S]+?)(?=\n\s*6\.|$)/i);
+    return {
+      priceValue,
+      commentary: commMatch ? stripFlowSectionFromCommentary(normalizeSectionBody(commMatch[1])) : '',
+      factors: factorsMatch ? normalizeSectionBody(factorsMatch[1]) : '',
+      outlook: outlookMatch ? normalizeSectionBody(outlookMatch[1]) : '',
+      additional: addMatch ? normalizeSectionBody(addMatch[1]) : '',
+      dailyRows: extractDailyPrices(cleaned)
+    };
+  }
+
+  function parseSelectedSmartText() {
+    if (!parserUnlocked) return;
+    const target = document.getElementById('parseTargetItem')?.value || '';
+    const text = document.getElementById('smartInput')?.value || '';
+    if (!target) {
+      showToast('먼저 파싱할 품목을 선택해 주세요.');
+      return;
+    }
+    if (!text.trim()) {
+      showToast('파싱할 텍스트를 붙여넣어 주세요.');
+      return;
+    }
+
+    const parsed = getParsedSections(text);
+    let filled = 0;
+
+    if (parsed.priceValue) {
+      document.getElementById('modal_price_' + target).value = parsed.priceValue;
+      filled++;
+    }
+    if (parsed.commentary) {
+      document.getElementById('modal_comm_' + target).value = parsed.commentary;
+      filled++;
+    }
+    if (parsed.factors) {
+      document.getElementById('modal_factors_' + target).value = parsed.factors;
+      filled++;
+    }
+    if (parsed.outlook) {
+      document.getElementById('modal_outlook_' + target).value = parsed.outlook;
+      filled++;
+    }
+    if (parsed.additional) {
+      document.getElementById('modal_additional_' + target).value = parsed.additional;
+      filled++;
+    }
+    if (GRAPH_ITEMS.includes(target) && parsed.dailyRows.length) {
+      document.getElementById('modal_daily_' + target).value = formatDailyPricesForTextarea(parsed.dailyRows);
+      filled++;
+    }
+
+    if (filled) {
+      showToast(`✅ ${target === 'Styrene' ? 'SM' : target === 'Acrylonitrile' ? 'AN' : target === 'Butadiene' ? 'BD' : target} 파싱 반영 완료`);
+    } else {
+      showToast('⚠️ 형식을 찾지 못했습니다. 텍스트 구성을 확인해 주세요.');
+    }
+  }
+
+  function parseSmartText() {
+    parseSelectedSmartText();
+  }
+
+  function toCanonicalItemName(rawName) {
+    const key = (rawName || '').trim().toLowerCase();
+    if (key === 'wti') return 'WTI';
+    if (key === 'styrene' || key === 'styrene monomer' || key === 'sm') return 'Styrene';
+    if (key === 'acrylonitrile' || key === 'an') return 'Acrylonitrile';
+    if (key === 'butadiene' || key === 'bd') return 'Butadiene';
+    if (key === 'bpa') return 'BPA';
+    if (key === 'mma') return 'MMA';
+    return rawName;
+  }
+
+  function buildModalRows() {
+    const html = ITEMS.map(n => `
+      <div class="modal-subtitle">${n}</div>
+      <div class="modal-grid">
+        <div class="modal-label">${n}</div>
+        <input type="number" step="0.01" id="modal_price_${n}" class="modal-input" placeholder="가격">
+        <input type="text" id="modal_comm_${n}" class="modal-input" placeholder="코멘터리">
+      </div>
+      <div class="modal-stack">
+        <div class="section-label">변동요인</div>
+        <textarea id="modal_factors_${n}" class="modal-textarea" placeholder="변동요인 입력"></textarea>
+      </div>
+      <div class="modal-stack">
+        <div class="section-label">결론/전망</div>
+        <textarea id="modal_outlook_${n}" class="modal-textarea" placeholder="결론 및 전망 입력"></textarea>
+      </div>
+      <div class="modal-stack">
+        <div class="section-label">추가정보</div>
+        <textarea id="modal_additional_${n}" class="modal-textarea" placeholder="추가정보 입력"></textarea>
+      </div>
+      ${GRAPH_ITEMS.includes(n) ? `
+      <div class="modal-stack">
+        <div class="section-label">데일리가격</div>
+        <textarea id="modal_daily_${n}" class="modal-textarea" placeholder="예: 03/10,90.1&#10;03/11,90.8&#10;03/12,91.4"></textarea>
+      </div>` : ''}
+    `).join('');
+    document.getElementById('modalItemRows').innerHTML = html;
+  }
+
+  function openModal() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
+    document.getElementById('modalTitle').textContent = '📊 리포트 작성';
+    document.getElementById('smartParserSection').style.display = 'block';
+    document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0');
+    refreshModalWeekLabel();
+    buildModalRows();
+    document.getElementById('smartInput').value = '';
+    document.getElementById('parserPassword').value = '';
+    const parseTarget = document.getElementById('parseTargetItem');
+    if (parseTarget) parseTarget.value = '';
+    setParserLockState(false);
+    const submitBtn = document.getElementById('modalSubmitBtn');
+    submitBtn.onclick = saveEntry;
+    submitBtn.textContent = '저장하기';
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    const pw = document.getElementById('parserPassword');
+    const ta = document.getElementById('smartInput');
+    if (pw) pw.value = '';
+    if (ta) ta.value = '';
+    const parseTarget = document.getElementById('parseTargetItem');
+    if (parseTarget) parseTarget.value = '';
+    setParserLockState(false);
+  }
+
+  function parseDailyPriceText(text) {
+    return text.split(/\n+/)
+      .map(v => v.trim())
+      .filter(Boolean)
+      .map(line => {
+        const parts = line.split(/[,:|]/).map(v => v.trim());
+        if (parts.length < 2) return null;
+        const price = parseFloat(parts[1].replace(/,/g,''));
+        if (isNaN(price)) return null;
+        return { date: parts[0], price };
+      })
+      .filter(Boolean);
+  }
+
+  function formatDailyPricesForTextarea(rows) {
+    return (rows || []).map(r => `${r.date},${r.price}`).join('\n');
+  }
+
+  async function saveAsImage() {
+    const area = document.getElementById('captureArea');
+    document.body.classList.add('export-mode');
+    showToast('🖼️ 이미지 생성 중...');
+    html2canvas(area, { scale: 2, useCORS: true, width: 1200, windowWidth: 1200 }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `LAM_Report_${currentWeekData?.week || 'weekly'}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      document.body.classList.remove('export-mode');
+      showToast('✅ 저장 완료');
+    }).catch(() => {
+      document.body.classList.remove('export-mode');
+      showToast('⚠️ 이미지 저장 실패');
+    });
+  }
+
+  function saveAsPDF() {
+    document.body.classList.add('export-mode');
+    setTimeout(() => {
+      window.print();
+      document.body.classList.remove('export-mode');
+    }, 500);
+  }
+
+  function refreshData() {
+    loadWeekList();
+    showToast('↻ 데이터 새로고침 중...');
+  }
+
+  function copyToClipboard() {
+    if (!currentWeekData) return;
+    let text = `[LAM Weekly Market Brief - ${formatWeekLabel(currentWeekData.week)}]\n\n`;
+    ITEMS.forEach(name => {
+      const d = currentWeekData.items[name] || {};
+      const abs = safeNumber(d.change_abs);
+      text += `${name}: ${d.price || '-'} (${abs > 0 ? '▲' : abs < 0 ? '▼' : '-'}${Math.abs(abs).toFixed(1)})\n- ${d.commentary || '내용없음'}\n`;
+      if (d.factors) text += `  · 변동요인: ${d.factors}\n`;
+      if (d.outlook) text += `  · 전망: ${d.outlook}\n`;
+      text += `\n`;
+    });
+    navigator.clipboard.writeText(text.trim()).then(() => showToast('✅ 텍스트 복사됨'));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toastMsg');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3000);
+  }
+
+  function formatPrice(value) {
+    const n = Number(value);
+    if (isNaN(n)) return '-';
+    return n % 1 === 0 ? n.toFixed(0) : n.toFixed(2);
+  }
+
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function escapeAttr(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 </script>
 </body>
 </html>
