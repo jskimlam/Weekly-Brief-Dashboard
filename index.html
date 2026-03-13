@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>LAM Weekly Chemical Brief</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
@@ -201,6 +202,242 @@
       display: grid !important;
     }
     .export-mode .item-comm { border-left: 6px solid var(--main-orange) !important; border-top: none !important; padding: 5px 20px !important; }
+
+    body.export-mode .header,
+    body.export-mode .modal-overlay,
+    body.export-mode .toast { display:none !important; }
+
+    body.export-mode { background:#ffffff !important; }
+    body.export-mode .main-content { max-width:none !important; padding:0 !important; margin:0 !important; }
+
+    .a4-landscape-export {
+      position: fixed;
+      left: -10000px;
+      top: 0;
+      width: 1588px;
+      background: linear-gradient(180deg, #fffaf2 0%, #ffffff 16%, #ffffff 100%);
+      z-index: -1;
+      padding: 0;
+    }
+    .a4-landscape-export .report-container {
+      width: 1588px;
+      min-height: 1123px;
+      padding: 34px 38px 26px 38px;
+      border-radius: 0;
+      box-shadow: none;
+      border: none;
+      background: linear-gradient(180deg, #fff7ec 0%, #ffffff 14%, #ffffff 100%);
+    }
+    .a4-landscape-export .report-hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+    .a4-landscape-export .hero-left {
+      background: linear-gradient(135deg, #1f2937 0%, #34495e 55%, #4b5563 100%);
+      border-radius: 24px;
+      padding: 24px 28px 20px;
+      color: #fff;
+      min-height: 150px;
+      box-shadow: 0 18px 36px rgba(31, 41, 55, 0.16);
+    }
+    .a4-landscape-export .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.16);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .a4-landscape-export .hero-title {
+      margin-top: 16px;
+      font-size: 30px;
+      line-height: 1.14;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .a4-landscape-export .hero-subtitle {
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.84);
+      font-weight: 600;
+    }
+    .a4-landscape-export .hero-right {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 12px;
+    }
+    .a4-landscape-export .week-panel,
+    .a4-landscape-export .summary-panel,
+    .a4-landscape-export .brand-panel {
+      background: #fff;
+      border-radius: 22px;
+      border: 1px solid #f1dfc2;
+      box-shadow: 0 10px 24px rgba(255, 140, 0, 0.08);
+      padding: 18px 20px;
+    }
+    .a4-landscape-export .panel-label {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: #b26a00;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .a4-landscape-export .week-mark {
+      font-size: 28px;
+      color: #1f2937;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+    .a4-landscape-export .week-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+    .a4-landscape-export .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .a4-landscape-export .summary-chip {
+      background: #fff7ec;
+      border: 1px solid #f8d7a2;
+      border-radius: 16px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .a4-landscape-export .summary-chip strong {
+      display: block;
+      font-size: 18px;
+      color: #1f2937;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .a4-landscape-export .summary-chip span {
+      display: block;
+      margin-top: 5px;
+      font-size: 10px;
+      color: #7b8088;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .a4-landscape-export .brand-panel {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+      padding-top: 16px;
+      background: linear-gradient(135deg, #fff 0%, #fff9ef 100%);
+    }
+    .a4-landscape-export .brand-mark {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--main-orange);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .a4-landscape-export .brand-copy {
+      font-size: 12px;
+      color: #666;
+      font-weight: 700;
+      line-height: 1.45;
+      text-align: right;
+    }
+    .a4-landscape-export .report-section-title {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+    .a4-landscape-export .report-section-title h3 {
+      font-size: 16px;
+      font-weight: 900;
+      color: #1f2937;
+      letter-spacing: -0.01em;
+    }
+    .a4-landscape-export .report-section-title .section-note {
+      font-size: 11px;
+      color: #7b8088;
+      font-weight: 700;
+    }
+    .a4-landscape-export .item-card {
+      grid-template-columns: 152px 118px 132px 1fr !important;
+      gap: 12px !important;
+      padding: 12px 14px !important;
+      margin-bottom: 10px !important;
+      box-shadow: 0 6px 14px rgba(17, 24, 39, 0.05) !important;
+      border-width: 1.5px !important;
+      border-color: #e8edf2 !important;
+      border-radius: 18px !important;
+      align-items: center !important;
+      background: #fff !important;
+    }
+    .a4-landscape-export .item-name {
+      font-size: 17px !important;
+      padding: 10px 8px !important;
+      line-height: 1.15 !important;
+      border-radius: 14px !important;
+      background: linear-gradient(180deg, #fff8ef 0%, #fff3df 100%) !important;
+      border: 1px solid #ffd9a6 !important;
+    }
+    .a4-landscape-export .item-price {
+      font-size: 19px !important;
+      line-height: 1.05 !important;
+    }
+    .a4-landscape-export .item-price small {
+      font-size: 10px !important;
+      margin-top: 4px !important;
+      letter-spacing: 0.02em;
+    }
+    .a4-landscape-export .item-change {
+      font-size: 12px !important;
+      padding: 8px 6px !important;
+      line-height: 1.35 !important;
+      border-radius: 14px !important;
+      font-weight: 800 !important;
+    }
+    .a4-landscape-export .item-comm {
+      font-size: 13px !important;
+      line-height: 1.5 !important;
+      border-left: 4px solid var(--main-orange) !important;
+      padding: 2px 0 2px 12px !important;
+      font-weight: 800 !important;
+      color: #1f2937 !important;
+    }
+    .a4-landscape-export .item-actions { display: none !important; }
+    .a4-landscape-export .report-footer {
+      margin-top: 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding-top: 12px;
+      border-top: 1px solid #eceff3;
+      color: #70757d;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    @media print {
+      .header, .modal-overlay, .toast { display:none !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -255,7 +492,7 @@
     </div>
     <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
       <span style="font-weight:800; font-size:16px;">해당 주차:</span>
-      <input type="text" id="modalWeek" class="modal-input" style="width:150px;" placeholder="YYYY-Wnn" oninput="refreshModalWeekLabel()">
+      <input type="text" id="modalWeek" class="modal-input" style="width:150px;" placeholder="YYYY-Wnn" oninput="handleModalWeekChange()">
       <span id="modalWeekLabel" style="font-weight:800; color:var(--main-orange);">-</span>
     </div>
     <div id="modalItemRows"></div>
@@ -339,6 +576,7 @@
   let detailChart = null;
   let currentDetailItem = null;
   let parserUnlocked = false;
+  let modalWeekLoadToken = 0;
 
   function getISOWeekFriday(weekStr) {
     const m = String(weekStr || '').match(/^(\d{4})-W(\d{2})$/i);
@@ -367,6 +605,61 @@
     const week = document.getElementById('modalWeek')?.value || '';
     const el = document.getElementById('modalWeekLabel');
     if (el) el.textContent = formatWeekLabel(week);
+  }
+
+
+  async function handleModalWeekChange() {
+    refreshModalWeekLabel();
+    await populateModalFromWeek(document.getElementById('modalWeek')?.value || '');
+  }
+
+  function clearModalRowValues() {
+    ITEMS.forEach(name => {
+      const fields = [
+        'modal_price_' + name,
+        'modal_comm_' + name,
+        'modal_factors_' + name,
+        'modal_outlook_' + name,
+        'modal_additional_' + name,
+        'modal_daily_' + name
+      ];
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+    });
+  }
+
+  async function populateModalFromWeek(week) {
+    const token = ++modalWeekLoadToken;
+    clearModalRowValues();
+    const normalizedWeek = String(week || '').trim();
+    if (!/^\d{4}-W\d{2}$/i.test(normalizedWeek)) return;
+    const data = await fetchWeekBaseData(normalizedWeek);
+    if (token !== modalWeekLoadToken) return;
+    ITEMS.forEach(name => {
+      const d = data?.items?.[name] || {};
+      const priceEl = document.getElementById('modal_price_' + name);
+      const commEl = document.getElementById('modal_comm_' + name);
+      const factorsEl = document.getElementById('modal_factors_' + name);
+      const outlookEl = document.getElementById('modal_outlook_' + name);
+      const addEl = document.getElementById('modal_additional_' + name);
+      const dailyEl = document.getElementById('modal_daily_' + name);
+      if (priceEl) priceEl.value = d.price ?? '';
+      if (commEl) commEl.value = d.commentary ?? '';
+      if (factorsEl) factorsEl.value = d.factors ?? '';
+      if (outlookEl) outlookEl.value = d.outlook ?? '';
+      if (addEl) addEl.value = d.additional_info ?? '';
+      if (dailyEl) dailyEl.value = formatDailyPricesForTextarea(d.daily_prices || []);
+    });
+
+    const filledCount = ITEMS.filter(name => {
+      const d = data?.items?.[name] || {};
+      return hasAnyMeaningfulValue(d);
+    }).length;
+    if (filledCount > 0) {
+      showToast(`📥 ${formatWeekLabel(normalizedWeek)} 기존 저장값 ${filledCount}개 품목 불러옴`);
+    }
   }
 
   function itemHasModalInput(name) {
@@ -822,41 +1115,38 @@
     return rows;
   }
 
-  function extractPriceNumber(content) {
-    const patterns = [
-      /금주\s*가격\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/i,
-      /(?:CFR\s+China\s+Spot|CIF\s+India\s+Spot|FOB\s+Korea\s+S\s+Cost\s+Spot)\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/i,
-      /1\.\s*가격[\s\S]*?([\d,]+(?:\.\d+)?)/i
-    ];
-    for (const re of patterns) {
-      const m = (content || '').match(re);
-      if (m) return m[1].replace(/,/g, '');
-    }
-    return '';
+  function extractPriceNumber(content, targetItem = '') {
+    const text = String(content || '');
+    const item = toCanonicalItemName(targetItem || '');
+    const targetLabels = {
+      WTI: ['WTI 4월물', 'WTI', 'NYMEX WTI'],
+      Styrene: ['SM CFR China', 'Styrene Monomer', 'Styrene', 'SM'],
+      Acrylonitrile: ['ACN CFR Far East Asia', 'Acrylonitrile', 'ACN', 'AN'],
+      Butadiene: ['BD CFR China', 'BD CFR NEA', 'Butadiene', 'BD'],
+      BPA: ['BPA', 'BPA CFR', 'BPA spot'],
+      MMA: ['MMA', 'MMA CFR']
+    }[item] || [];
+
+    const priceSectionMatch = text.match(/1\.\s*가격\s*[\r\n]+([\s\S]+?)(?=\n\s*2\.|$)/i);
+    const priceSection = priceSectionMatch ? priceSectionMatch[1] : text;
+
+    const lines = priceSection.split(/\n+/).map(v => v.trim()).filter(Boolean);
+    const candidateLines = lines.filter(line => {
+      if (!/\$\s*[\d,]+(?:\.\d+)?\s*\/(?:mt|b|bbl)/i.test(line)) return false;
+      if (!targetLabels.length) return true;
+      return targetLabels.some(label => line.toLowerCase().includes(label.toLowerCase()));
+    });
+    const fallbackLines = lines.filter(line => /\$\s*[\d,]+(?:\.\d+)?\s*\/(?:mt|b|bbl)/i.test(line));
+    const chosen = candidateLines[0] || fallbackLines[0] || '';
+    const m = chosen.match(/\$\s*([\d,]+(?:\.\d+)?)/);
+    return m ? m[1].replace(/,/g, '') : '';
   }
 
-
-  function cleanParserText(text) {
-    return (text || '')
-      .replace(/\r/g, '')
-      .replace(/^\s*#+\s*/gm, '')
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/^\s*[-*]\s+/gm, '')
-      .trim();
-  }
-
-  function normalizeSectionBody(text) {
-    return normalizeMultilineSection((text || '')
-      .replace(/^\s*[-*]\s+/gm, '')
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-    );
-  }
-
-  function getParsedSections(content) {
+  function getParsedSections(content, targetItem = '') {
     const cleaned = cleanParserText(content);
-    const priceValue = extractPriceNumber(cleaned);
+    const priceValue = extractPriceNumber(cleaned, targetItem);
     const commMatch = cleaned.match(/2\.\s*코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\s*3\.|$)/i);
-    const factorsMatch = cleaned.match(/3\.\s*변동요인\s*[\r\n]+([\s\S]+?)(?=\n\s*4\.|$)/i);
+    const factorsMatch = cleaned.match(/3\.\s*(?:변동요인|변둉요인|변동 요인)\s*[\r\n]+([\s\S]+?)(?=\n\s*4\.|$)/i);
     const outlookMatch = cleaned.match(/4\.\s*(?:결론\s*및\s*전망|결론및전망|전망)\s*[\r\n]+([\s\S]+?)(?=\n\s*5\.|$)/i);
     const addMatch = cleaned.match(/5\.\s*(?:기타\s*추가\s*정보|기타추가정보|추가\s*정보|추가정보)\s*[\r\n]+([\s\S]+?)(?=\n\s*6\.|$)/i);
     return {
@@ -882,7 +1172,7 @@
       return;
     }
 
-    const parsed = getParsedSections(text);
+    const parsed = getParsedSections(text, target);
     let filled = 0;
 
     if (parsed.priceValue) {
@@ -961,15 +1251,18 @@
     document.getElementById('modalItemRows').innerHTML = html;
   }
 
-  function openModal() {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
+  async function openModal() {
+    const defaultWeek = currentWeekData?.week || (() => {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 1);
+      const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
+      return now.getFullYear() + '-W' + String(wk).padStart(2,'0');
+    })();
     document.getElementById('modalTitle').textContent = '📊 리포트 작성';
     document.getElementById('smartParserSection').style.display = 'block';
-    document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0');
-    refreshModalWeekLabel();
     buildModalRows();
+    document.getElementById('modalWeek').value = defaultWeek;
+    refreshModalWeekLabel();
     document.getElementById('smartInput').value = '';
     document.getElementById('parserPassword').value = '';
     const parseTarget = document.getElementById('parseTargetItem');
@@ -979,6 +1272,7 @@
     submitBtn.onclick = saveEntry;
     submitBtn.textContent = '저장하기';
     document.getElementById('modalOverlay').classList.add('active');
+    await populateModalFromWeek(defaultWeek);
   }
 
   function closeModal() {
@@ -1010,29 +1304,115 @@
     return (rows || []).map(r => `${r.date},${r.price}`).join('\n');
   }
 
-  async function saveAsImage() {
-    const area = document.getElementById('captureArea');
-    document.body.classList.add('export-mode');
-    showToast('🖼️ 이미지 생성 중...');
-    html2canvas(area, { scale: 2, useCORS: true, width: 1200, windowWidth: 1200 }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `LAM_Report_${currentWeekData?.week || 'weekly'}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-      document.body.classList.remove('export-mode');
-      showToast('✅ 저장 완료');
-    }).catch(() => {
-      document.body.classList.remove('export-mode');
-      showToast('⚠️ 이미지 저장 실패');
+  function buildExportNode() {
+    const weekLabel = formatWeekLabel(currentWeekData?.week || '-');
+    const reportHtml = document.getElementById('reportContent')?.innerHTML || '';
+    const filledItems = ITEMS.filter(name => {
+      const d = currentWeekData?.items?.[name] || {};
+      return hasAnyMeaningfulValue(d);
     });
+    const risingItems = filledItems.filter(name => safeNumber(currentWeekData?.items?.[name]?.change_abs) > 0).length;
+    const largestMove = filledItems
+      .map(name => ({ name, abs: Math.abs(safeNumber(currentWeekData?.items?.[name]?.change_abs)) }))
+      .sort((a, b) => b.abs - a.abs)[0];
+    const exportWrap = document.createElement('div');
+    exportWrap.className = 'a4-landscape-export';
+    exportWrap.innerHTML = `
+      <div class="report-container">
+        <div class="report-hero">
+          <div class="hero-left">
+            <div class="hero-kicker">LAM · PETROCHEMICALS</div>
+            <div class="hero-title">Weekly Chemical Market Report</div>
+            <div class="hero-subtitle">주요 원료 및 유도품 가격 흐름을 주차 기준으로 정리한 요약 보고서입니다. 보고용 이미지/PDF 저장 시 버튼과 편집 UI는 제외됩니다.</div>
+          </div>
+          <div class="hero-right">
+            <div class="week-panel">
+              <div class="panel-label">Report Week</div>
+              <div class="week-mark">${escapeHtml(weekLabel)}</div>
+              <div class="week-note">금요일 기준 주차 마감 레포트</div>
+            </div>
+            <div class="summary-panel">
+              <div class="panel-label">Quick Summary</div>
+              <div class="summary-grid">
+                <div class="summary-chip"><strong>${filledItems.length}</strong><span>Items</span></div>
+                <div class="summary-chip"><strong>${risingItems}</strong><span>Up</span></div>
+                <div class="summary-chip"><strong>${escapeHtml(largestMove?.name || '-')}</strong><span>Biggest Move</span></div>
+              </div>
+            </div>
+            <div class="brand-panel">
+              <div>
+                <div class="panel-label">Prepared For</div>
+                <div class="brand-mark">LAM</div>
+              </div>
+              <div class="brand-copy">Weekly market snapshot<br>Internal reporting format</div>
+            </div>
+          </div>
+        </div>
+        <div class="report-section-title">
+          <h3>Weekly Price Summary</h3>
+          <div class="section-note">Price / Weekly change / Commentary</div>
+        </div>
+        ${reportHtml}
+        <div class="report-footer">
+          <div>LAM Weekly Chemical Market Report</div>
+          <div>${escapeHtml(weekLabel)} · Export Format</div>
+        </div>
+      </div>`;
+    document.body.appendChild(exportWrap);
+    return exportWrap;
   }
 
-  function saveAsPDF() {
+  async function renderExportCanvas() {
+    const exportNode = buildExportNode();
     document.body.classList.add('export-mode');
-    setTimeout(() => {
-      window.print();
+    try {
+      const canvas = await html2canvas(exportNode, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: 1588,
+        windowWidth: 1588,
+        height: 1123,
+        windowHeight: 1123,
+        scrollX: 0,
+        scrollY: 0
+      });
+      return canvas;
+    } finally {
+      exportNode.remove();
       document.body.classList.remove('export-mode');
-    }, 500);
+    }
+  }
+
+  async function saveAsImage() {
+    try {
+      showToast('🖼️ A4 가로 이미지 생성 중...');
+      const canvas = await renderExportCanvas();
+      const link = document.createElement('a');
+      link.download = `LAM_Report_${currentWeekData?.week || 'weekly'}_A4_Landscape.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('✅ A4 가로 이미지 저장 완료');
+    } catch (e) {
+      console.error(e);
+      showToast('⚠️ 이미지 저장 실패');
+    }
+  }
+
+  async function saveAsPDF() {
+    try {
+      showToast('📄 A4 가로 PDF 생성 중...');
+      const canvas = await renderExportCanvas();
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+      pdf.addImage(imgData, 'PNG', 0, 0, 297, 210, undefined, 'FAST');
+      pdf.save(`LAM_Report_${currentWeekData?.week || 'weekly'}_A4_Landscape.pdf`);
+      showToast('✅ A4 가로 PDF 저장 완료');
+    } catch (e) {
+      console.error(e);
+      showToast('⚠️ PDF 저장 실패');
+    }
   }
 
   function refreshData() {
