@@ -232,7 +232,13 @@
     <h2 id="modalTitle" style="color:var(--main-orange); margin-bottom:15px; font-size:22px;">📊 리포트 작성</h2>
     <div id="smartParserSection" class="smart-parser">
       <strong>✨ 스마트 파싱 (붙여넣기)</strong>
-      <textarea id="smartInput" class="smart-textarea" placeholder="WTI&#10;1.가격&#10;78.5...&#10;3.변동요인&#10;...&#10;4.결론 및 전망&#10;..." oninput="parseSmartText()"></textarea>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+        <input type="password" id="parserPassword" class="modal-input" style="width:140px;" placeholder="파싱 비밀번호">
+        <button class="btn" type="button" onclick="unlockParser()" style="padding:8px 14px;">파싱 잠금해제</button>
+        <span id="parserLockStatus" style="font-size:13px; font-weight:700; color:#c0392b;">🔒 잠금 상태</span>
+      </div>
+      <textarea id="smartInput" class="smart-textarea" placeholder="예시 형식&#10;WTI 종목 브리핑 (2026-03-13)&#10;1. 가격&#10;금주 가격: $98.71/b&#10;2. 코멘터리&#10;...&#10;3. 변동요인&#10;...&#10;4. 결론 및 전망&#10;...&#10;5. 기타 추가 정보&#10;..." oninput="parseSmartText()" disabled></textarea>
+      <div style="margin-top:8px; font-size:12px; color:#666;">‘3. 변동요인’, ‘4. 결론 및 전망’, ‘5. 기타 추가 정보’, 그리고 WTI/Styrene/Butadiene의 ‘주중 흐름’ 일별 가격도 자동 파싱됩니다.</div>
     </div>
     <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
       <span style="font-weight:800; font-size:16px;">해당 주차:</span>
@@ -312,11 +318,13 @@
   const ITEMS = ['WTI', 'Styrene', 'Acrylonitrile', 'Butadiene', 'BPA', 'MMA'];
   const UNITS = {'WTI':'$/bbl','Styrene':'$/MT','Acrylonitrile':'$/MT','Butadiene':'$/MT','BPA':'$/MT','MMA':'$/MT'};
   const GRAPH_ITEMS = ['WTI', 'Styrene', 'Butadiene'];
+  const PARSER_PASSWORD = '0111';
   const ITEM_ALIASES = { 'SM': 'Styrene', 'BD': 'Butadiene', 'AN': 'Acrylonitrile' };
 
   let currentWeekData = null;
   let detailChart = null;
   let currentDetailItem = null;
+  let parserUnlocked = false;
 
   document.addEventListener('DOMContentLoaded', () => {
     buildModalRows();
@@ -656,32 +664,109 @@
     }
   }
 
+
+  function setParserLockState(isUnlocked) {
+    parserUnlocked = !!isUnlocked;
+    const pw = document.getElementById('parserPassword');
+    const ta = document.getElementById('smartInput');
+    const status = document.getElementById('parserLockStatus');
+    if (ta) ta.disabled = !parserUnlocked;
+    if (pw) pw.disabled = parserUnlocked;
+    if (status) {
+      status.textContent = parserUnlocked ? '🔓 잠금 해제됨' : '🔒 잠금 상태';
+      status.style.color = parserUnlocked ? '#1e8449' : '#c0392b';
+    }
+  }
+
+  function unlockParser() {
+    const pw = document.getElementById('parserPassword')?.value || '';
+    if (pw !== PARSER_PASSWORD) {
+      showToast('⛔ 파싱 비밀번호가 올바르지 않습니다.');
+      setParserLockState(false);
+      return;
+    }
+    setParserLockState(true);
+    showToast('🔓 스마트 파싱이 활성화되었습니다.');
+    parseSmartText();
+  }
+
+  function normalizeMultilineSection(text) {
+    return (text || '')
+      .replace(/\r/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  function stripFlowSectionFromCommentary(text) {
+    return normalizeMultilineSection((text || '')
+      .replace(/주중\s*흐름[\s\S]*?(?=\n\s*(?:3\.|변동요인)|$)/i, '')
+      .replace(/^\s*\d{1,2}\/\d{1,2}\s*:\s*[^\n]+$/gm, '')
+    );
+  }
+
+  function extractDailyPrices(content) {
+    const rows = [];
+    const seen = new Set();
+    const regex = /(\d{1,2}\/\d{1,2})\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/g;
+    let match;
+    while ((match = regex.exec(content || '')) !== null) {
+      const date = match[1].trim();
+      const price = parseFloat(match[2].replace(/,/g, ''));
+      if (!isNaN(price) && !seen.has(date)) {
+        seen.add(date);
+        rows.push({ date, price });
+      }
+    }
+    return rows;
+  }
+
+  function extractPriceNumber(content) {
+    const patterns = [
+      /금주\s*가격\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/i,
+      /(?:CFR\s+China\s+Spot|CIF\s+India\s+Spot|FOB\s+Korea\s+S\s+Cost\s+Spot)\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/i,
+      /1\.\s*가격[\s\S]*?([\d,]+(?:\.\d+)?)/i
+    ];
+    for (const re of patterns) {
+      const m = (content || '').match(re);
+      if (m) return m[1].replace(/,/g, '');
+    }
+    return '';
+  }
+
   function parseSmartText() {
+    if (!parserUnlocked) return;
     const text = document.getElementById('smartInput').value;
-    const itemRegex = new RegExp(`(${ITEMS.join('|')}|SM|BD|AN)`, 'gi');
+    const itemRegex = /(WTI|Styrene\s+Monomer|Styrene|SM|Acrylonitrile|AN|Butadiene|BD|Benzene|BPA|MMA)(?:\s+종목\s+브리핑)?/gi;
     const sections = text.split(itemRegex);
+
     for (let i = 1; i < sections.length; i += 2) {
       const rawName = (sections[i] || '').trim();
       const name = ITEM_ALIASES[rawName.toUpperCase()] || toCanonicalItemName(rawName);
       if (!ITEMS.includes(name)) continue;
-      const content = sections[i+1] || '';
-      const priceMatch = content.match(/1\.\s*가격\s*[\r\n]+([\d.,-]+)/i) || content.match(/([\d]+(?:\.\d+)?)/);
+
+      const content = sections[i + 1] || '';
+      const priceValue = extractPriceNumber(content);
       const commMatch = content.match(/2\.\s*코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\s*3\.|$)/i);
       const factorsMatch = content.match(/3\.\s*변동요인\s*[\r\n]+([\s\S]+?)(?=\n\s*4\.|$)/i);
       const outlookMatch = content.match(/4\.\s*(?:결론\s*및\s*전망|결론및전망|전망)\s*[\r\n]+([\s\S]+?)(?=\n\s*5\.|$)/i);
-      const addMatch = content.match(/5\.\s*추가정보\s*[\r\n]+([\s\S]+?)(?=\n\s*6\.|$)/i);
-      if (priceMatch) document.getElementById('modal_price_'+name).value = priceMatch[1].replace(/,/g, '');
-      if (commMatch) document.getElementById('modal_comm_'+name).value = commMatch[1].trim();
-      if (factorsMatch) document.getElementById('modal_factors_'+name).value = factorsMatch[1].trim();
-      if (outlookMatch) document.getElementById('modal_outlook_'+name).value = outlookMatch[1].trim();
-      if (addMatch) document.getElementById('modal_additional_'+name).value = addMatch[1].trim();
+      const addMatch = content.match(/5\.\s*(?:기타\s*추가\s*정보|추가\s*정보|추가정보)\s*[\r\n]+([\s\S]+?)(?=\n\s*6\.|$)/i);
+      const dailyRows = GRAPH_ITEMS.includes(name) ? extractDailyPrices(content) : [];
+
+      if (priceValue) document.getElementById('modal_price_' + name).value = priceValue;
+      if (commMatch) document.getElementById('modal_comm_' + name).value = stripFlowSectionFromCommentary(commMatch[1]);
+      if (factorsMatch) document.getElementById('modal_factors_' + name).value = normalizeMultilineSection(factorsMatch[1]);
+      if (outlookMatch) document.getElementById('modal_outlook_' + name).value = normalizeMultilineSection(outlookMatch[1]);
+      if (addMatch) document.getElementById('modal_additional_' + name).value = normalizeMultilineSection(addMatch[1]);
+      if (dailyRows.length && GRAPH_ITEMS.includes(name)) {
+        document.getElementById('modal_daily_' + name).value = formatDailyPricesForTextarea(dailyRows);
+      }
     }
   }
 
   function toCanonicalItemName(rawName) {
     const key = (rawName || '').trim().toLowerCase();
     if (key === 'wti') return 'WTI';
-    if (key === 'styrene' || key === 'sm') return 'Styrene';
+    if (key === 'styrene' || key === 'styrene monomer' || key === 'sm') return 'Styrene';
     if (key === 'acrylonitrile' || key === 'an') return 'Acrylonitrile';
     if (key === 'butadiene' || key === 'bd') return 'Butadiene';
     if (key === 'bpa') return 'BPA';
@@ -727,6 +812,8 @@
     document.getElementById('modalWeek').value = now.getFullYear() + '-W' + String(wk).padStart(2,'0');
     buildModalRows();
     document.getElementById('smartInput').value = '';
+    document.getElementById('parserPassword').value = '';
+    setParserLockState(false);
     const submitBtn = document.getElementById('modalSubmitBtn');
     submitBtn.onclick = saveEntry;
     submitBtn.textContent = '저장하기';
@@ -735,6 +822,11 @@
 
   function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
+    const pw = document.getElementById('parserPassword');
+    const ta = document.getElementById('smartInput');
+    if (pw) pw.value = '';
+    if (ta) ta.value = '';
+    setParserLockState(false);
   }
 
   function parseDailyPriceText(text) {
