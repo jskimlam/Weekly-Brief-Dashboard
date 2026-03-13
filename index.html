@@ -237,8 +237,20 @@
         <button class="btn" type="button" onclick="unlockParser()" style="padding:8px 14px;">파싱 잠금해제</button>
         <span id="parserLockStatus" style="font-size:13px; font-weight:700; color:#c0392b;">🔒 잠금 상태</span>
       </div>
-      <textarea id="smartInput" class="smart-textarea" placeholder="예시 형식&#10;WTI 종목 브리핑 (2026-03-13)&#10;1. 가격&#10;금주 가격: $98.71/b&#10;2. 코멘터리&#10;...&#10;3. 변동요인&#10;...&#10;4. 결론 및 전망&#10;...&#10;5. 기타 추가 정보&#10;..." oninput="parseSmartText()" disabled></textarea>
-      <div style="margin-top:8px; font-size:12px; color:#666;">‘3. 변동요인’, ‘4. 결론 및 전망’, ‘5. 기타 추가 정보’, 그리고 WTI/Styrene/Butadiene의 ‘주중 흐름’ 일별 가격도 자동 파싱됩니다.</div>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+        <select id="parseTargetItem" class="modal-input" style="width:220px;" disabled>
+          <option value="">파싱 대상 품목 선택</option>
+          <option value="WTI">WTI</option>
+          <option value="Styrene">SM</option>
+          <option value="Acrylonitrile">AN</option>
+          <option value="Butadiene">BD</option>
+          <option value="BPA">BPA</option>
+          <option value="MMA">MMA</option>
+        </select>
+        <button class="btn" type="button" id="parseApplyBtn" onclick="parseSelectedSmartText()" style="padding:8px 14px; background:#ff8c00; color:#fff;" disabled>선택 품목 파싱 적용</button>
+      </div>
+      <textarea id="smartInput" class="smart-textarea" placeholder="선택한 품목의 텍스트만 붙여넣어 주세요.&#10;&#10;예: ACN 종목 브리핑 (2026-03-10)&#10;1. 가격&#10;...&#10;2. 코멘터리&#10;...&#10;3. 변동요인&#10;...&#10;4. 결론 및 전망&#10;...&#10;5. 기타 추가 정보&#10;..." disabled></textarea>
+      <div style="margin-top:8px; font-size:12px; color:#666;">비밀번호 해제 후 품목을 먼저 선택한 다음 텍스트를 넣어주세요. AN 샘플처럼 Markdown의 *, ** 형식도 파싱되며, WTI/SM/BD는 주중 흐름 일별 가격도 자동 반영됩니다.</div>
     </div>
     <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
       <span style="font-weight:800; font-size:16px;">해당 주차:</span>
@@ -670,7 +682,11 @@
     const pw = document.getElementById('parserPassword');
     const ta = document.getElementById('smartInput');
     const status = document.getElementById('parserLockStatus');
+    const target = document.getElementById('parseTargetItem');
+    const applyBtn = document.getElementById('parseApplyBtn');
     if (ta) ta.disabled = !parserUnlocked;
+    if (target) target.disabled = !parserUnlocked;
+    if (applyBtn) applyBtn.disabled = !parserUnlocked;
     if (pw) pw.disabled = parserUnlocked;
     if (status) {
       status.textContent = parserUnlocked ? '🔓 잠금 해제됨' : '🔒 잠금 상태';
@@ -733,34 +749,90 @@
     return '';
   }
 
-  function parseSmartText() {
+
+  function cleanParserText(text) {
+    return (text || '')
+      .replace(/\r/g, '')
+      .replace(/^\s*#+\s*/gm, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/^\s*[-*]\s+/gm, '')
+      .trim();
+  }
+
+  function normalizeSectionBody(text) {
+    return normalizeMultilineSection((text || '')
+      .replace(/^\s*[-*]\s+/gm, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+    );
+  }
+
+  function getParsedSections(content) {
+    const cleaned = cleanParserText(content);
+    const priceValue = extractPriceNumber(cleaned);
+    const commMatch = cleaned.match(/2\.\s*코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\s*3\.|$)/i);
+    const factorsMatch = cleaned.match(/3\.\s*변동요인\s*[\r\n]+([\s\S]+?)(?=\n\s*4\.|$)/i);
+    const outlookMatch = cleaned.match(/4\.\s*(?:결론\s*및\s*전망|결론및전망|전망)\s*[\r\n]+([\s\S]+?)(?=\n\s*5\.|$)/i);
+    const addMatch = cleaned.match(/5\.\s*(?:기타\s*추가\s*정보|기타추가정보|추가\s*정보|추가정보)\s*[\r\n]+([\s\S]+?)(?=\n\s*6\.|$)/i);
+    return {
+      priceValue,
+      commentary: commMatch ? stripFlowSectionFromCommentary(normalizeSectionBody(commMatch[1])) : '',
+      factors: factorsMatch ? normalizeSectionBody(factorsMatch[1]) : '',
+      outlook: outlookMatch ? normalizeSectionBody(outlookMatch[1]) : '',
+      additional: addMatch ? normalizeSectionBody(addMatch[1]) : '',
+      dailyRows: extractDailyPrices(cleaned)
+    };
+  }
+
+  function parseSelectedSmartText() {
     if (!parserUnlocked) return;
-    const text = document.getElementById('smartInput').value;
-    const itemRegex = /(WTI|Styrene\s+Monomer|Styrene|SM|Acrylonitrile|AN|Butadiene|BD|Benzene|BPA|MMA)(?:\s+종목\s+브리핑)?/gi;
-    const sections = text.split(itemRegex);
-
-    for (let i = 1; i < sections.length; i += 2) {
-      const rawName = (sections[i] || '').trim();
-      const name = ITEM_ALIASES[rawName.toUpperCase()] || toCanonicalItemName(rawName);
-      if (!ITEMS.includes(name)) continue;
-
-      const content = sections[i + 1] || '';
-      const priceValue = extractPriceNumber(content);
-      const commMatch = content.match(/2\.\s*코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\s*3\.|$)/i);
-      const factorsMatch = content.match(/3\.\s*변동요인\s*[\r\n]+([\s\S]+?)(?=\n\s*4\.|$)/i);
-      const outlookMatch = content.match(/4\.\s*(?:결론\s*및\s*전망|결론및전망|전망)\s*[\r\n]+([\s\S]+?)(?=\n\s*5\.|$)/i);
-      const addMatch = content.match(/5\.\s*(?:기타\s*추가\s*정보|추가\s*정보|추가정보)\s*[\r\n]+([\s\S]+?)(?=\n\s*6\.|$)/i);
-      const dailyRows = GRAPH_ITEMS.includes(name) ? extractDailyPrices(content) : [];
-
-      if (priceValue) document.getElementById('modal_price_' + name).value = priceValue;
-      if (commMatch) document.getElementById('modal_comm_' + name).value = stripFlowSectionFromCommentary(commMatch[1]);
-      if (factorsMatch) document.getElementById('modal_factors_' + name).value = normalizeMultilineSection(factorsMatch[1]);
-      if (outlookMatch) document.getElementById('modal_outlook_' + name).value = normalizeMultilineSection(outlookMatch[1]);
-      if (addMatch) document.getElementById('modal_additional_' + name).value = normalizeMultilineSection(addMatch[1]);
-      if (dailyRows.length && GRAPH_ITEMS.includes(name)) {
-        document.getElementById('modal_daily_' + name).value = formatDailyPricesForTextarea(dailyRows);
-      }
+    const target = document.getElementById('parseTargetItem')?.value || '';
+    const text = document.getElementById('smartInput')?.value || '';
+    if (!target) {
+      showToast('먼저 파싱할 품목을 선택해 주세요.');
+      return;
     }
+    if (!text.trim()) {
+      showToast('파싱할 텍스트를 붙여넣어 주세요.');
+      return;
+    }
+
+    const parsed = getParsedSections(text);
+    let filled = 0;
+
+    if (parsed.priceValue) {
+      document.getElementById('modal_price_' + target).value = parsed.priceValue;
+      filled++;
+    }
+    if (parsed.commentary) {
+      document.getElementById('modal_comm_' + target).value = parsed.commentary;
+      filled++;
+    }
+    if (parsed.factors) {
+      document.getElementById('modal_factors_' + target).value = parsed.factors;
+      filled++;
+    }
+    if (parsed.outlook) {
+      document.getElementById('modal_outlook_' + target).value = parsed.outlook;
+      filled++;
+    }
+    if (parsed.additional) {
+      document.getElementById('modal_additional_' + target).value = parsed.additional;
+      filled++;
+    }
+    if (GRAPH_ITEMS.includes(target) && parsed.dailyRows.length) {
+      document.getElementById('modal_daily_' + target).value = formatDailyPricesForTextarea(parsed.dailyRows);
+      filled++;
+    }
+
+    if (filled) {
+      showToast(`✅ ${target === 'Styrene' ? 'SM' : target === 'Acrylonitrile' ? 'AN' : target === 'Butadiene' ? 'BD' : target} 파싱 반영 완료`);
+    } else {
+      showToast('⚠️ 형식을 찾지 못했습니다. 텍스트 구성을 확인해 주세요.');
+    }
+  }
+
+  function parseSmartText() {
+    parseSelectedSmartText();
   }
 
   function toCanonicalItemName(rawName) {
@@ -813,6 +885,8 @@
     buildModalRows();
     document.getElementById('smartInput').value = '';
     document.getElementById('parserPassword').value = '';
+    const parseTarget = document.getElementById('parseTargetItem');
+    if (parseTarget) parseTarget.value = '';
     setParserLockState(false);
     const submitBtn = document.getElementById('modalSubmitBtn');
     submitBtn.onclick = saveEntry;
@@ -826,6 +900,8 @@
     const ta = document.getElementById('smartInput');
     if (pw) pw.value = '';
     if (ta) ta.value = '';
+    const parseTarget = document.getElementById('parseTargetItem');
+    if (parseTarget) parseTarget.value = '';
     setParserLockState(false);
   }
 
