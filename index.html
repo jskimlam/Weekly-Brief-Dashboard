@@ -1588,46 +1588,47 @@
       let contentHeight = clone.scrollHeight;
       if (!cards.length) return contentHeight;
 
+      const safeBottom = 12;
       cards.forEach(card => {
         card.style.alignItems = 'center';
         card.style.marginBottom = '';
         card.style.minHeight = '';
       });
 
-      const cardHeights = cards.map(getOuterHeight);
-      const cardsTotal = cardHeights.reduce((a, b) => a + b, 0);
-      const nonCardHeight = Math.max(0, contentHeight - cardsTotal);
-      const targetCardsTotal = Math.max(cardsTotal, availableHeight - nonCardHeight);
-      const extraSpace = Math.max(0, targetCardsTotal - cardsTotal);
-
       if (weekLine) {
         weekLine.style.paddingBottom = '16px';
         weekLine.style.marginBottom = '22px';
       }
 
-      if (extraSpace > 2) {
-        const perCard = extraSpace / cards.length;
+      contentHeight = clone.scrollHeight;
+      let remain = availableHeight - contentHeight - safeBottom;
+
+      if (remain > 1) {
+        const gaps = Math.max(1, cards.length - 1);
+        const perGap = remain / gaps;
         let used = 0;
         cards.forEach((card, idx) => {
-          const currentRect = card.getBoundingClientRect().height;
           const cs = window.getComputedStyle(card);
           const baseMarginBottom = parseFloat(cs.marginBottom) || 0;
-          const addHeight = idx === cards.length - 1 ? (extraSpace - used) : perCard;
-          used += idx === cards.length - 1 ? (extraSpace - used) : perCard;
-          card.style.minHeight = Math.ceil(currentRect + addHeight) + 'px';
-          card.style.marginBottom = Math.max(baseMarginBottom, 4) + 'px';
+          if (idx < cards.length - 1) {
+            const add = idx === cards.length - 2 ? (remain - used) : perGap;
+            used += idx === cards.length - 2 ? (remain - used) : perGap;
+            card.style.marginBottom = Math.ceil(baseMarginBottom + add) + 'px';
+          } else {
+            card.style.marginBottom = '0px';
+          }
         });
         contentHeight = clone.scrollHeight;
+        remain = availableHeight - contentHeight - safeBottom;
       }
 
-      let remain = availableHeight - contentHeight;
-      if (remain > 1 && cards.length) {
-        const bump = remain / cards.length;
-        let usedBump = 0;
+      if (remain > 1) {
+        const perCard = remain / cards.length;
+        let used = 0;
         cards.forEach((card, idx) => {
-          const current = parseFloat(card.style.minHeight) || card.getBoundingClientRect().height;
-          const add = idx === cards.length - 1 ? (remain - usedBump) : bump;
-          usedBump += idx === cards.length - 1 ? (remain - usedBump) : bump;
+          const current = card.getBoundingClientRect().height;
+          const add = idx === cards.length - 1 ? (remain - used) : perCard;
+          used += idx === cards.length - 1 ? (remain - used) : perCard;
           card.style.minHeight = Math.ceil(current + add) + 'px';
         });
         contentHeight = clone.scrollHeight;
@@ -1638,16 +1639,11 @@
     let contentHeight = tuneA4Fill();
 
     if (contentHeight > availableHeight) {
-      const scale = Math.min(1, availableHeight / Math.max(contentHeight, 1));
+      const scale = Math.min(1, (availableHeight - 12) / Math.max(contentHeight, 1));
       clone.style.transform = `scale(${scale})`;
       clone.style.width = (availableWidth / scale) + 'px';
     } else {
       clone.style.width = availableWidth + 'px';
-      const finalRemain = availableHeight - clone.scrollHeight;
-      if (finalRemain > 1 && cards.length) {
-        const addLast = cards[cards.length - 1].getBoundingClientRect().height + finalRemain;
-        cards[cards.length - 1].style.minHeight = Math.ceil(addLast) + 'px';
-      }
     }
 
     return wrap;
