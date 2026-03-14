@@ -1693,7 +1693,6 @@
   async function renderExportCanvas() {
     const exportNode = buildExportNode();
     if (!exportNode) throw new Error('캡처할 보고서 영역을 찾을 수 없습니다.');
-    document.body.classList.add('export-mode');
     try {
       const targetWidth = 1587;
       const targetHeight = 1123;
@@ -1711,7 +1710,6 @@
       return canvas;
     } finally {
       exportNode.remove();
-      document.body.classList.remove('export-mode');
     }
   }
 
@@ -1761,7 +1759,6 @@
     const signedPct = `${pct > 0 ? '+' : pct < 0 ? '' : ''}${pct.toFixed(1)}%`;
     const prevPrice = d.prev_price !== undefined && d.prev_price !== null && d.prev_price !== '' ? formatPrice(d.prev_price) : '-';
     const chartImg = chartImgOverride || '';
-    const trendColor = abs > 0 ? 'var(--up-red)' : abs < 0 ? 'var(--down-blue)' : '#111111';
 
     const targetWidth = 1587;
     const targetHeight = 1123;
@@ -1800,10 +1797,10 @@
             <div class="detail-export-meta">
               <div class="panel-label">Key Metrics</div>
               <div class="detail-meta-grid">
-                <div class="detail-meta-chip"><span class="k">Price</span><span class="v" style="color:${trendColor}; font-weight:900;">${escapeHtml(formatPrice(d.price))}</span></div>
+                <div class="detail-meta-chip"><span class="k">Price</span><span class="v">${escapeHtml(formatPrice(d.price))}</span></div>
                 <div class="detail-meta-chip"><span class="k">Prev</span><span class="v">${escapeHtml(prevPrice)}</span></div>
-                <div class="detail-meta-chip"><span class="k">Change</span><span class="v" style="color:${trendColor}; font-weight:900;">${escapeHtml(signedAbs)}</span></div>
-                <div class="detail-meta-chip"><span class="k">Change %</span><span class="v" style="color:${trendColor}; font-weight:900;">${escapeHtml(signedPct)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Change</span><span class="v">${escapeHtml(signedAbs)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Change %</span><span class="v">${escapeHtml(signedPct)}</span></div>
               </div>
             </div>
           </div>
@@ -1899,7 +1896,7 @@
     const factorsContent = exportNode.querySelector('.detail-export-card.factors .content');
     const otherDetailContents = detailContents.filter(el => el !== factorsContent);
     let detailBodyFont = 22;
-    let factorsBodyFont = 33;
+    let factorsBodyFont = 44;
     let detailHeadFont = 26;
     const avgDetailLen = detailContents.reduce((a, el) => a + (el.textContent || '').replace(/\s+/g,' ').trim().length, 0) / Math.max(detailContents.length, 1);
     if (avgDetailLen > 260) detailBodyFont = 20;
