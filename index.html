@@ -583,13 +583,13 @@
     .detail-a4-export .detail-export-card.additional { grid-area: additional; }
     .detail-a4-export .detail-export-card h3 {
       margin: 0 0 10px;
-      font-size: 23px;
+      font-size: 26px;
       font-weight: 900;
       color: var(--main-orange);
     }
     .detail-a4-export .detail-export-card .content {
       white-space: pre-wrap;
-      font-size: 18px;
+      font-size: 22px;
       line-height: 1.6;
       font-weight: 900;
       color: #243041;
@@ -611,13 +611,13 @@
     }
     .detail-a4-export .detail-export-chart h3 {
       margin: 0 0 10px;
-      font-size: 23px;
+      font-size: 26px;
       font-weight: 900;
       color: var(--main-orange);
     }
     .detail-a4-export .detail-export-chart img {
       width: 100%;
-      height: 300px;
+      height: 320px;
       object-fit: contain;
       display: block;
       border-radius: 16px;
@@ -733,7 +733,7 @@
 
     <div id="detailChartSection" class="detail-chart-wrap" style="display:none;">
       <div class="detail-chart-top">
-        <div style="font-size:24px; font-weight:900;">📈 데일리 가격 추이</div>
+        <div style="font-size:32px; font-weight:900;">📈 데일리 가격 추이</div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <span style="font-size:13px; font-weight:800; color:#555;">그래프 형태</span>
           <select id="detailGraphType" class="detail-graph-type" style="width:140px;" onchange="changeDetailGraphType()">
@@ -1573,11 +1573,11 @@
         </div>
         <div id="exportCardsFill" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:12px;">
           ${displayItems.map(item => `
-            <div class="item-card export-fill-card" style="margin:0 !important; flex:1 1 0; min-height:0; display:grid; grid-template-columns: 118px 84px 104px minmax(0,1fr); gap:8px; align-items:stretch; padding:8px 12px; border:1px solid #d7dee5; border-radius:16px; box-shadow:none; background:#fff;">
+            <div class="item-card export-fill-card" style="margin:0 !important; flex:1 1 0; min-height:0; display:grid; grid-template-columns: 104px 78px 96px minmax(0,1fr); gap:6px; align-items:stretch; padding:6px 10px; border:1px solid #d7dee5; border-radius:16px; box-shadow:none; background:#fff;">
               <div class="item-name" style="display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900;">${escapeHtml(item.label)}</div>
               <div class="item-price price-${item.cls}" style="display:flex; flex-direction:column; justify-content:center; font-size:28px; font-weight:900;">${escapeHtml(String(item.price))}<small>(${escapeHtml(item.unit)})</small></div>
-              <div class="item-change change-${item.cls}" style="display:flex; align-items:center; justify-content:center; text-align:center; font-size:17px; font-weight:800;">${item.sign} ${Math.abs(item.abs).toFixed(1)} (${item.pct.toFixed(1)}%)</div>
-              <div class="item-comm" style="display:flex; align-items:center; height:100%; min-height:0; font-size:24px; line-height:1.38; font-weight:800; letter-spacing:-0.01em;">${escapeHtml(item.commentary)}</div>
+              <div class="item-change change-${item.cls}" style="display:flex; align-items:center; justify-content:center; text-align:center; font-size:20px; font-weight:800;">${item.sign} ${Math.abs(item.abs).toFixed(1)} (${item.pct.toFixed(1)}%)</div>
+              <div class="item-comm" style="display:flex; align-items:center; height:100%; min-height:0; font-size:30px; line-height:1.34; font-weight:800; letter-spacing:-0.01em;">${escapeHtml(item.commentary)}</div>
             </div>
           `).join('')}
         </div>
@@ -1599,14 +1599,14 @@
       const commentLengths = displayItems.map(item => String(item.commentary || '').replace(/\s+/g, ' ').trim().length);
       const avgLen = commentLengths.reduce((a, b) => a + b, 0) / Math.max(commentLengths.length, 1);
 
-      let commentFont = avgLen <= 70 ? 27 : avgLen <= 90 ? 25 : avgLen <= 110 ? 23 : avgLen <= 130 ? 21 : 19;
+      let commentFont = avgLen <= 70 ? 34 : avgLen <= 90 ? 32 : avgLen <= 110 ? 30 : avgLen <= 130 ? 28 : 26;
       let titleFont = avgLen <= 90 ? 48 : 46;
-      let gap = avgLen <= 90 ? 10 : 9;
-      let padY = avgLen <= 90 ? 10 : 9;
-      let cardFont = 24;
-      let priceFont = 28;
-      let changeFont = 17;
-      let unitFont = 10.5;
+      let gap = avgLen <= 90 ? 8 : 7;
+      let padY = avgLen <= 90 ? 7 : 6;
+      let cardFont = 28;
+      let priceFont = 32;
+      let changeFont = 20;
+      let unitFont = 12;
       let footerFont = 13;
       let guard = 0;
 
@@ -1633,14 +1633,14 @@
 
       apply();
       while (container.scrollHeight > targetHeight && guard < 40) {
-        if (commentFont > 17) commentFont -= 0.5;
+        if (commentFont > 24) commentFont -= 0.5;
         else if (gap > 6) gap -= 0.5;
         else if (padY > 6.5) padY -= 0.5;
         else if (titleFont > 42) titleFont -= 0.5;
-        else if (cardFont > 21) cardFont -= 0.3;
-        else if (priceFont > 24) priceFont -= 0.3;
-        else if (changeFont > 15) changeFont -= 0.2;
-        else if (unitFont > 10) unitFont -= 0.2;
+        else if (cardFont > 24) cardFont -= 0.3;
+        else if (priceFont > 28) priceFont -= 0.3;
+        else if (changeFont > 17) changeFont -= 0.2;
+        else if (unitFont > 11) unitFont -= 0.2;
         else if (footerFont > 12) footerFont -= 0.2;
         else break;
         apply();
@@ -1653,8 +1653,8 @@
       const baseGapTotal = gap * (cards.length - 1);
       const perCard = Math.floor((available - baseGapTotal) / cards.length);
       cards.forEach(card => {
-        card.style.height = Math.max(118, perCard) + 'px';
-        card.style.minHeight = Math.max(118, perCard) + 'px';
+        card.style.height = Math.max(128, perCard) + 'px';
+        card.style.minHeight = Math.max(128, perCard) + 'px';
       });
 
       if (container.scrollHeight > targetHeight) {
@@ -1871,9 +1871,28 @@
 
     resetAdaptiveStyles();
 
+    const detailContents = Array.from(exportNode.querySelectorAll('.detail-export-card .content'));
+    const detailHeads = Array.from(exportNode.querySelectorAll('.detail-export-card h3, .detail-export-chart h3'));
+    let detailBodyFont = 22;
+    let detailHeadFont = 26;
+    const avgDetailLen = detailContents.reduce((a, el) => a + (el.textContent || '').replace(/\s+/g,' ').trim().length, 0) / Math.max(detailContents.length, 1);
+    if (avgDetailLen > 260) detailBodyFont = 20;
+    if (avgDetailLen > 360) detailBodyFont = 18;
+    if (avgDetailLen > 460) detailBodyFont = 16;
+    detailContents.forEach(el => el.style.fontSize = detailBodyFont + 'px');
+    detailHeads.forEach(el => el.style.fontSize = detailHeadFont + 'px');
+
     const naturalHeight = Math.ceil(sheet.scrollHeight);
     if (naturalHeight > availableHeight) {
-      const scale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
+      let guard = 0;
+      while (sheet.scrollHeight > availableHeight && detailBodyFont > 16 && guard < 20) {
+        detailBodyFont -= 1;
+        if (detailHeadFont > 22) detailHeadFont -= 0.5;
+        detailContents.forEach(el => el.style.fontSize = detailBodyFont + 'px');
+        detailHeads.forEach(el => el.style.fontSize = detailHeadFont + 'px');
+        guard += 1;
+      }
+      const scale = Math.min(1, availableHeight / Math.max(sheet.scrollHeight, 1));
       sheet.style.transform = `scale(${scale})`;
       sheet.style.width = (availableWidth / scale) + 'px';
       return { width: 1587, height: 1123 };
