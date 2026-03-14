@@ -640,7 +640,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:3px solid var(--main-orange); padding-bottom:8px; gap:10px; flex-wrap:wrap;">
         <div>
           <div style="font-size:13px; font-weight:900; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
-          <h2 style="font-size:20px; color:#333; line-height:1.15;">Weekly Chemical Market Report</h2>
+          <h2 style="font-size:20px; color:#333; line-height:1.15;">Weekly Chemical Marekt Report (롯데첨단 구매부문 주원료 위클리)</h2><div style="margin-top:6px; font-size:11px; color:#8b95a1; font-weight:600;">AI로 내용 정리 수정된 자료입니다</div>
         </div>
         <span style="font-weight:800; color:#666; font-size:14px;">Week: ${formatWeekLabel(data.week || '-')}</span>
       </div>`;
@@ -657,10 +657,7 @@
           <div class="item-price price-${cls}">${d.price || '-'}<small>(${UNITS[name]})</small></div>
           <div class="item-change change-${cls}">${sign} ${Math.abs(abs).toFixed(1)} (${pct.toFixed(1)}%)</div>
           <div class="item-comm">${escapeHtml(d.commentary || '분석 코멘터리가 없습니다.')}</div>
-          <div class="item-actions">
-            <button class="btn-detail" onclick="openDetailModal('${name}')">상세 정보 보기</button>
-            <button class="btn-edit" onclick="quickEdit('${name}')">수정</button>
-          </div>
+          <div class="item-actions" style="display:none !important;"></div>
         </div>`;
     });
 
@@ -1186,7 +1183,7 @@
         <div class="detail-export-head">
           <div class="detail-export-titlebox">
             <div class="kicker">LAM · PETROCHEMICALS</div>
-            <h2>Weekly Chemical Market Report<br>Detailed Brief</h2>
+            <h2>Weekly Chemical Marekt Report (롯데첨단 구매부문 주원료 위클리)<br>Detailed Brief</h2><div style="margin-top:8px; font-size:11px; color:#94a3b8; font-weight:600;">AI로 내용 정리 수정된 자료입니다</div>
             <p>주요 원료 및 유도품의 상세 코멘터리와 변동요인, 전망을 주차 기준으로 정리한 경영진 보고용 상세 이미지입니다.</p>
           </div>
           <div class="detail-export-weekbox">
