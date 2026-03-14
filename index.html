@@ -1521,32 +1521,68 @@
   }
 
   function buildExportNode() {
-    return document.getElementById('captureArea');
+    const source = document.getElementById('captureArea');
+    if (!source) return null;
+
+    const wrap = document.createElement('div');
+    wrap.style.position = 'fixed';
+    wrap.style.left = '-99999px';
+    wrap.style.top = '0';
+    wrap.style.width = '1587px';
+    wrap.style.height = '1123px';
+    wrap.style.background = '#ffffff';
+    wrap.style.padding = '24px';
+    wrap.style.boxSizing = 'border-box';
+    wrap.style.overflow = 'hidden';
+    wrap.style.zIndex = '-1';
+
+    const clone = source.cloneNode(true);
+    clone.id = 'captureAreaExportClone';
+    clone.style.width = '100%';
+    clone.style.maxWidth = 'none';
+    clone.style.margin = '0';
+    clone.style.padding = '0';
+    clone.style.boxSizing = 'border-box';
+    clone.querySelectorAll('.item-actions, .btn-detail, .btn-save, .btn-edit').forEach(el => {
+      el.style.display = 'none';
+    });
+
+    const title = clone.querySelector('h2');
+    if (title) title.textContent = 'Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)';
+    const aiNote = clone.querySelector('div[style*="AI로 내용 정리 수정된 자료입니다"]') || Array.from(clone.querySelectorAll('div')).find(el => (el.textContent || '').trim() === 'AI로 내용 정리 수정된 자료입니다');
+    if (aiNote) {
+      aiNote.textContent = 'AI로 내용 정리 수정된 자료입니다';
+      aiNote.style.fontSize = '13px';
+      aiNote.style.fontWeight = '700';
+      aiNote.style.color = '#6b7280';
+    }
+
+    wrap.appendChild(clone);
+    document.body.appendChild(wrap);
+    return wrap;
   }
 
   async function renderExportCanvas() {
     const exportNode = buildExportNode();
     if (!exportNode) throw new Error('캡처할 보고서 영역을 찾을 수 없습니다.');
-    const rect = exportNode.getBoundingClientRect();
-    const targetWidth = Math.ceil(exportNode.scrollWidth || rect.width || 0);
-    const targetHeight = Math.ceil(exportNode.scrollHeight || rect.height || 0);
-    const canvas = await html2canvas(exportNode, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      width: targetWidth,
-      height: targetHeight,
-      windowWidth: targetWidth,
-      windowHeight: targetHeight,
-      scrollX: 0,
-      scrollY: -window.scrollY,
-      onclone: (clonedDoc) => {
-        clonedDoc.querySelectorAll('.item-actions, .btn-detail, .btn-save, .btn-edit').forEach(el => {
-          el.style.display = 'none';
-        });
-      }
-    });
-    return canvas;
+    try {
+      const targetWidth = 1587;
+      const targetHeight = 1123;
+      const canvas = await html2canvas(exportNode, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: targetWidth,
+        height: targetHeight,
+        windowWidth: targetWidth,
+        windowHeight: targetHeight,
+        scrollX: 0,
+        scrollY: 0
+      });
+      return canvas;
+    } finally {
+      exportNode.remove();
+    }
   }
 
   async function saveAsImage() {
