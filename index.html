@@ -564,6 +564,7 @@
       gap: 14px;
       margin-top: 14px;
       align-items: stretch;
+      min-height: 0;
     }
     .detail-a4-export .detail-export-card {
       background: #fff;
@@ -1559,10 +1560,11 @@
     const title = clone.querySelector('h2');
     if (title) {
       title.textContent = 'Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)';
-      title.style.fontSize = '30px';
+      title.style.fontSize = '31px';
       title.style.fontWeight = '900';
       title.style.letterSpacing = '-0.02em';
-      title.style.lineHeight = '1.1';
+      title.style.lineHeight = '1.08';
+      title.style.marginBottom = '10px';
     }
     const aiNote = clone.querySelector('div[style*="AI로 내용 정리 수정된 자료입니다"]') || Array.from(clone.querySelectorAll('div')).find(el => (el.textContent || '').trim() === 'AI로 내용 정리 수정된 자료입니다');
     if (aiNote) {
@@ -1570,36 +1572,53 @@
       aiNote.style.fontSize = '13px';
       aiNote.style.fontWeight = '700';
       aiNote.style.color = '#6b7280';
+      aiNote.style.marginBottom = '6px';
     }
 
     wrap.appendChild(clone);
     document.body.appendChild(wrap);
 
-    let contentHeight = clone.scrollHeight;
-    const extraSpace = availableHeight - contentHeight;
-    if (extraSpace > 24) {
-      const cards = Array.from(clone.querySelectorAll('.item-card'));
-      const extraPerCard = cards.length ? Math.floor(extraSpace / cards.length) : 0;
-      cards.forEach(card => {
-        const cs = window.getComputedStyle(card);
-        const pt = parseFloat(cs.paddingTop) || 0;
-        const pb = parseFloat(cs.paddingBottom) || 0;
-        const mb = parseFloat(cs.marginBottom) || 0;
-        card.style.paddingTop = (pt + Math.max(6, extraPerCard * 0.35)) + 'px';
-        card.style.paddingBottom = (pb + Math.max(8, extraPerCard * 0.45)) + 'px';
-        card.style.marginBottom = (mb + Math.max(2, extraPerCard * 0.06)) + 'px';
-      });
-      const header = clone.querySelector('div[style*="border-bottom:3px solid var(--main-orange)"]');
-      if (header) {
-        header.style.paddingBottom = '14px';
-        header.style.marginBottom = '28px';
-      }
-      contentHeight = clone.scrollHeight;
-    }
+    const cards = Array.from(clone.querySelectorAll('.item-card'));
+    const weekLine = clone.querySelector('div[style*="border-bottom:3px solid var(--main-orange)"]') || clone.querySelector('.detail-header') || clone.querySelector('h2')?.parentElement;
+    const tuneA4Fill = () => {
+      let contentHeight = clone.scrollHeight;
+      if (!cards.length) return contentHeight;
 
-    const scale = Math.min(1, availableHeight / Math.max(contentHeight, 1));
-    clone.style.transform = `scale(${scale})`;
-    clone.style.width = (availableWidth / scale) + 'px';
+      const extraSpace = availableHeight - contentHeight;
+      if (extraSpace > 6) {
+        const perCard = extraSpace / cards.length;
+        cards.forEach((card, idx) => {
+          const cs = window.getComputedStyle(card);
+          const baseHeight = Math.ceil(card.getBoundingClientRect().height);
+          const baseMarginBottom = parseFloat(cs.marginBottom) || 0;
+          const addHeight = Math.max(10, perCard * 0.82);
+          const addMargin = Math.max(2, perCard * 0.18);
+          card.style.minHeight = (baseHeight + addHeight) + 'px';
+          card.style.marginBottom = (baseMarginBottom + addMargin + (idx === cards.length - 1 ? 0 : 0)) + 'px';
+          card.style.alignItems = 'center';
+        });
+        if (weekLine) {
+          weekLine.style.paddingBottom = '16px';
+          weekLine.style.marginBottom = '22px';
+        }
+        contentHeight = clone.scrollHeight;
+      }
+      return contentHeight;
+    };
+
+    let contentHeight = tuneA4Fill();
+
+    if (contentHeight > availableHeight) {
+      const scale = Math.min(1, availableHeight / Math.max(contentHeight, 1));
+      clone.style.transform = `scale(${scale})`;
+      clone.style.width = (availableWidth / scale) + 'px';
+    } else {
+      const remain = availableHeight - contentHeight;
+      if (remain > 2) {
+        clone.style.paddingBottom = remain + 'px';
+      }
+      clone.style.width = availableWidth + 'px';
+    }
 
     return wrap;
   }
@@ -1674,8 +1693,26 @@
     const prevPrice = d.prev_price !== undefined && d.prev_price !== null && d.prev_price !== '' ? formatPrice(d.prev_price) : '-';
     const chartImg = chartImgOverride || '';
 
+    const targetWidth = 1587;
+    const targetHeight = 1123;
+    const paddingX = 24;
+    const paddingY = 22;
+    const availableWidth = targetWidth - paddingX * 2;
+    const availableHeight = targetHeight - paddingY * 2;
+
     const exportWrap = document.createElement('div');
     exportWrap.className = 'detail-a4-export';
+    exportWrap.style.position = 'fixed';
+    exportWrap.style.left = '-99999px';
+    exportWrap.style.top = '0';
+    exportWrap.style.width = targetWidth + 'px';
+    exportWrap.style.height = targetHeight + 'px';
+    exportWrap.style.background = '#ffffff';
+    exportWrap.style.padding = `${paddingY}px ${paddingX}px`;
+    exportWrap.style.boxSizing = 'border-box';
+    exportWrap.style.overflow = 'hidden';
+    exportWrap.style.zIndex = '-1';
+
     exportWrap.innerHTML = `
       <div class="detail-export-sheet">
         <div class="detail-export-hero">
@@ -1724,8 +1761,118 @@
           <div>${escapeHtml(weekLabel)} · A4 Landscape</div>
         </div>
       </div>`;
+
+    const sheet = exportWrap.querySelector('.detail-export-sheet');
+    const body = exportWrap.querySelector('.detail-export-body');
+    const footer = exportWrap.querySelector('.detail-export-footer');
+    const chartCard = exportWrap.querySelector('.detail-export-chart');
+    const chartImgEl = exportWrap.querySelector('.detail-export-chart img');
+
+    exportWrap.dataset.availableWidth = String(availableWidth);
+    exportWrap.dataset.availableHeight = String(availableHeight);
+
+    sheet.style.width = availableWidth + 'px';
+    sheet.style.minHeight = '0';
+    sheet.style.height = 'auto';
+    sheet.style.padding = '30px 34px 24px';
+    sheet.style.boxSizing = 'border-box';
+    sheet.style.transformOrigin = 'top left';
+
     document.body.appendChild(exportWrap);
     return exportWrap;
+  }
+
+  function tuneDetailExportA4Fill(exportNode) {
+    if (!exportNode) return { width: 1587, height: 1123 };
+    const availableWidth = +(exportNode.dataset.availableWidth || 1539);
+    const availableHeight = +(exportNode.dataset.availableHeight || 1079);
+    const sheet = exportNode.querySelector('.detail-export-sheet');
+    const body = exportNode.querySelector('.detail-export-body');
+    const footer = exportNode.querySelector('.detail-export-footer');
+    const cards = Array.from(exportNode.querySelectorAll('.detail-export-card'));
+    const chartCard = exportNode.querySelector('.detail-export-chart');
+    const chartImgEl = exportNode.querySelector('.detail-export-chart img');
+    if (!sheet || !body || !footer) return { width: 1587, height: 1123 };
+
+    const resetAdaptiveStyles = () => {
+      sheet.style.transform = '';
+      sheet.style.width = availableWidth + 'px';
+      sheet.style.height = 'auto';
+      sheet.style.display = '';
+      sheet.style.flexDirection = '';
+      sheet.style.justifyContent = '';
+      body.style.flex = '';
+      body.style.minHeight = '';
+      body.style.gridTemplateRows = '';
+      body.style.alignItems = '';
+      body.style.gap = '';
+      footer.style.marginTop = '';
+      cards.forEach(card => {
+        card.style.height = '';
+        card.style.minHeight = '';
+      });
+      if (chartCard) {
+        chartCard.style.height = '';
+        chartCard.style.minHeight = '';
+      }
+      if (chartImgEl) {
+        chartImgEl.style.height = '';
+        chartImgEl.style.flex = '';
+        chartImgEl.style.minHeight = '';
+      }
+    };
+
+    resetAdaptiveStyles();
+
+    const naturalHeight = Math.ceil(sheet.scrollHeight);
+    if (naturalHeight > availableHeight) {
+      const scale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
+      sheet.style.transform = `scale(${scale})`;
+      sheet.style.width = (availableWidth / scale) + 'px';
+      return { width: 1587, height: 1123 };
+    }
+
+    sheet.style.height = availableHeight + 'px';
+    sheet.style.display = 'flex';
+    sheet.style.flexDirection = 'column';
+    body.style.flex = '1 1 auto';
+    body.style.minHeight = '0';
+    body.style.alignItems = 'stretch';
+    body.style.gap = '16px';
+    footer.style.marginTop = '14px';
+
+    if (chartCard) {
+      body.style.gridTemplateRows = 'minmax(0,1fr) minmax(0,1fr)';
+      cards.forEach(card => {
+        card.style.height = '100%';
+        card.style.minHeight = '0';
+      });
+      chartCard.style.height = '100%';
+      chartCard.style.minHeight = '0';
+      if (chartImgEl) {
+        chartImgEl.style.flex = '1 1 auto';
+        chartImgEl.style.height = 'auto';
+        chartImgEl.style.minHeight = '260px';
+      }
+    } else {
+      body.style.gridTemplateAreas = `"factors outlook" "additional additional"`;
+      body.style.gridTemplateRows = 'minmax(0,1fr) minmax(0,1fr)';
+      cards.forEach(card => {
+        card.style.height = '100%';
+        card.style.minHeight = '0';
+      });
+    }
+
+    const filledHeight = Math.ceil(sheet.scrollHeight);
+    if (filledHeight > availableHeight) {
+      resetAdaptiveStyles();
+      const scaledHeight = Math.ceil(sheet.scrollHeight);
+      const scale = Math.min(1, availableHeight / Math.max(scaledHeight, 1));
+      sheet.style.transform = `scale(${scale})`;
+      sheet.style.width = (availableWidth / scale) + 'px';
+    }
+
+    return { width: 1587, height: 1123 };
   }
 
 
@@ -1833,15 +1980,15 @@
     if (!exportNode) throw new Error('상세 데이터가 없습니다.');
     document.body.classList.add('export-mode');
     try {
-      const targetHeight = Math.max(1123, exportNode.scrollHeight);
+      tuneDetailExportA4Fill(exportNode);
       const canvas = await html2canvas(exportNode, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
-        width: 1588,
-        windowWidth: 1588,
-        height: targetHeight,
-        windowHeight: targetHeight,
+        width: 1587,
+        height: 1123,
+        windowWidth: 1587,
+        windowHeight: 1123,
         scrollX: 0,
         scrollY: 0
       });
