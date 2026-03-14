@@ -434,6 +434,184 @@
       font-weight: 700;
     }
 
+
+    .detail-a4-export {
+      position: fixed;
+      left: -10000px;
+      top: 0;
+      width: 1588px;
+      background: #ffffff;
+      z-index: -1;
+      padding: 0;
+    }
+    .detail-a4-export .detail-export-sheet {
+      width: 1588px;
+      min-height: 1123px;
+      padding: 34px 38px 28px;
+      background: linear-gradient(180deg, #fff8ef 0%, #ffffff 16%, #ffffff 100%);
+      color: #1f2937;
+    }
+    .detail-a4-export .detail-export-hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .detail-a4-export .detail-export-titlebox {
+      background: linear-gradient(135deg, #1f2937 0%, #34495e 60%, #4b5563 100%);
+      border-radius: 24px;
+      color: #fff;
+      padding: 24px 28px 22px;
+      box-shadow: 0 18px 36px rgba(31, 41, 55, 0.16);
+    }
+    .detail-a4-export .detail-export-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.16);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .detail-a4-export .detail-export-title {
+      margin-top: 14px;
+      font-size: 32px;
+      line-height: 1.12;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .detail-a4-export .detail-export-subtitle {
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.84);
+      font-weight: 600;
+    }
+    .detail-a4-export .detail-export-side {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 14px;
+    }
+    .detail-a4-export .detail-export-panel,
+    .detail-a4-export .detail-export-meta {
+      background: #fff;
+      border-radius: 22px;
+      border: 1px solid #f1dfc2;
+      box-shadow: 0 10px 24px rgba(255, 140, 0, 0.08);
+      padding: 18px 20px;
+    }
+    .detail-a4-export .panel-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #b56700;
+      margin-bottom: 8px;
+    }
+    .detail-a4-export .week-mark {
+      font-size: 30px;
+      font-weight: 900;
+      color: #1f2937;
+      line-height: 1.05;
+    }
+    .detail-a4-export .week-note {
+      margin-top: 6px;
+      color: #6b7280;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .detail-a4-export .detail-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .detail-a4-export .detail-meta-chip {
+      background: linear-gradient(180deg, #fffaf2 0%, #fff4e7 100%);
+      border: 1px solid #f3d7ac;
+      border-radius: 16px;
+      padding: 12px 12px;
+    }
+    .detail-a4-export .detail-meta-chip .k {
+      display:block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #a16207;
+      margin-bottom: 6px;
+    }
+    .detail-a4-export .detail-meta-chip .v {
+      display:block;
+      font-size: 19px;
+      line-height: 1.15;
+      font-weight: 900;
+      color: #1f2937;
+    }
+    .detail-a4-export .detail-export-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .detail-a4-export .detail-export-card {
+      background: #fff;
+      border: 1px solid #eceff3;
+      border-radius: 22px;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.05);
+      padding: 18px 20px;
+    }
+    .detail-a4-export .detail-export-card.full { grid-column: 1 / span 2; }
+    .detail-a4-export .detail-export-card h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: var(--main-orange);
+    }
+    .detail-a4-export .detail-export-card .content {
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 700;
+      color: #243041;
+    }
+    .detail-a4-export .detail-export-chart {
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid #eceff3;
+      border-radius: 22px;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.05);
+      padding: 16px 18px 18px;
+    }
+    .detail-a4-export .detail-export-chart h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: var(--main-orange);
+    }
+    .detail-a4-export .detail-export-chart img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+      border: 1px solid #edf2f7;
+      background: #fff;
+    }
+    .detail-a4-export .detail-export-footer {
+      margin-top: 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding-top: 12px;
+      border-top: 1px solid #eceff3;
+      color: #70757d;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
     @media print {
       .header, .modal-overlay, .toast { display:none !important; }
     }
@@ -556,7 +734,9 @@
       이 품목은 현재 상세 텍스트만 표시하도록 구성되어 있습니다.
     </div>
 
-    <div style="margin-top:22px; display:flex; justify-content:flex-end; gap:10px;">
+    <div style="margin-top:22px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;">
+      <button class="btn btn-save" onclick="saveDetailAsImage()">🖼️ 상세 이미지</button>
+      <button class="btn btn-save" style="background:#17a2b8;" onclick="saveDetailAsPDF()">📄 상세 PDF</button>
       <button class="btn" onclick="closeDetailModal()" style="background:#eee; color:#333;">닫기</button>
     </div>
   </div>
@@ -1412,6 +1592,134 @@
     } catch (e) {
       console.error(e);
       showToast('⚠️ PDF 저장 실패');
+    }
+  }
+
+
+  function buildDetailExportNode() {
+    if (!currentWeekData || !currentDetailItem || !currentWeekData.items[currentDetailItem]) return null;
+    const name = currentDetailItem;
+    const d = currentWeekData.items[name] || {};
+    const weekLabel = formatWeekLabel(currentWeekData?.week || '-');
+    const abs = safeNumber(d.change_abs);
+    const pct = safeNumber(d.change_pct);
+    const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name;
+    const direction = abs > 0 ? '상승' : abs < 0 ? '하락' : '보합';
+    const signedAbs = `${abs > 0 ? '+' : abs < 0 ? '' : ''}${abs.toFixed(1)}`;
+    const signedPct = `${pct > 0 ? '+' : pct < 0 ? '' : ''}${pct.toFixed(1)}%`;
+    const prevPrice = d.prev_price !== undefined && d.prev_price !== null && d.prev_price !== '' ? formatPrice(d.prev_price) : '-';
+    const chartImg = (GRAPH_ITEMS.includes(name) && detailChart && typeof detailChart.toBase64Image === 'function') ? detailChart.toBase64Image() : '';
+
+    const exportWrap = document.createElement('div');
+    exportWrap.className = 'detail-a4-export';
+    exportWrap.innerHTML = `
+      <div class="detail-export-sheet">
+        <div class="detail-export-hero">
+          <div class="detail-export-titlebox">
+            <div class="detail-export-kicker">LAM · DETAIL BRIEF</div>
+            <div class="detail-export-title">${escapeHtml(displayName)} 상세 브리핑</div>
+            <div class="detail-export-subtitle">주간 가격과 변동 요인을 한 페이지 A4 가로 형식으로 정리한 상세 보고서입니다.</div>
+          </div>
+          <div class="detail-export-side">
+            <div class="detail-export-panel">
+              <div class="panel-label">Report Week</div>
+              <div class="week-mark">${escapeHtml(weekLabel)}</div>
+              <div class="week-note">판정: ${direction} · 저장용 상세 브리핑</div>
+            </div>
+            <div class="detail-export-meta">
+              <div class="panel-label">Key Metrics</div>
+              <div class="detail-meta-grid">
+                <div class="detail-meta-chip"><span class="k">Price</span><span class="v">${escapeHtml(formatPrice(d.price))}</span></div>
+                <div class="detail-meta-chip"><span class="k">Prev</span><span class="v">${escapeHtml(prevPrice)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Change</span><span class="v">${escapeHtml(signedAbs)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Change %</span><span class="v">${escapeHtml(signedPct)}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-export-body">
+          <div class="detail-export-card">
+            <h3>📌 변동요인</h3>
+            <div class="content">${escapeHtml(d.factors || '입력된 변동요인이 없습니다.')}</div>
+          </div>
+          <div class="detail-export-card">
+            <h3>🔎 결론 및 전망</h3>
+            <div class="content">${escapeHtml(d.outlook || '입력된 결론 및 전망이 없습니다.')}</div>
+          </div>
+          <div class="detail-export-card full">
+            <h3>➕ 추가정보</h3>
+            <div class="content">${escapeHtml(d.additional_info || '입력된 추가정보가 없습니다.')}</div>
+          </div>
+        </div>
+
+        ${chartImg ? `<div class="detail-export-chart"><h3>📈 데일리 가격 추이</h3><img src="${chartImg}" alt="${escapeAttr(displayName)} detail chart"></div>` : ''}
+
+        <div class="detail-export-footer">
+          <div>LAM Weekly Chemical Market Report</div>
+          <div>${escapeHtml(displayName)} Detail Brief</div>
+          <div>${escapeHtml(weekLabel)} · A4 Landscape</div>
+        </div>
+      </div>`;
+    document.body.appendChild(exportWrap);
+    return exportWrap;
+  }
+
+  async function renderDetailExportCanvas() {
+    const exportNode = buildDetailExportNode();
+    if (!exportNode) throw new Error('상세 데이터가 없습니다.');
+    document.body.classList.add('export-mode');
+    try {
+      const canvas = await html2canvas(exportNode, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: 1588,
+        windowWidth: 1588,
+        height: 1123,
+        windowHeight: 1123,
+        scrollX: 0,
+        scrollY: 0
+      });
+      return canvas;
+    } finally {
+      exportNode.remove();
+      document.body.classList.remove('export-mode');
+    }
+  }
+
+  async function saveDetailAsImage() {
+    try {
+      if (!currentDetailItem) { showToast('⚠️ 상세보기 항목이 없습니다.'); return; }
+      showToast('🖼️ 상세 A4 가로 이미지 생성 중...');
+      const canvas = await renderDetailExportCanvas();
+      const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem;
+      const link = document.createElement('a');
+      link.download = `LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('✅ 상세 이미지 저장 완료');
+    } catch (e) {
+      console.error(e);
+      showToast('⚠️ 상세 이미지 저장 실패');
+    }
+  }
+
+  async function saveDetailAsPDF() {
+    try {
+      if (!currentDetailItem) { showToast('⚠️ 상세보기 항목이 없습니다.'); return; }
+      showToast('📄 상세 A4 가로 PDF 생성 중...');
+      const canvas = await renderDetailExportCanvas();
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+      pdf.addImage(imgData, 'PNG', 0, 0, 297, 210, undefined, 'FAST');
+      const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem;
+      pdf.save(`LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.pdf`);
+      showToast('✅ 상세 PDF 저장 완료');
+    } catch (e) {
+      console.error(e);
+      showToast('⚠️ 상세 PDF 저장 실패');
     }
   }
 
