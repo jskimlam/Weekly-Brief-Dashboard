@@ -1522,132 +1522,140 @@
   }
 
   function buildExportNode() {
-    const source = document.getElementById('captureArea');
-    if (!source) return null;
+    if (!currentWeekData) return null;
 
     const targetWidth = 1587;
     const targetHeight = 1123;
-    const paddingX = 24;
-    const paddingY = 22;
-    const availableWidth = targetWidth - paddingX * 2;
-    const availableHeight = targetHeight - paddingY * 2;
+    const displayItems = ITEMS.map(name => {
+      const d = currentWeekData.items?.[name] || {};
+      const abs = safeNumber(d.change_abs);
+      const pct = safeNumber(d.change_pct);
+      const sign = abs > 0 ? '▲' : (abs < 0 ? '▼' : '-');
+      const cls = abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none');
+      return {
+        key: name,
+        label: name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name,
+        unit: UNITS[name],
+        price: d.price || '-',
+        commentary: d.commentary || '분석 코멘터리가 없습니다.',
+        abs,
+        pct,
+        sign,
+        cls
+      };
+    });
+
+    const biggest = displayItems.reduce((a, b) => Math.abs(b.abs) > Math.abs(a.abs) ? b : a, displayItems[0] || {label:'-'});
 
     const wrap = document.createElement('div');
+    wrap.className = 'a4-landscape-export';
     wrap.style.position = 'fixed';
     wrap.style.left = '-99999px';
     wrap.style.top = '0';
     wrap.style.width = targetWidth + 'px';
     wrap.style.height = targetHeight + 'px';
-    wrap.style.background = '#ffffff';
-    wrap.style.padding = paddingY + 'px ' + paddingX + 'px';
-    wrap.style.boxSizing = 'border-box';
     wrap.style.overflow = 'hidden';
+    wrap.style.background = '#ffffff';
     wrap.style.zIndex = '-1';
 
-    const clone = source.cloneNode(true);
-    clone.id = 'captureAreaExportClone';
-    clone.style.width = availableWidth + 'px';
-    clone.style.maxWidth = 'none';
-    clone.style.margin = '0';
-    clone.style.padding = '0';
-    clone.style.boxSizing = 'border-box';
-    clone.style.transformOrigin = 'top left';
-    clone.style.background = '#ffffff';
-    clone.querySelectorAll('.item-actions, .btn-detail, .btn-save, .btn-edit').forEach(el => {
-      el.style.display = 'none';
-    });
+    wrap.innerHTML = `
+      <div class="report-container" style="height:${targetHeight}px; min-height:${targetHeight}px; display:flex; flex-direction:column; padding:22px 22px 14px 22px; background:#ffffff;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; border-bottom:3px solid var(--main-orange); padding-bottom:12px; gap:10px; flex-wrap:wrap;">
+          <div>
+            <div style="font-size:14px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
+            <div style="font-size:31px; color:#333; margin:0 0 6px 0; font-weight:900; letter-spacing:-0.02em; line-height:1.08;">Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)</div>
+            <div style="font-size:13px; font-weight:700; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
+          </div>
+          <span style="font-weight:700; color:#666; font-size:16px; padding-top:4px;">Week: ${formatWeekLabel(currentWeekData.week || '-')}</span>
+        </div>
+        <div id="exportCardsFill" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:12px;">
+          ${displayItems.map(item => `
+            <div class="item-card export-fill-card" style="margin:0 !important; flex:1 1 0; min-height:0; display:grid; grid-template-columns: 150px 110px 120px minmax(0,1fr); gap:14px; align-items:stretch; padding:10px 16px; border:1px solid #d7dee5; border-radius:16px; box-shadow:none; background:#fff;">
+              <div class="item-name" style="display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900;">${escapeHtml(item.label)}</div>
+              <div class="item-price price-${item.cls}" style="display:flex; flex-direction:column; justify-content:center; font-size:18px; font-weight:900;">${escapeHtml(String(item.price))}<small>(${escapeHtml(item.unit)})</small></div>
+              <div class="item-change change-${item.cls}" style="display:flex; align-items:center; justify-content:center; text-align:center; font-size:12px; font-weight:800;">${item.sign} ${Math.abs(item.abs).toFixed(1)} (${item.pct.toFixed(1)}%)</div>
+              <div class="item-comm" style="display:flex; align-items:center; height:100%; min-height:0; font-size:13px; line-height:1.42;">${escapeHtml(item.commentary)}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:10px; padding-top:8px; border-top:1px solid #eceff3; color:#70757d; font-size:11px; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
+          <span>LAM Weekly Chemical Market Report</span>
+          <span>${formatWeekLabel(currentWeekData.week || '-')} · Export Format</span>
+        </div>
+      </div>`;
 
-    const title = clone.querySelector('h2');
-    if (title) {
-      title.textContent = 'Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)';
-      title.style.fontSize = '31px';
-      title.style.fontWeight = '900';
-      title.style.letterSpacing = '-0.02em';
-      title.style.lineHeight = '1.08';
-      title.style.marginBottom = '10px';
-    }
-    const aiNote = clone.querySelector('div[style*="AI로 내용 정리 수정된 자료입니다"]') || Array.from(clone.querySelectorAll('div')).find(el => (el.textContent || '').trim() === 'AI로 내용 정리 수정된 자료입니다');
-    if (aiNote) {
-      aiNote.textContent = 'AI로 내용 정리 수정된 자료입니다';
-      aiNote.style.fontSize = '13px';
-      aiNote.style.fontWeight = '700';
-      aiNote.style.color = '#6b7280';
-      aiNote.style.marginBottom = '6px';
-    }
-
-    wrap.appendChild(clone);
     document.body.appendChild(wrap);
 
-    const cards = Array.from(clone.querySelectorAll('.item-card'));
-    const weekLine = clone.querySelector('div[style*="border-bottom:3px solid var(--main-orange)"]') || clone.querySelector('.detail-header') || clone.querySelector('h2')?.parentElement;
-    const getOuterHeight = (el) => {
-      const cs = window.getComputedStyle(el);
-      return el.getBoundingClientRect().height + (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0);
-    };
-    const tuneA4Fill = () => {
-      let contentHeight = clone.scrollHeight;
-      if (!cards.length) return contentHeight;
+    const container = wrap.querySelector('.report-container');
+    const cardsFill = wrap.querySelector('#exportCardsFill');
+    const cards = Array.from(wrap.querySelectorAll('.export-fill-card'));
+    const titleEl = container.firstElementChild;
+    const footerEl = container.lastElementChild;
 
-      const safeBottom = 12;
+    const fitExport = () => {
+      let commentFont = 13;
+      let titleFont = 31;
+      let gap = 12;
+      let padY = 10;
+      let cardFont = 16;
+      let priceFont = 18;
+      let changeFont = 12;
+      let guard = 0;
+
+      const apply = () => {
+        cardsFill.style.gap = gap + 'px';
+        container.style.padding = `22px 22px 14px 22px`;
+        const titleMain = titleEl.querySelector('div:nth-child(2)');
+        if (titleMain) titleMain.style.fontSize = titleFont + 'px';
+        cards.forEach(card => {
+          card.style.padding = `${padY}px 16px`;
+          const nm = card.querySelector('.item-name');
+          const pr = card.querySelector('.item-price');
+          const ch = card.querySelector('.item-change');
+          const cm = card.querySelector('.item-comm');
+          if (nm) nm.style.fontSize = cardFont + 'px';
+          if (pr) pr.style.fontSize = priceFont + 'px';
+          if (ch) ch.style.fontSize = changeFont + 'px';
+          if (cm) cm.style.fontSize = commentFont + 'px';
+        });
+      };
+
+      apply();
+      while (container.scrollHeight > targetHeight && guard < 20) {
+        if (commentFont > 11.2) commentFont -= 0.4;
+        else if (gap > 8) gap -= 1;
+        else if (padY > 7) padY -= 0.5;
+        else if (titleFont > 27) titleFont -= 0.5;
+        else if (cardFont > 15) cardFont -= 0.3;
+        else if (priceFont > 17) priceFont -= 0.3;
+        else if (changeFont > 11) changeFont -= 0.2;
+        else break;
+        apply();
+        guard += 1;
+      }
+
+      const titleH = titleEl.getBoundingClientRect().height;
+      const footerH = footerEl.getBoundingClientRect().height;
+      const available = targetHeight - titleH - footerH - 22 - 14 - 10;
+      const baseGapTotal = gap * (cards.length - 1);
+      const perCard = Math.floor((available - baseGapTotal) / cards.length);
       cards.forEach(card => {
-        card.style.alignItems = 'center';
-        card.style.marginBottom = '';
-        card.style.minHeight = '';
+        card.style.height = Math.max(96, perCard) + 'px';
+        card.style.minHeight = Math.max(96, perCard) + 'px';
       });
 
-      if (weekLine) {
-        weekLine.style.paddingBottom = '16px';
-        weekLine.style.marginBottom = '22px';
+      if (container.scrollHeight > targetHeight) {
+        const scale = Math.min(1, (targetHeight - 8) / Math.max(container.scrollHeight, 1));
+        container.style.transform = `scale(${scale})`;
+        container.style.transformOrigin = 'top left';
+        container.style.width = (100 / scale) + '%';
       }
-
-      contentHeight = clone.scrollHeight;
-      let remain = availableHeight - contentHeight - safeBottom;
-
-      if (remain > 1) {
-        const gaps = Math.max(1, cards.length - 1);
-        const perGap = remain / gaps;
-        let used = 0;
-        cards.forEach((card, idx) => {
-          const cs = window.getComputedStyle(card);
-          const baseMarginBottom = parseFloat(cs.marginBottom) || 0;
-          if (idx < cards.length - 1) {
-            const add = idx === cards.length - 2 ? (remain - used) : perGap;
-            used += idx === cards.length - 2 ? (remain - used) : perGap;
-            card.style.marginBottom = Math.ceil(baseMarginBottom + add) + 'px';
-          } else {
-            card.style.marginBottom = '0px';
-          }
-        });
-        contentHeight = clone.scrollHeight;
-        remain = availableHeight - contentHeight - safeBottom;
-      }
-
-      if (remain > 1) {
-        const perCard = remain / cards.length;
-        let used = 0;
-        cards.forEach((card, idx) => {
-          const current = card.getBoundingClientRect().height;
-          const add = idx === cards.length - 1 ? (remain - used) : perCard;
-          used += idx === cards.length - 1 ? (remain - used) : perCard;
-          card.style.minHeight = Math.ceil(current + add) + 'px';
-        });
-        contentHeight = clone.scrollHeight;
-      }
-      return contentHeight;
     };
 
-    let contentHeight = tuneA4Fill();
-
-    if (contentHeight > availableHeight) {
-      const scale = Math.min(1, (availableHeight - 12) / Math.max(contentHeight, 1));
-      clone.style.transform = `scale(${scale})`;
-      clone.style.width = (availableWidth / scale) + 'px';
-    } else {
-      clone.style.width = availableWidth + 'px';
-    }
-
+    fitExport();
     return wrap;
   }
+
 
   async function renderExportCanvas() {
     const exportNode = buildExportNode();
