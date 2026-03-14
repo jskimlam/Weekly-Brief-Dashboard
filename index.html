@@ -115,7 +115,7 @@
       display:grid; grid-template-columns: 120px 1fr; gap:10px; align-items:start; margin-top: 12px;
     }
     .modal-subtitle {
-      margin-top:18px; padding-top:16px; border-top:2px solid #f0f0f0; font-size:19px; font-weight:900; color:#444;
+      margin-top:18px; padding-top:16px; border-top:2px solid #f0f0f0; font-size:22px; font-weight:900; color:#444;
     }
 
     .detail-header {
@@ -194,6 +194,9 @@
       .modal-stack { grid-template-columns: 1fr; }
       .detail-grid { grid-template-columns: 1fr; }
       .detail-chart-area { height: 260px; }
+      #reportContent h2 { font-size: 26px !important; text-align:center !important; width:100%; }
+      #reportContent h2 span { display:block !important; font-size:0.82em !important; }
+      #reportContent > div:first-child { justify-content:center !important; }
     }
     .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
     .export-mode .item-card {
@@ -730,7 +733,7 @@
 
     <div id="detailChartSection" class="detail-chart-wrap" style="display:none;">
       <div class="detail-chart-top">
-        <div style="font-size:18px; font-weight:900;">📈 데일리 가격 추이</div>
+        <div style="font-size:24px; font-weight:900;">📈 데일리 가격 추이</div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <span style="font-size:13px; font-weight:800; color:#555;">그래프 형태</span>
           <select id="detailGraphType" class="detail-graph-type" style="width:140px;" onchange="changeDetailGraphType()">
@@ -1023,11 +1026,11 @@
     let html = `
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px; gap:10px; flex-wrap:wrap;">
         <div>
-          <div style="font-size:14px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
-          <h2 style="font-size:30px; color:#333; margin:0 0 6px 0; font-weight:900; letter-spacing:-0.02em;">Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)</h2>
-          <div style="font-size:14px; font-weight:800; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
+          <div style="font-size:16px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
+          <h2 style="font-size:30px; color:#333; margin:0 0 6px 0; font-weight:900; letter-spacing:-0.02em; line-height:1.18; text-align:center;">Weekly Chemical Market Report<br><span style="display:block; font-size:0.82em; font-weight:900;">(롯데첨단 구매부문 주원료 위클리)</span></h2>
+          <div style="font-size:16px; font-weight:800; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
         </div>
-        <span style="font-weight:800; color:#666; font-size:18px; padding-top:4px;">Week: ${formatWeekLabel(data.week || '-')}</span>
+        <span style="font-weight:800; color:#666; font-size:22px; padding-top:6px;">Week: ${formatWeekLabel(data.week || '-')}</span>
       </div>`;
 
     ITEMS.forEach(name => {
@@ -1562,23 +1565,23 @@
       <div class="report-container" style="height:${targetHeight}px; min-height:${targetHeight}px; display:flex; flex-direction:column; padding:22px 22px 14px 22px; background:#ffffff;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; border-bottom:3px solid var(--main-orange); padding-bottom:12px; gap:10px; flex-wrap:wrap;">
           <div>
-            <div style="font-size:14px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
-            <div style="font-size:36px; color:#333; margin:0 0 6px 0; font-weight:900; letter-spacing:-0.025em; line-height:1.06;">Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)</div>
-            <div style="font-size:14px; font-weight:800; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
+            <div style="font-size:16px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
+            <div style="font-size:44px; color:#333; margin:0 0 8px 0; font-weight:900; letter-spacing:-0.03em; line-height:1.08; text-align:center;">Weekly Chemical Market Report<br><span style="display:block; font-size:0.82em; font-weight:900;">(롯데첨단 구매부문 주원료 위클리)</span></div>
+            <div style="font-size:16px; font-weight:800; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
           </div>
-          <span style="font-weight:800; color:#666; font-size:18px; padding-top:4px;">Week: ${formatWeekLabel(currentWeekData.week || '-')}</span>
+          <span style="font-weight:800; color:#666; font-size:22px; padding-top:6px;">Week: ${formatWeekLabel(currentWeekData.week || '-')}</span>
         </div>
         <div id="exportCardsFill" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:12px;">
           ${displayItems.map(item => `
-            <div class="item-card export-fill-card" style="margin:0 !important; flex:1 1 0; min-height:0; display:grid; grid-template-columns: 150px 110px 120px minmax(0,1fr); gap:14px; align-items:stretch; padding:10px 16px; border:1px solid #d7dee5; border-radius:16px; box-shadow:none; background:#fff;">
-              <div class="item-name" style="display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:900;">${escapeHtml(item.label)}</div>
-              <div class="item-price price-${item.cls}" style="display:flex; flex-direction:column; justify-content:center; font-size:18px; font-weight:900;">${escapeHtml(String(item.price))}<small>(${escapeHtml(item.unit)})</small></div>
-              <div class="item-change change-${item.cls}" style="display:flex; align-items:center; justify-content:center; text-align:center; font-size:12px; font-weight:800;">${item.sign} ${Math.abs(item.abs).toFixed(1)} (${item.pct.toFixed(1)}%)</div>
-              <div class="item-comm" style="display:flex; align-items:center; height:100%; min-height:0; font-size:16px; line-height:1.5; font-weight:800; letter-spacing:-0.01em;">${escapeHtml(item.commentary)}</div>
+            <div class="item-card export-fill-card" style="margin:0 !important; flex:1 1 0; min-height:0; display:grid; grid-template-columns: 145px 108px 124px minmax(0,1fr); gap:12px; align-items:stretch; padding:10px 16px; border:1px solid #d7dee5; border-radius:16px; box-shadow:none; background:#fff;">
+              <div class="item-name" style="display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900;">${escapeHtml(item.label)}</div>
+              <div class="item-price price-${item.cls}" style="display:flex; flex-direction:column; justify-content:center; font-size:24px; font-weight:900;">${escapeHtml(String(item.price))}<small>(${escapeHtml(item.unit)})</small></div>
+              <div class="item-change change-${item.cls}" style="display:flex; align-items:center; justify-content:center; text-align:center; font-size:15px; font-weight:800;">${item.sign} ${Math.abs(item.abs).toFixed(1)} (${item.pct.toFixed(1)}%)</div>
+              <div class="item-comm" style="display:flex; align-items:center; height:100%; min-height:0; font-size:18px; line-height:1.55; font-weight:800; letter-spacing:-0.01em;">${escapeHtml(item.commentary)}</div>
             </div>
           `).join('')}
         </div>
-        <div style="margin-top:10px; padding-top:8px; border-top:1px solid #eceff3; color:#70757d; font-size:11px; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
+        <div style="margin-top:10px; padding-top:8px; border-top:1px solid #eceff3; color:#70757d; font-size:13px; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
           <span>LAM Weekly Chemical Market Report</span>
           <span>${formatWeekLabel(currentWeekData.week || '-')} · Export Format</span>
         </div>
@@ -1593,13 +1596,13 @@
     const footerEl = container.lastElementChild;
 
     const fitExport = () => {
-      let commentFont = 16;
-      let titleFont = 36;
-      let gap = 12;
-      let padY = 12;
-      let cardFont = 19;
-      let priceFont = 22;
-      let changeFont = 14;
+      let commentFont = 18;
+      let titleFont = 44;
+      let gap = 10;
+      let padY = 11;
+      let cardFont = 22;
+      let priceFont = 24;
+      let changeFont = 15;
       let guard = 0;
 
       const apply = () => {
@@ -1622,13 +1625,13 @@
 
       apply();
       while (container.scrollHeight > targetHeight && guard < 20) {
-        if (commentFont > 13.6) commentFont -= 0.4;
-        else if (gap > 8) gap -= 1;
-        else if (padY > 9) padY -= 0.5;
-        else if (titleFont > 31) titleFont -= 0.5;
-        else if (cardFont > 17) cardFont -= 0.3;
-        else if (priceFont > 19) priceFont -= 0.3;
-        else if (changeFont > 12.5) changeFont -= 0.2;
+        if (commentFont > 15.2) commentFont -= 0.4;
+        else if (gap > 7) gap -= 1;
+        else if (padY > 8.5) padY -= 0.5;
+        else if (titleFont > 38) titleFont -= 0.5;
+        else if (cardFont > 19) cardFont -= 0.3;
+        else if (priceFont > 21) priceFont -= 0.3;
+        else if (changeFont > 13.2) changeFont -= 0.2;
         else break;
         apply();
         guard += 1;
@@ -1640,8 +1643,8 @@
       const baseGapTotal = gap * (cards.length - 1);
       const perCard = Math.floor((available - baseGapTotal) / cards.length);
       cards.forEach(card => {
-        card.style.height = Math.max(108, perCard) + 'px';
-        card.style.minHeight = Math.max(108, perCard) + 'px';
+        card.style.height = Math.max(112, perCard) + 'px';
+        card.style.minHeight = Math.max(112, perCard) + 'px';
       });
 
       if (container.scrollHeight > targetHeight) {
