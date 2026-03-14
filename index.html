@@ -1899,17 +1899,17 @@
     const factorsContent = exportNode.querySelector('.detail-export-card.factors .content');
     const otherDetailContents = detailContents.filter(el => el !== factorsContent);
     let detailBodyFont = 22;
-    let factorsBodyFont = 44;
+    let factorsBodyFont = 33;
     let detailHeadFont = 26;
     const avgDetailLen = detailContents.reduce((a, el) => a + (el.textContent || '').replace(/\s+/g,' ').trim().length, 0) / Math.max(detailContents.length, 1);
     if (avgDetailLen > 260) detailBodyFont = 20;
     if (avgDetailLen > 360) detailBodyFont = 18;
     if (avgDetailLen > 460) detailBodyFont = 16;
-    factorsBodyFont = Math.max(detailBodyFont * 2, 32);
+    factorsBodyFont = Math.max(Math.round(detailBodyFont * 1.5), 24);
     otherDetailContents.forEach(el => el.style.setProperty('font-size', detailBodyFont + 'px', 'important'));
     if (factorsContent) {
       factorsContent.style.setProperty('font-size', factorsBodyFont + 'px', 'important');
-      factorsContent.style.setProperty('line-height', '1.42', 'important');
+      factorsContent.style.setProperty('line-height', '1.48', 'important');
       factorsContent.style.setProperty('font-weight', '900', 'important');
     }
     detailHeads.forEach(el => el.style.setProperty('font-size', detailHeadFont + 'px', 'important'));
@@ -1917,9 +1917,9 @@
     const naturalHeight = Math.ceil(sheet.scrollHeight);
     if (naturalHeight > availableHeight) {
       let guard = 0;
-      while (sheet.scrollHeight > availableHeight && (detailBodyFont > 16 || factorsBodyFont > 28) && guard < 20) {
+      while (sheet.scrollHeight > availableHeight && (detailBodyFont > 16 || factorsBodyFont > 22) && guard < 20) {
         if (detailBodyFont > 16) detailBodyFont -= 1;
-        if (factorsBodyFont > 28) factorsBodyFont -= 2;
+        if (factorsBodyFont > 22) factorsBodyFont -= 1;
         if (detailHeadFont > 22) detailHeadFont -= 0.5;
         otherDetailContents.forEach(el => el.style.setProperty('font-size', detailBodyFont + 'px', 'important'));
         if (factorsContent) factorsContent.style.setProperty('font-size', factorsBodyFont + 'px', 'important');
