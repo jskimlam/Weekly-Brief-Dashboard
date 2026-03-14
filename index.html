@@ -595,6 +595,11 @@
       color: #243041;
       word-break: keep-all;
     }
+    .detail-a4-export .detail-export-card.factors .content {
+      font-size: 44px;
+      line-height: 1.42;
+      font-weight: 900;
+    }
     .detail-a4-export .detail-export-chart {
       grid-area: chart;
       margin-top: 0;
@@ -1688,6 +1693,7 @@
   async function renderExportCanvas() {
     const exportNode = buildExportNode();
     if (!exportNode) throw new Error('캡처할 보고서 영역을 찾을 수 없습니다.');
+    document.body.classList.add('export-mode');
     try {
       const targetWidth = 1587;
       const targetHeight = 1123;
@@ -1705,6 +1711,7 @@
       return canvas;
     } finally {
       exportNode.remove();
+      document.body.classList.remove('export-mode');
     }
   }
 
@@ -1754,6 +1761,7 @@
     const signedPct = `${pct > 0 ? '+' : pct < 0 ? '' : ''}${pct.toFixed(1)}%`;
     const prevPrice = d.prev_price !== undefined && d.prev_price !== null && d.prev_price !== '' ? formatPrice(d.prev_price) : '-';
     const chartImg = chartImgOverride || '';
+    const trendColor = abs > 0 ? 'var(--up-red)' : abs < 0 ? 'var(--down-blue)' : '#111111';
 
     const targetWidth = 1587;
     const targetHeight = 1123;
@@ -1792,10 +1800,10 @@
             <div class="detail-export-meta">
               <div class="panel-label">Key Metrics</div>
               <div class="detail-meta-grid">
-                <div class="detail-meta-chip"><span class="k">Price</span><span class="v">${escapeHtml(formatPrice(d.price))}</span></div>
+                <div class="detail-meta-chip"><span class="k">Price</span><span class="v" style="color:${trendColor}; font-weight:900;">${escapeHtml(formatPrice(d.price))}</span></div>
                 <div class="detail-meta-chip"><span class="k">Prev</span><span class="v">${escapeHtml(prevPrice)}</span></div>
-                <div class="detail-meta-chip"><span class="k">Change</span><span class="v">${escapeHtml(signedAbs)}</span></div>
-                <div class="detail-meta-chip"><span class="k">Change %</span><span class="v">${escapeHtml(signedPct)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Change</span><span class="v" style="color:${trendColor}; font-weight:900;">${escapeHtml(signedAbs)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Change %</span><span class="v" style="color:${trendColor}; font-weight:900;">${escapeHtml(signedPct)}</span></div>
               </div>
             </div>
           </div>
@@ -1888,22 +1896,33 @@
 
     const detailContents = Array.from(exportNode.querySelectorAll('.detail-export-card .content'));
     const detailHeads = Array.from(exportNode.querySelectorAll('.detail-export-card h3, .detail-export-chart h3'));
+    const factorsContent = exportNode.querySelector('.detail-export-card.factors .content');
+    const otherDetailContents = detailContents.filter(el => el !== factorsContent);
     let detailBodyFont = 22;
+    let factorsBodyFont = 44;
     let detailHeadFont = 26;
     const avgDetailLen = detailContents.reduce((a, el) => a + (el.textContent || '').replace(/\s+/g,' ').trim().length, 0) / Math.max(detailContents.length, 1);
     if (avgDetailLen > 260) detailBodyFont = 20;
     if (avgDetailLen > 360) detailBodyFont = 18;
     if (avgDetailLen > 460) detailBodyFont = 16;
-    detailContents.forEach(el => el.style.setProperty('font-size', detailBodyFont + 'px', 'important'));
+    factorsBodyFont = Math.max(detailBodyFont * 2, 32);
+    otherDetailContents.forEach(el => el.style.setProperty('font-size', detailBodyFont + 'px', 'important'));
+    if (factorsContent) {
+      factorsContent.style.setProperty('font-size', factorsBodyFont + 'px', 'important');
+      factorsContent.style.setProperty('line-height', '1.42', 'important');
+      factorsContent.style.setProperty('font-weight', '900', 'important');
+    }
     detailHeads.forEach(el => el.style.setProperty('font-size', detailHeadFont + 'px', 'important'));
 
     const naturalHeight = Math.ceil(sheet.scrollHeight);
     if (naturalHeight > availableHeight) {
       let guard = 0;
-      while (sheet.scrollHeight > availableHeight && detailBodyFont > 16 && guard < 20) {
-        detailBodyFont -= 1;
+      while (sheet.scrollHeight > availableHeight && (detailBodyFont > 16 || factorsBodyFont > 28) && guard < 20) {
+        if (detailBodyFont > 16) detailBodyFont -= 1;
+        if (factorsBodyFont > 28) factorsBodyFont -= 2;
         if (detailHeadFont > 22) detailHeadFont -= 0.5;
-        detailContents.forEach(el => el.style.setProperty('font-size', detailBodyFont + 'px', 'important'));
+        otherDetailContents.forEach(el => el.style.setProperty('font-size', detailBodyFont + 'px', 'important'));
+        if (factorsContent) factorsContent.style.setProperty('font-size', factorsBodyFont + 'px', 'important');
         detailHeads.forEach(el => el.style.setProperty('font-size', detailHeadFont + 'px', 'important'));
         guard += 1;
       }
