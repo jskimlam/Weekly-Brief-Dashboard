@@ -1573,11 +1573,11 @@
         </div>
         <div id="exportCardsFill" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:12px;">
           ${displayItems.map(item => `
-            <div class="item-card export-fill-card" style="margin:0 !important; flex:1 1 0; min-height:0; display:grid; grid-template-columns: 126px 96px 116px minmax(0,1fr); gap:10px; align-items:stretch; padding:8px 14px; border:1px solid #d7dee5; border-radius:16px; box-shadow:none; background:#fff;">
+            <div class="item-card export-fill-card" style="margin:0 !important; flex:1 1 0; min-height:0; display:grid; grid-template-columns: 118px 84px 104px minmax(0,1fr); gap:8px; align-items:stretch; padding:8px 12px; border:1px solid #d7dee5; border-radius:16px; box-shadow:none; background:#fff;">
               <div class="item-name" style="display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900;">${escapeHtml(item.label)}</div>
               <div class="item-price price-${item.cls}" style="display:flex; flex-direction:column; justify-content:center; font-size:28px; font-weight:900;">${escapeHtml(String(item.price))}<small>(${escapeHtml(item.unit)})</small></div>
               <div class="item-change change-${item.cls}" style="display:flex; align-items:center; justify-content:center; text-align:center; font-size:17px; font-weight:800;">${item.sign} ${Math.abs(item.abs).toFixed(1)} (${item.pct.toFixed(1)}%)</div>
-              <div class="item-comm" style="display:flex; align-items:center; height:100%; min-height:0; font-size:22px; line-height:1.45; font-weight:800; letter-spacing:-0.01em;">${escapeHtml(item.commentary)}</div>
+              <div class="item-comm" style="display:flex; align-items:center; height:100%; min-height:0; font-size:24px; line-height:1.38; font-weight:800; letter-spacing:-0.01em;">${escapeHtml(item.commentary)}</div>
             </div>
           `).join('')}
         </div>
@@ -1596,13 +1596,18 @@
     const footerEl = container.lastElementChild;
 
     const fitExport = () => {
-      let commentFont = 22;
-      let titleFont = 46;
-      let gap = 10;
-      let padY = 9;
+      const commentLengths = displayItems.map(item => String(item.commentary || '').replace(/\s+/g, ' ').trim().length);
+      const avgLen = commentLengths.reduce((a, b) => a + b, 0) / Math.max(commentLengths.length, 1);
+
+      let commentFont = avgLen <= 70 ? 27 : avgLen <= 90 ? 25 : avgLen <= 110 ? 23 : avgLen <= 130 ? 21 : 19;
+      let titleFont = avgLen <= 90 ? 48 : 46;
+      let gap = avgLen <= 90 ? 10 : 9;
+      let padY = avgLen <= 90 ? 10 : 9;
       let cardFont = 24;
       let priceFont = 28;
       let changeFont = 17;
+      let unitFont = 10.5;
+      let footerFont = 13;
       let guard = 0;
 
       const apply = () => {
@@ -1611,27 +1616,32 @@
         const titleMain = titleEl.querySelector('div:nth-child(2)');
         if (titleMain) titleMain.style.fontSize = titleFont + 'px';
         cards.forEach(card => {
-          card.style.padding = `${padY}px 16px`;
+          card.style.padding = `${padY}px 12px`;
           const nm = card.querySelector('.item-name');
           const pr = card.querySelector('.item-price');
           const ch = card.querySelector('.item-change');
           const cm = card.querySelector('.item-comm');
+          const sm = card.querySelector('.item-price small');
           if (nm) nm.style.fontSize = cardFont + 'px';
           if (pr) pr.style.fontSize = priceFont + 'px';
+          if (sm) sm.style.fontSize = unitFont + 'px';
           if (ch) ch.style.fontSize = changeFont + 'px';
           if (cm) cm.style.fontSize = commentFont + 'px';
         });
+        footerEl.style.fontSize = footerFont + 'px';
       };
 
       apply();
-      while (container.scrollHeight > targetHeight && guard < 20) {
-        if (commentFont > 18.2) commentFont -= 0.4;
-        else if (gap > 7) gap -= 1;
+      while (container.scrollHeight > targetHeight && guard < 40) {
+        if (commentFont > 17) commentFont -= 0.5;
+        else if (gap > 6) gap -= 0.5;
         else if (padY > 6.5) padY -= 0.5;
-        else if (titleFont > 40) titleFont -= 0.5;
+        else if (titleFont > 42) titleFont -= 0.5;
         else if (cardFont > 21) cardFont -= 0.3;
         else if (priceFont > 24) priceFont -= 0.3;
-        else if (changeFont > 14.5) changeFont -= 0.2;
+        else if (changeFont > 15) changeFont -= 0.2;
+        else if (unitFont > 10) unitFont -= 0.2;
+        else if (footerFont > 12) footerFont -= 0.2;
         else break;
         apply();
         guard += 1;
@@ -1639,7 +1649,7 @@
 
       const titleH = titleEl.getBoundingClientRect().height;
       const footerH = footerEl.getBoundingClientRect().height;
-      const available = targetHeight - titleH - footerH - 22 - 14 - 10;
+      const available = targetHeight - titleH - footerH - 22 - 14 - 8;
       const baseGapTotal = gap * (cards.length - 1);
       const perCard = Math.floor((available - baseGapTotal) / cards.length);
       cards.forEach(card => {
@@ -1648,7 +1658,7 @@
       });
 
       if (container.scrollHeight > targetHeight) {
-        const scale = Math.min(1, (targetHeight - 8) / Math.max(container.scrollHeight, 1));
+        const scale = Math.min(1, (targetHeight - 6) / Math.max(container.scrollHeight, 1));
         container.style.transform = `scale(${scale})`;
         container.style.transformOrigin = 'top left';
         container.style.width = (100 / scale) + '%';
