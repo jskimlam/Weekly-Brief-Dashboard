@@ -377,7 +377,7 @@
       font-weight: 700;
     }
     .a4-landscape-export .item-card {
-      grid-template-columns: 152px 118px 132px 1fr !important;
+      grid-template-columns: 152px 118px 132px minmax(0, 1fr) !important;
       gap: 12px !important;
       padding: 12px 14px !important;
       margin-bottom: 10px !important;
@@ -414,7 +414,8 @@
     }
     .a4-landscape-export .item-comm {
       font-size: 13px !important;
-      line-height: 1.5 !important;
+      line-height: 1.48 !important;
+      width: 100% !important;
       border-left: 4px solid var(--main-orange) !important;
       padding: 2px 0 2px 12px !important;
       font-weight: 800 !important;
@@ -479,14 +480,14 @@
     }
     .detail-a4-export .detail-export-title {
       margin-top: 14px;
-      font-size: 32px;
+      font-size: 35px;
       line-height: 1.12;
       font-weight: 900;
       letter-spacing: -0.03em;
     }
     .detail-a4-export .detail-export-subtitle {
       margin-top: 10px;
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.55;
       color: rgba(255,255,255,0.84);
       font-weight: 600;
@@ -547,7 +548,7 @@
     }
     .detail-a4-export .detail-meta-chip .v {
       display:block;
-      font-size: 19px;
+      font-size: 22px;
       line-height: 1.15;
       font-weight: 900;
       color: #1f2937;
@@ -568,27 +569,28 @@
     .detail-a4-export .detail-export-card.full { grid-column: 1 / span 2; }
     .detail-a4-export .detail-export-card h3 {
       margin: 0 0 12px;
-      font-size: 18px;
+      font-size: 21px;
       color: var(--main-orange);
     }
     .detail-a4-export .detail-export-card .content {
       white-space: pre-wrap;
-      font-size: 14px;
-      line-height: 1.7;
-      font-weight: 700;
+      font-size: 16px;
+      line-height: 1.75;
+      font-weight: 800;
       color: #243041;
     }
     .detail-a4-export .detail-export-chart {
       margin-top: 14px;
       background: #fff;
+      overflow: hidden;
       border: 1px solid #eceff3;
       border-radius: 22px;
       box-shadow: 0 10px 24px rgba(15,23,42,0.05);
       padding: 16px 18px 18px;
     }
     .detail-a4-export .detail-export-chart h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
+      margin: 0 0 14px;
+      font-size: 21px;
       color: var(--main-orange);
     }
     .detail-a4-export .detail-export-chart img {
@@ -1096,7 +1098,7 @@
             anchor: 'end',
             color: '#333',
             formatter: (value) => formatPrice(value),
-            font: { weight: '700', size: 11 }
+            font: { weight: '800', size: 14 }
           },
           tooltip: {
             callbacks: {
@@ -1683,9 +1685,16 @@
     const rows = dailyPrices && dailyPrices.length ? dailyPrices : buildFallbackDailySeries(name);
     if (!rows.length) return '';
 
+    const values = rows.map(r => safeNumber(r.price)).filter(v => !isNaN(v));
+    if (!values.length) return '';
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    const span = Math.max(maxVal - minVal, Math.abs(maxVal) * 0.04, 1);
+    const yPad = span * 0.22;
+
     const canvas = document.createElement('canvas');
-    canvas.width = 1400;
-    canvas.height = 520;
+    canvas.width = 1460;
+    canvas.height = 600;
     canvas.style.position = 'fixed';
     canvas.style.left = '-10000px';
     canvas.style.top = '0';
@@ -1699,45 +1708,68 @@
           labels: rows.map(r => r.date),
           datasets: [{
             label: `${name} Daily Price`,
-            data: rows.map(r => r.price),
-            borderWidth: 3,
-            tension: 0.35,
+            data: values,
+            borderWidth: 4,
+            tension: 0.42,
             fill: false,
-            pointRadius: 4,
-            pointHoverRadius: 6
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBorderWidth: 2
           }]
         },
         options: {
           responsive: false,
           animation: false,
           maintainAspectRatio: false,
-          layout: { padding: { top: 24, right: 24, bottom: 8, left: 12 } },
+          layout: { padding: { top: 46, right: 34, bottom: 28, left: 26 } },
           plugins: {
             legend: { display: false },
             datalabels: {
               align: 'top',
               anchor: 'end',
-              offset: 4,
-              color: '#2d3436',
+              offset: 8,
+              clamp: true,
+              clip: false,
+              color: '#1f2937',
               formatter: (value) => formatPrice(value),
-              font: { weight: '700', size: 12 }
-            }
+              font: { weight: '800', size: 18 }
+            },
+            tooltip: { enabled: false }
           },
           scales: {
             y: {
               beginAtZero: false,
-              ticks: { color: '#444', font: { weight: '700' } },
-              title: { display: true, text: UNITS[name], color: '#444', font: { weight: '700' } }
+              min: +(minVal - yPad).toFixed(2),
+              max: +(maxVal + yPad).toFixed(2),
+              grid: { color: 'rgba(148,163,184,0.2)' },
+              ticks: {
+                color: '#374151',
+                font: { weight: '800', size: 14 },
+                padding: 10,
+                callback: (value) => formatPrice(value)
+              },
+              title: {
+                display: true,
+                text: UNITS[name],
+                color: '#374151',
+                font: { weight: '800', size: 14 }
+              }
             },
             x: {
-              ticks: { color: '#444', font: { weight: '700' } }
+              grid: { display: false },
+              ticks: {
+                color: '#374151',
+                font: { weight: '800', size: 14 },
+                padding: 10
+              }
             }
           }
         },
         plugins: [ChartDataLabels]
       });
-      await new Promise(resolve => setTimeout(resolve, 50));
-      return chart.toBase64Image();
+      chart.update('none');
+      await new Promise(resolve => setTimeout(resolve, 180));
+      return chart.toBase64Image('image/png', 1);
     } finally {
       if (chart) chart.destroy();
       canvas.remove();
