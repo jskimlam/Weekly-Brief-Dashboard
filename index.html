@@ -1545,7 +1545,7 @@
       const cls = abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none');
       return {
         key: name,
-        label: name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name,
+        label: name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'AN' : name,
         unit: UNITS[name],
         price: d.price || '-',
         commentary: d.commentary || '분석 코멘터리가 없습니다.',
