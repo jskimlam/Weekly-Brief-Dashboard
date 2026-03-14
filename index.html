@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>LAM Weekly Chemical Brief</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
@@ -55,36 +54,36 @@
       background: #f1f2f6; border: 1px solid #ddd; padding: 8px 10px;
       border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 700;
     }
-    .main-content { padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .main-content { padding: 20px; max-width: 1480px; margin: 0 auto; }
     .report-container {
-      background: white; padding: 25px; border-radius: 12px;
+      background: white; padding: 22px 24px; border-radius: 12px;
       border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
     .item-card {
       background: var(--card-bg); border: 2.5px solid var(--border-color);
-      border-radius: 12px; padding: 20px; margin-bottom: 18px;
-      display: grid; grid-template-columns: 180px 140px 150px 1fr 190px;
-      align-items: center; gap: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+      border-radius: 12px; padding: 18px 16px; margin-bottom: 14px;
+      display: grid; grid-template-columns: 140px 110px 120px minmax(0,1fr) 116px;
+      align-items: center; gap: 12px; box-shadow: 0 3px 8px rgba(0,0,0,0.05);
     }
     .item-name {
-      font-size: 24px; font-weight: 900; color: var(--none-black);
-      background: var(--soft-orange); padding: 12px; border-radius: 8px; text-align: center;
+      font-size: 18px; font-weight: 900; color: var(--none-black);
+      background: var(--soft-orange); padding: 10px 8px; border-radius: 8px; text-align: center;
       border: 1.5px solid #ffe0b2;
     }
-    .item-price { font-size: 24px; font-weight: 900; text-align: center; line-height: 1.2; }
-    .item-price small { font-size: 13px; color: #888; display: block; font-weight: 500; }
+    .item-price { font-size: 18px; font-weight: 900; text-align: center; line-height: 1.15; }
+    .item-price small { font-size: 11px; color: #888; display: block; font-weight: 600; margin-top:2px; }
     .price-up { color: var(--up-red) !important; }
     .price-down { color: var(--down-blue) !important; }
     .price-none { color: var(--none-black) !important; }
-    .item-change { font-size: 17px; font-weight: 700; text-align: center; padding: 10px; border-radius: 8px; }
+    .item-change { font-size: 14px; font-weight: 800; text-align: center; padding: 8px 8px; border-radius: 999px; }
     .change-up { color: var(--up-red); background: #fdedec; border: 1px solid #fadbd8; }
     .change-down { color: var(--down-blue); background: #ebf5fb; border: 1px solid #d6eaf8; }
     .change-none { color: #7f8c8d; background: #f4f6f7; border: 1px solid #e5e8e8; }
     .item-comm {
-      font-size: 21px; color: #1e272e; border-left: 6px solid var(--main-orange);
-      padding: 5px 20px; font-weight: 900; word-break: keep-all;
+      font-size: 18px; color: #1e272e; border-left: 5px solid var(--main-orange);
+      padding: 4px 12px; font-weight: 800; word-break: keep-all; line-height:1.5;
     }
-    .item-actions { display:flex; flex-direction:column; gap:8px; }
+    .item-actions { display:flex; flex-direction:column; gap:6px; align-items:stretch; }
 
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000;
@@ -158,6 +157,58 @@
     .detail-empty {
       background:#fafafa; border:1px dashed #d7dbe1; padding:18px; border-radius:12px; color:#666; font-size:14px;
     }
+    .detail-export-wrap {
+      position: fixed; left:-99999px; top:0; width:1400px; background:#f8f9fb; padding:22px;
+    }
+    .detail-export-sheet {
+      width: 1400px; background:#fff; border:1px solid var(--border-color); border-radius:12px; padding:18px 20px 22px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.05);
+    }
+    .detail-export-head {
+      display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:14px; padding-bottom:10px; border-bottom:3px solid var(--main-orange);
+    }
+    .detail-export-titlebox {
+      flex:0 0 380px; background:linear-gradient(135deg,#2e415a,#40566e); color:#fff; border-radius:12px; padding:14px 18px;
+      min-height:112px; display:flex; flex-direction:column; justify-content:center;
+    }
+    .detail-export-titlebox .kicker {
+      display:inline-block; align-self:flex-start; padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.08);
+      font-size:12px; font-weight:800; letter-spacing:.08em; margin-bottom:10px;
+    }
+    .detail-export-titlebox h2 { font-size:22px; line-height:1.15; margin-bottom:8px; }
+    .detail-export-titlebox p { font-size:12px; line-height:1.45; opacity:.92; }
+    .detail-export-weekbox {
+      flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+    }
+    .detail-export-stat {
+      background:#fffaf4; border:1px solid #f0d2aa; border-radius:12px; padding:12px 14px; min-height:72px;
+    }
+    .detail-export-stat .label { font-size:11px; font-weight:800; letter-spacing:.12em; color:#b36d00; text-transform:uppercase; margin-bottom:8px; }
+    .detail-export-stat .value { font-size:16px; font-weight:900; color:#27303b; }
+    .detail-item {
+      border:1px solid #e5e9ef; border-radius:12px; padding:14px 14px 12px; margin-top:12px; background:#fff;
+    }
+    .detail-item-head {
+      display:grid; grid-template-columns:130px 118px 128px 1fr; gap:12px; align-items:center; margin-bottom:12px;
+    }
+    .detail-item-name {
+      background:var(--soft-orange); border:1.5px solid #ffe0b2; border-radius:8px; text-align:center; font-size:18px; font-weight:900; padding:10px 8px;
+    }
+    .detail-item-price { text-align:center; font-size:18px; font-weight:900; }
+    .detail-item-price small { display:block; font-size:11px; color:#888; margin-top:2px; }
+    .detail-item-change { text-align:center; font-size:14px; font-weight:800; padding:8px; border-radius:999px; }
+    .detail-item-comment { border-left:5px solid var(--main-orange); padding-left:12px; font-size:16px; font-weight:800; line-height:1.5; word-break:keep-all; }
+    .detail-item-body { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    .detail-mini-card { background:#f8f9fb; border:1px solid #e5e9ef; border-radius:10px; padding:12px; }
+    .detail-mini-card h4 { font-size:14px; font-weight:900; margin-bottom:8px; }
+    .detail-mini-card .text { white-space:pre-wrap; word-break:keep-all; font-size:13px; line-height:1.5; color:#3b4552; }
+    .detail-mini-card.full { grid-column: 1 / -1; }
+    .detail-mini-flex { display:grid; grid-template-columns: 1.2fr .8fr; gap:12px; align-items:start; }
+    .detail-spark svg { width:100%; height:160px; display:block; background:#fff; border:1px solid #eceff3; border-radius:10px; }
+    .detail-spark-label { font-size:13px; font-weight:900; margin-bottom:8px; color:#2d3436; }
+    .detail-mini-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .detail-mini-table th, .detail-mini-table td { border:1px solid #e6e8eb; padding:7px 8px; text-align:center; }
+    .detail-mini-table th { background:#fff7ec; color:#8a5200; font-weight:900; }
 
     .toast {
       position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
@@ -166,8 +217,8 @@
     }
 
     @media (max-width: 980px) {
-      .item-card { grid-template-columns: 160px 130px 130px 1fr 160px; gap: 14px; }
-      .item-comm { font-size: 18px; }
+      .item-card { grid-template-columns: 130px 105px 118px 1fr 108px; gap: 10px; }
+      .item-comm { font-size: 16px; }
     }
     @media (max-width: 767px) {
       .header { padding: 12px 14px; }
@@ -195,427 +246,13 @@
       .detail-grid { grid-template-columns: 1fr; }
       .detail-chart-area { height: 260px; }
     }
-    .export-mode .report-container { width: 1200px !important; min-width: 1200px !important; }
+    .export-mode .report-container { width: 1400px !important; min-width: 1400px !important; }
     .export-mode .item-card {
-      grid-template-columns: 180px 140px 150px 1fr 190px !important;
+      grid-template-columns: 140px 110px 120px minmax(0,1fr) 116px !important;
       grid-template-areas: none !important;
       display: grid !important;
     }
-    .export-mode .item-comm { border-left: 6px solid var(--main-orange) !important; border-top: none !important; padding: 5px 20px !important; }
-
-    body.export-mode .header,
-    body.export-mode .modal-overlay,
-    body.export-mode .toast { display:none !important; }
-
-    body.export-mode { background:#ffffff !important; }
-    body.export-mode .main-content { max-width:none !important; padding:0 !important; margin:0 !important; }
-
-    .a4-landscape-export {
-      position: fixed;
-      left: -10000px;
-      top: 0;
-      width: 1588px;
-      background: linear-gradient(180deg, #fffaf2 0%, #ffffff 16%, #ffffff 100%);
-      z-index: -1;
-      padding: 0;
-    }
-    .a4-landscape-export .report-container {
-      width: 1588px;
-      min-height: 1123px;
-      padding: 34px 38px 26px 38px;
-      border-radius: 0;
-      box-shadow: none;
-      border: none;
-      background: linear-gradient(180deg, #fff7ec 0%, #ffffff 14%, #ffffff 100%);
-    }
-    .a4-landscape-export .report-hero {
-      position: relative;
-      display: grid;
-      grid-template-columns: 1.3fr 0.7fr;
-      gap: 18px;
-      align-items: stretch;
-      margin-bottom: 22px;
-    }
-    .a4-landscape-export .hero-left {
-      background: linear-gradient(135deg, #1f2937 0%, #34495e 55%, #4b5563 100%);
-      border-radius: 24px;
-      padding: 24px 28px 20px;
-      color: #fff;
-      min-height: 150px;
-      box-shadow: 0 18px 36px rgba(31, 41, 55, 0.16);
-    }
-    .a4-landscape-export .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.16);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .a4-landscape-export .hero-title {
-      margin-top: 16px;
-      font-size: 30px;
-      line-height: 1.14;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-    }
-    .a4-landscape-export .hero-subtitle {
-      margin-top: 10px;
-      font-size: 14px;
-      line-height: 1.55;
-      color: rgba(255,255,255,0.84);
-      font-weight: 600;
-    }
-    .a4-landscape-export .hero-right {
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 12px;
-    }
-    .a4-landscape-export .week-panel,
-    .a4-landscape-export .summary-panel,
-    .a4-landscape-export .brand-panel {
-      background: #fff;
-      border-radius: 22px;
-      border: 1px solid #f1dfc2;
-      box-shadow: 0 10px 24px rgba(255, 140, 0, 0.08);
-      padding: 18px 20px;
-    }
-    .a4-landscape-export .panel-label {
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      color: #b26a00;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .a4-landscape-export .week-mark {
-      font-size: 28px;
-      color: #1f2937;
-      font-weight: 900;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-    }
-    .a4-landscape-export .week-note {
-      margin-top: 6px;
-      font-size: 12px;
-      color: #6b7280;
-      font-weight: 700;
-    }
-    .a4-landscape-export .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .a4-landscape-export .summary-chip {
-      background: #fff7ec;
-      border: 1px solid #f8d7a2;
-      border-radius: 16px;
-      padding: 10px 8px;
-      text-align: center;
-    }
-    .a4-landscape-export .summary-chip strong {
-      display: block;
-      font-size: 18px;
-      color: #1f2937;
-      font-weight: 900;
-      line-height: 1;
-    }
-    .a4-landscape-export .summary-chip span {
-      display: block;
-      margin-top: 5px;
-      font-size: 10px;
-      color: #7b8088;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    .a4-landscape-export .brand-panel {
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-end;
-      gap:12px;
-      padding-top: 16px;
-      background: linear-gradient(135deg, #fff 0%, #fff9ef 100%);
-    }
-    .a4-landscape-export .brand-mark {
-      font-size: 30px;
-      font-weight: 900;
-      color: var(--main-orange);
-      line-height: 1;
-      letter-spacing: -0.04em;
-    }
-    .a4-landscape-export .brand-copy {
-      font-size: 12px;
-      color: #666;
-      font-weight: 700;
-      line-height: 1.45;
-      text-align: right;
-    }
-    .a4-landscape-export .report-section-title {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom: 14px;
-      padding: 0 2px;
-    }
-    .a4-landscape-export .report-section-title h3 {
-      font-size: 16px;
-      font-weight: 900;
-      color: #1f2937;
-      letter-spacing: -0.01em;
-    }
-    .a4-landscape-export .report-section-title .section-note {
-      font-size: 11px;
-      color: #7b8088;
-      font-weight: 700;
-    }
-    .a4-landscape-export .item-card {
-      grid-template-columns: 152px 118px 132px 1fr !important;
-      gap: 12px !important;
-      padding: 12px 14px !important;
-      margin-bottom: 10px !important;
-      box-shadow: 0 6px 14px rgba(17, 24, 39, 0.05) !important;
-      border-width: 1.5px !important;
-      border-color: #e8edf2 !important;
-      border-radius: 18px !important;
-      align-items: center !important;
-      background: #fff !important;
-    }
-    .a4-landscape-export .item-name {
-      font-size: 17px !important;
-      padding: 10px 8px !important;
-      line-height: 1.15 !important;
-      border-radius: 14px !important;
-      background: linear-gradient(180deg, #fff8ef 0%, #fff3df 100%) !important;
-      border: 1px solid #ffd9a6 !important;
-    }
-    .a4-landscape-export .item-price {
-      font-size: 19px !important;
-      line-height: 1.05 !important;
-    }
-    .a4-landscape-export .item-price small {
-      font-size: 10px !important;
-      margin-top: 4px !important;
-      letter-spacing: 0.02em;
-    }
-    .a4-landscape-export .item-change {
-      font-size: 12px !important;
-      padding: 8px 6px !important;
-      line-height: 1.35 !important;
-      border-radius: 14px !important;
-      font-weight: 800 !important;
-    }
-    .a4-landscape-export .item-comm {
-      font-size: 13px !important;
-      line-height: 1.5 !important;
-      border-left: 4px solid var(--main-orange) !important;
-      padding: 2px 0 2px 12px !important;
-      font-weight: 800 !important;
-      color: #1f2937 !important;
-    }
-    .a4-landscape-export .item-actions { display: none !important; }
-    .a4-landscape-export .report-footer {
-      margin-top: 16px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding-top: 12px;
-      border-top: 1px solid #eceff3;
-      color: #70757d;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-
-    .detail-a4-export {
-      position: fixed;
-      left: -10000px;
-      top: 0;
-      width: 1588px;
-      background: #ffffff;
-      z-index: -1;
-      padding: 0;
-    }
-    .detail-a4-export .detail-export-sheet {
-      width: 1588px;
-      min-height: 1123px;
-      padding: 34px 38px 28px;
-      background: linear-gradient(180deg, #fff8ef 0%, #ffffff 16%, #ffffff 100%);
-      color: #1f2937;
-    }
-    .detail-a4-export .detail-export-hero {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-    .detail-a4-export .detail-export-titlebox {
-      background: linear-gradient(135deg, #1f2937 0%, #34495e 60%, #4b5563 100%);
-      border-radius: 24px;
-      color: #fff;
-      padding: 24px 28px 22px;
-      box-shadow: 0 18px 36px rgba(31, 41, 55, 0.16);
-    }
-    .detail-a4-export .detail-export-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.16);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .detail-a4-export .detail-export-title {
-      margin-top: 14px;
-      font-size: 32px;
-      line-height: 1.12;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-    }
-    .detail-a4-export .detail-export-subtitle {
-      margin-top: 10px;
-      font-size: 14px;
-      line-height: 1.55;
-      color: rgba(255,255,255,0.84);
-      font-weight: 600;
-    }
-    .detail-a4-export .detail-export-side {
-      display: grid;
-      grid-template-rows: auto auto;
-      gap: 14px;
-    }
-    .detail-a4-export .detail-export-panel,
-    .detail-a4-export .detail-export-meta {
-      background: #fff;
-      border-radius: 22px;
-      border: 1px solid #f1dfc2;
-      box-shadow: 0 10px 24px rgba(255, 140, 0, 0.08);
-      padding: 18px 20px;
-    }
-    .detail-a4-export .panel-label {
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #b56700;
-      margin-bottom: 8px;
-    }
-    .detail-a4-export .week-mark {
-      font-size: 30px;
-      font-weight: 900;
-      color: #1f2937;
-      line-height: 1.05;
-    }
-    .detail-a4-export .week-note {
-      margin-top: 6px;
-      color: #6b7280;
-      font-weight: 700;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-    .detail-a4-export .detail-meta-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    .detail-a4-export .detail-meta-chip {
-      background: linear-gradient(180deg, #fffaf2 0%, #fff4e7 100%);
-      border: 1px solid #f3d7ac;
-      border-radius: 16px;
-      padding: 12px 12px;
-    }
-    .detail-a4-export .detail-meta-chip .k {
-      display:block;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #a16207;
-      margin-bottom: 6px;
-    }
-    .detail-a4-export .detail-meta-chip .v {
-      display:block;
-      font-size: 19px;
-      line-height: 1.15;
-      font-weight: 900;
-      color: #1f2937;
-    }
-    .detail-a4-export .detail-export-body {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 14px;
-    }
-    .detail-a4-export .detail-export-card {
-      background: #fff;
-      border: 1px solid #eceff3;
-      border-radius: 22px;
-      box-shadow: 0 10px 24px rgba(15,23,42,0.05);
-      padding: 18px 20px;
-    }
-    .detail-a4-export .detail-export-card.full { grid-column: 1 / span 2; }
-    .detail-a4-export .detail-export-card h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      color: var(--main-orange);
-    }
-    .detail-a4-export .detail-export-card .content {
-      white-space: pre-wrap;
-      font-size: 14px;
-      line-height: 1.7;
-      font-weight: 700;
-      color: #243041;
-    }
-    .detail-a4-export .detail-export-chart {
-      margin-top: 14px;
-      background: #fff;
-      border: 1px solid #eceff3;
-      border-radius: 22px;
-      box-shadow: 0 10px 24px rgba(15,23,42,0.05);
-      padding: 16px 18px 18px;
-    }
-    .detail-a4-export .detail-export-chart h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      color: var(--main-orange);
-    }
-    .detail-a4-export .detail-export-chart img {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 16px;
-      border: 1px solid #edf2f7;
-      background: #fff;
-    }
-    .detail-a4-export .detail-export-footer {
-      margin-top: 16px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding-top: 12px;
-      border-top: 1px solid #eceff3;
-      color: #70757d;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    @media print {
-      .header, .modal-overlay, .toast { display:none !important; }
-    }
-
+    .export-mode .item-comm { border-left: 5px solid var(--main-orange) !important; border-top: none !important; padding: 4px 12px !important; font-size:18px !important; }
   </style>
 </head>
 <body>
@@ -628,6 +265,7 @@
     <button class="btn btn-refresh" onclick="refreshData()">↻</button>
     <button class="btn btn-copy" onclick="copyToClipboard()">📋 카톡복사</button>
     <button class="btn btn-save" onclick="saveAsImage()">🖼️ 이미지</button>
+    <button class="btn btn-save" style="background:#8b5cf6;" onclick="saveAllDetailImage()">🧾 상세전체</button>
     <button class="btn btn-save" style="background:#17a2b8;" onclick="saveAsPDF()">📄 PDF</button>
     <select id="weekSelector" onchange="loadWeekData(this.value)" class="btn" style="background:white; border:2px solid var(--main-orange); color:var(--main-orange);"></select>
     <button class="btn btn-new" onclick="openModal()">+ NEW</button>
@@ -641,6 +279,8 @@
     </div>
   </div>
 </div>
+
+<div id="detailExportArea" class="detail-export-wrap" aria-hidden="true"></div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box">
@@ -734,9 +374,7 @@
       이 품목은 현재 상세 텍스트만 표시하도록 구성되어 있습니다.
     </div>
 
-    <div style="margin-top:22px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;">
-      <button class="btn btn-save" onclick="saveDetailAsImage()">🖼️ 상세 이미지</button>
-      <button class="btn btn-save" style="background:#17a2b8;" onclick="saveDetailAsPDF()">📄 상세 PDF</button>
+    <div style="margin-top:22px; display:flex; justify-content:flex-end; gap:10px;">
       <button class="btn" onclick="closeDetailModal()" style="background:#eee; color:#333;">닫기</button>
     </div>
   </div>
@@ -999,9 +637,12 @@
 
   function renderMainUI(data) {
     let html = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px; gap:10px; flex-wrap:wrap;">
-        <h2 style="font-size:24px; color:#333;">Weekly Chemical Market Report</h2>
-        <span style="font-weight:700; color:#666;">Week: ${formatWeekLabel(data.week || '-')}</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:3px solid var(--main-orange); padding-bottom:8px; gap:10px; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:13px; font-weight:900; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
+          <h2 style="font-size:20px; color:#333; line-height:1.15;">Weekly Chemical Market Report</h2>
+        </div>
+        <span style="font-weight:800; color:#666; font-size:14px;">Week: ${formatWeekLabel(data.week || '-')}</span>
       </div>`;
 
     ITEMS.forEach(name => {
@@ -1295,38 +936,41 @@
     return rows;
   }
 
-  function extractPriceNumber(content, targetItem = '') {
-    const text = String(content || '');
-    const item = toCanonicalItemName(targetItem || '');
-    const targetLabels = {
-      WTI: ['WTI 4월물', 'WTI', 'NYMEX WTI'],
-      Styrene: ['SM CFR China', 'Styrene Monomer', 'Styrene', 'SM'],
-      Acrylonitrile: ['ACN CFR Far East Asia', 'Acrylonitrile', 'ACN', 'AN'],
-      Butadiene: ['BD CFR China', 'BD CFR NEA', 'Butadiene', 'BD'],
-      BPA: ['BPA', 'BPA CFR', 'BPA spot'],
-      MMA: ['MMA', 'MMA CFR']
-    }[item] || [];
-
-    const priceSectionMatch = text.match(/1\.\s*가격\s*[\r\n]+([\s\S]+?)(?=\n\s*2\.|$)/i);
-    const priceSection = priceSectionMatch ? priceSectionMatch[1] : text;
-
-    const lines = priceSection.split(/\n+/).map(v => v.trim()).filter(Boolean);
-    const candidateLines = lines.filter(line => {
-      if (!/\$\s*[\d,]+(?:\.\d+)?\s*\/(?:mt|b|bbl)/i.test(line)) return false;
-      if (!targetLabels.length) return true;
-      return targetLabels.some(label => line.toLowerCase().includes(label.toLowerCase()));
-    });
-    const fallbackLines = lines.filter(line => /\$\s*[\d,]+(?:\.\d+)?\s*\/(?:mt|b|bbl)/i.test(line));
-    const chosen = candidateLines[0] || fallbackLines[0] || '';
-    const m = chosen.match(/\$\s*([\d,]+(?:\.\d+)?)/);
-    return m ? m[1].replace(/,/g, '') : '';
+  function extractPriceNumber(content) {
+    const patterns = [
+      /금주\s*가격\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/i,
+      /(?:CFR\s+China\s+Spot|CIF\s+India\s+Spot|FOB\s+Korea\s+S\s+Cost\s+Spot)\s*:\s*\$?\s*([\d,]+(?:\.\d+)?)/i,
+      /1\.\s*가격[\s\S]*?([\d,]+(?:\.\d+)?)/i
+    ];
+    for (const re of patterns) {
+      const m = (content || '').match(re);
+      if (m) return m[1].replace(/,/g, '');
+    }
+    return '';
   }
 
-  function getParsedSections(content, targetItem = '') {
+
+  function cleanParserText(text) {
+    return (text || '')
+      .replace(/\r/g, '')
+      .replace(/^\s*#+\s*/gm, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/^\s*[-*]\s+/gm, '')
+      .trim();
+  }
+
+  function normalizeSectionBody(text) {
+    return normalizeMultilineSection((text || '')
+      .replace(/^\s*[-*]\s+/gm, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+    );
+  }
+
+  function getParsedSections(content) {
     const cleaned = cleanParserText(content);
-    const priceValue = extractPriceNumber(cleaned, targetItem);
+    const priceValue = extractPriceNumber(cleaned);
     const commMatch = cleaned.match(/2\.\s*코멘터리\s*[\r\n]+([\s\S]+?)(?=\n\s*3\.|$)/i);
-    const factorsMatch = cleaned.match(/3\.\s*(?:변동요인|변둉요인|변동 요인)\s*[\r\n]+([\s\S]+?)(?=\n\s*4\.|$)/i);
+    const factorsMatch = cleaned.match(/3\.\s*변동요인\s*[\r\n]+([\s\S]+?)(?=\n\s*4\.|$)/i);
     const outlookMatch = cleaned.match(/4\.\s*(?:결론\s*및\s*전망|결론및전망|전망)\s*[\r\n]+([\s\S]+?)(?=\n\s*5\.|$)/i);
     const addMatch = cleaned.match(/5\.\s*(?:기타\s*추가\s*정보|기타추가정보|추가\s*정보|추가정보)\s*[\r\n]+([\s\S]+?)(?=\n\s*6\.|$)/i);
     return {
@@ -1352,7 +996,7 @@
       return;
     }
 
-    const parsed = getParsedSections(text, target);
+    const parsed = getParsedSections(text);
     let filled = 0;
 
     if (parsed.priceValue) {
@@ -1484,243 +1128,160 @@
     return (rows || []).map(r => `${r.date},${r.price}`).join('\n');
   }
 
-  function buildExportNode() {
-    const weekLabel = formatWeekLabel(currentWeekData?.week || '-');
-    const reportHtml = document.getElementById('reportContent')?.innerHTML || '';
-    const filledItems = ITEMS.filter(name => {
-      const d = currentWeekData?.items?.[name] || {};
-      return hasAnyMeaningfulValue(d);
+
+
+  function countUpItems() {
+    if (!currentWeekData?.items) return 0;
+    return ITEMS.filter(name => safeNumber(currentWeekData.items[name]?.change_abs) > 0).length;
+  }
+
+  function getBiggestMoveItem() {
+    if (!currentWeekData?.items) return '-';
+    let bestName = '-';
+    let bestAbs = -1;
+    ITEMS.forEach(name => {
+      const abs = Math.abs(safeNumber(currentWeekData.items[name]?.change_abs));
+      if (abs > bestAbs) {
+        bestAbs = abs;
+        bestName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'Acrylonitrile' : name;
+      }
     });
-    const risingItems = filledItems.filter(name => safeNumber(currentWeekData?.items?.[name]?.change_abs) > 0).length;
-    const largestMove = filledItems
-      .map(name => ({ name, abs: Math.abs(safeNumber(currentWeekData?.items?.[name]?.change_abs)) }))
-      .sort((a, b) => b.abs - a.abs)[0];
-    const exportWrap = document.createElement('div');
-    exportWrap.className = 'a4-landscape-export';
-    exportWrap.innerHTML = `
-      <div class="report-container">
-        <div class="report-hero">
-          <div class="hero-left">
-            <div class="hero-kicker">LAM · PETROCHEMICALS</div>
-            <div class="hero-title">Weekly Chemical Market Report</div>
-            <div class="hero-subtitle">주요 원료 및 유도품 가격 흐름을 주차 기준으로 정리한 요약 보고서입니다. 보고용 이미지/PDF 저장 시 버튼과 편집 UI는 제외됩니다.</div>
-          </div>
-          <div class="hero-right">
-            <div class="week-panel">
-              <div class="panel-label">Report Week</div>
-              <div class="week-mark">${escapeHtml(weekLabel)}</div>
-              <div class="week-note">금요일 기준 주차 마감 레포트</div>
-            </div>
-            <div class="summary-panel">
-              <div class="panel-label">Quick Summary</div>
-              <div class="summary-grid">
-                <div class="summary-chip"><strong>${filledItems.length}</strong><span>Items</span></div>
-                <div class="summary-chip"><strong>${risingItems}</strong><span>Up</span></div>
-                <div class="summary-chip"><strong>${escapeHtml(largestMove?.name || '-')}</strong><span>Biggest Move</span></div>
-              </div>
-            </div>
-            <div class="brand-panel">
-              <div>
-                <div class="panel-label">Prepared For</div>
-                <div class="brand-mark">LAM</div>
-              </div>
-              <div class="brand-copy">Weekly market snapshot<br>Internal reporting format</div>
-            </div>
-          </div>
-        </div>
-        <div class="report-section-title">
-          <h3>Weekly Price Summary</h3>
-          <div class="section-note">Price / Weekly change / Commentary</div>
-        </div>
-        ${reportHtml}
-        <div class="report-footer">
-          <div>LAM Weekly Chemical Market Report</div>
-          <div>${escapeHtml(weekLabel)} · Export Format</div>
-        </div>
-      </div>`;
-    document.body.appendChild(exportWrap);
-    return exportWrap;
+    return bestName;
   }
 
-  async function renderExportCanvas() {
-    const exportNode = buildExportNode();
-    document.body.classList.add('export-mode');
-    try {
-      const canvas = await html2canvas(exportNode, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        width: 1588,
-        windowWidth: 1588,
-        height: 1123,
-        windowHeight: 1123,
-        scrollX: 0,
-        scrollY: 0
-      });
-      return canvas;
-    } finally {
-      exportNode.remove();
-      document.body.classList.remove('export-mode');
+  function buildDetailSparkline(rows) {
+    const data = (rows || []).filter(r => r && !isNaN(Number(r.price)));
+    const width = 760, height = 160, pad = 18;
+    if (!data.length) {
+      return `<div class="detail-empty" style="margin:0;">데일리 가격 데이터가 없습니다.</div>`;
     }
+    const vals = data.map(r => Number(r.price));
+    const min = Math.min(...vals), max = Math.max(...vals);
+    const range = max - min || 1;
+    const xStep = data.length === 1 ? 0 : (width - pad * 2) / (data.length - 1);
+    const pts = data.map((r, i) => {
+      const x = pad + xStep * i;
+      const y = height - pad - ((Number(r.price) - min) / range) * (height - pad * 2);
+      return {x, y, label: r.date, val: Number(r.price)};
+    });
+    const path = pts.map((p, i) => `${i ? 'L' : 'M'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    const grid = [0, .5, 1].map(f => {
+      const y = height - pad - f * (height - pad * 2);
+      const v = (min + f * range).toFixed(2).replace(/\.00$/, '');
+      return `<line x1="${pad}" y1="${y.toFixed(1)}" x2="${width-pad}" y2="${y.toFixed(1)}" stroke="#e5e7eb" stroke-width="1"/>
+              <text x="8" y="${(y+4).toFixed(1)}" font-size="10" fill="#6b7280">${v}</text>`;
+    }).join('');
+    const dots = pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#ff8c00"/>
+      <text x="${p.x.toFixed(1)}" y="${(p.y-10).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="#374151">${formatPrice(p.val)}</text>
+      <text x="${p.x.toFixed(1)}" y="${height-4}" text-anchor="middle" font-size="10" fill="#6b7280">${escapeHtml(String(p.label))}</text>`).join('');
+    return `<div class="detail-spark"><svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">${grid}<path d="${path}" fill="none" stroke="#ff8c00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg></div>`;
   }
 
-  async function saveAsImage() {
-    try {
-      showToast('🖼️ A4 가로 이미지 생성 중...');
-      const canvas = await renderExportCanvas();
-      const link = document.createElement('a');
-      link.download = `LAM_Report_${currentWeekData?.week || 'weekly'}_A4_Landscape.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      showToast('✅ A4 가로 이미지 저장 완료');
-    } catch (e) {
-      console.error(e);
-      showToast('⚠️ 이미지 저장 실패');
-    }
-  }
-
-  async function saveAsPDF() {
-    try {
-      showToast('📄 A4 가로 PDF 생성 중...');
-      const canvas = await renderExportCanvas();
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
-      pdf.addImage(imgData, 'PNG', 0, 0, 297, 210, undefined, 'FAST');
-      pdf.save(`LAM_Report_${currentWeekData?.week || 'weekly'}_A4_Landscape.pdf`);
-      showToast('✅ A4 가로 PDF 저장 완료');
-    } catch (e) {
-      console.error(e);
-      showToast('⚠️ PDF 저장 실패');
-    }
-  }
-
-
-  function buildDetailExportNode() {
-    if (!currentWeekData || !currentDetailItem || !currentWeekData.items[currentDetailItem]) return null;
-    const name = currentDetailItem;
-    const d = currentWeekData.items[name] || {};
-    const weekLabel = formatWeekLabel(currentWeekData?.week || '-');
-    const abs = safeNumber(d.change_abs);
-    const pct = safeNumber(d.change_pct);
-    const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name;
-    const direction = abs > 0 ? '상승' : abs < 0 ? '하락' : '보합';
-    const signedAbs = `${abs > 0 ? '+' : abs < 0 ? '' : ''}${abs.toFixed(1)}`;
-    const signedPct = `${pct > 0 ? '+' : pct < 0 ? '' : ''}${pct.toFixed(1)}%`;
-    const prevPrice = d.prev_price !== undefined && d.prev_price !== null && d.prev_price !== '' ? formatPrice(d.prev_price) : '-';
-    const chartImg = (GRAPH_ITEMS.includes(name) && detailChart && typeof detailChart.toBase64Image === 'function') ? detailChart.toBase64Image() : '';
-
-    const exportWrap = document.createElement('div');
-    exportWrap.className = 'detail-a4-export';
-    exportWrap.innerHTML = `
+  function buildAllDetailExportHTML() {
+    if (!currentWeekData) return '';
+    const moveItem = getBiggestMoveItem();
+    const weekLabel = formatWeekLabel(currentWeekData.week || '-');
+    let html = `
       <div class="detail-export-sheet">
-        <div class="detail-export-hero">
+        <div class="detail-export-head">
           <div class="detail-export-titlebox">
-            <div class="detail-export-kicker">LAM · DETAIL BRIEF</div>
-            <div class="detail-export-title">${escapeHtml(displayName)} 상세 브리핑</div>
-            <div class="detail-export-subtitle">주간 가격과 변동 요인을 한 페이지 A4 가로 형식으로 정리한 상세 보고서입니다.</div>
+            <div class="kicker">LAM · PETROCHEMICALS</div>
+            <h2>Weekly Chemical Market Report<br>Detailed Brief</h2>
+            <p>주요 원료 및 유도품의 상세 코멘터리와 변동요인, 전망을 주차 기준으로 정리한 경영진 보고용 상세 이미지입니다.</p>
           </div>
-          <div class="detail-export-side">
-            <div class="detail-export-panel">
-              <div class="panel-label">Report Week</div>
-              <div class="week-mark">${escapeHtml(weekLabel)}</div>
-              <div class="week-note">판정: ${direction} · 저장용 상세 브리핑</div>
+          <div class="detail-export-weekbox">
+            <div class="detail-export-stat"><div class="label">Report Week</div><div class="value">${escapeHtml(weekLabel)}</div></div>
+            <div class="detail-export-stat"><div class="label">Quick Summary</div><div class="value">${ITEMS.length} Items / ${countUpItems()} Up</div></div>
+            <div class="detail-export-stat"><div class="label">Biggest Move</div><div class="value">${escapeHtml(moveItem)}</div></div>
+          </div>
+        </div>`;
+
+    ITEMS.forEach(name => {
+      const d = currentWeekData.items[name] || {};
+      const abs = safeNumber(d.change_abs);
+      const pct = safeNumber(d.change_pct);
+      const cls = abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none');
+      const sign = abs > 0 ? '▲' : (abs < 0 ? '▼' : '-');
+      const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'Acrylonitrile' : name;
+      const rows = (d.daily_prices && d.daily_prices.length) ? d.daily_prices : (GRAPH_ITEMS.includes(name) ? buildFallbackDailySeries(name) : []);
+      const chartBlock = GRAPH_ITEMS.includes(name) ? `
+        <div class="detail-mini-card full">
+          <div class="detail-mini-flex">
+            <div>
+              <div class="detail-spark-label">데일리 가격 추이</div>
+              ${buildDetailSparkline(rows)}
             </div>
-            <div class="detail-export-meta">
-              <div class="panel-label">Key Metrics</div>
-              <div class="detail-meta-grid">
-                <div class="detail-meta-chip"><span class="k">Price</span><span class="v">${escapeHtml(formatPrice(d.price))}</span></div>
-                <div class="detail-meta-chip"><span class="k">Prev</span><span class="v">${escapeHtml(prevPrice)}</span></div>
-                <div class="detail-meta-chip"><span class="k">Change</span><span class="v">${escapeHtml(signedAbs)}</span></div>
-                <div class="detail-meta-chip"><span class="k">Change %</span><span class="v">${escapeHtml(signedPct)}</span></div>
-              </div>
+            <div>
+              <div class="detail-spark-label">일별 가격 표</div>
+              <table class="detail-mini-table"><thead><tr><th>일자</th><th>가격</th></tr></thead><tbody>${rows.map(r => `<tr><td>${escapeHtml(String(r.date))}</td><td>${formatPrice(r.price)}</td></tr>`).join('')}</tbody></table>
             </div>
           </div>
-        </div>
-
-        <div class="detail-export-body">
-          <div class="detail-export-card">
-            <h3>📌 변동요인</h3>
-            <div class="content">${escapeHtml(d.factors || '입력된 변동요인이 없습니다.')}</div>
+        </div>` : '';
+      html += `
+        <div class="detail-item">
+          <div class="detail-item-head">
+            <div class="detail-item-name">${escapeHtml(displayName)}</div>
+            <div class="detail-item-price price-${cls}">${escapeHtml(String(d.price || '-'))}<small>(${UNITS[name]})</small></div>
+            <div class="detail-item-change change-${cls}">${sign} ${Math.abs(abs).toFixed(1)} (${pct.toFixed(1)}%)</div>
+            <div class="detail-item-comment">${escapeHtml(d.commentary || '분석 코멘터리가 없습니다.')}</div>
           </div>
-          <div class="detail-export-card">
-            <h3>🔎 결론 및 전망</h3>
-            <div class="content">${escapeHtml(d.outlook || '입력된 결론 및 전망이 없습니다.')}</div>
+          <div class="detail-item-body">
+            <div class="detail-mini-card"><h4>📌 변동요인</h4><div class="text">${escapeHtml(d.factors || '입력된 변동요인이 없습니다.')}</div></div>
+            <div class="detail-mini-card"><h4>🔎 결론 및 전망</h4><div class="text">${escapeHtml(d.outlook || '입력된 결론 및 전망이 없습니다.')}</div></div>
+            <div class="detail-mini-card"><h4>➕ 추가정보</h4><div class="text">${escapeHtml(d.additional_info || '입력된 추가정보가 없습니다.')}</div></div>
+            ${chartBlock}
           </div>
-          <div class="detail-export-card full">
-            <h3>➕ 추가정보</h3>
-            <div class="content">${escapeHtml(d.additional_info || '입력된 추가정보가 없습니다.')}</div>
-          </div>
-        </div>
+        </div>`;
+    });
 
-        ${chartImg ? `<div class="detail-export-chart"><h3>📈 데일리 가격 추이</h3><img src="${chartImg}" alt="${escapeAttr(displayName)} detail chart"></div>` : ''}
-
-        <div class="detail-export-footer">
-          <div>LAM Weekly Chemical Market Report</div>
-          <div>${escapeHtml(displayName)} Detail Brief</div>
-          <div>${escapeHtml(weekLabel)} · A4 Landscape</div>
-        </div>
-      </div>`;
-    document.body.appendChild(exportWrap);
-    return exportWrap;
+    html += `</div>`;
+    return html;
   }
 
-  async function renderDetailExportCanvas() {
-    const exportNode = buildDetailExportNode();
-    if (!exportNode) throw new Error('상세 데이터가 없습니다.');
-    document.body.classList.add('export-mode');
+  async function saveAllDetailImage() {
+    if (!currentWeekData) return;
+    const area = document.getElementById('detailExportArea');
+    area.innerHTML = buildAllDetailExportHTML();
+    showToast('🧾 상세 전체 이미지 생성 중...');
     try {
-      const canvas = await html2canvas(exportNode, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        width: 1588,
-        windowWidth: 1588,
-        height: 1123,
-        windowHeight: 1123,
-        scrollX: 0,
-        scrollY: 0
-      });
-      return canvas;
-    } finally {
-      exportNode.remove();
-      document.body.classList.remove('export-mode');
-    }
-  }
-
-  async function saveDetailAsImage() {
-    try {
-      if (!currentDetailItem) { showToast('⚠️ 상세보기 항목이 없습니다.'); return; }
-      showToast('🖼️ 상세 A4 가로 이미지 생성 중...');
-      const canvas = await renderDetailExportCanvas();
-      const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem;
+      const sheet = area.firstElementChild;
+      const canvas = await html2canvas(sheet, { scale: 2, useCORS: true, width: 1440, windowWidth: 1440, backgroundColor: '#f8f9fb' });
       const link = document.createElement('a');
-      link.download = `LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `LAM_Detail_Report_${currentWeekData?.week || 'weekly'}.png`;
+      link.href = canvas.toDataURL();
       link.click();
       showToast('✅ 상세 이미지 저장 완료');
     } catch (e) {
       console.error(e);
       showToast('⚠️ 상세 이미지 저장 실패');
+    } finally {
+      area.innerHTML = '';
     }
   }
 
-  async function saveDetailAsPDF() {
-    try {
-      if (!currentDetailItem) { showToast('⚠️ 상세보기 항목이 없습니다.'); return; }
-      showToast('📄 상세 A4 가로 PDF 생성 중...');
-      const canvas = await renderDetailExportCanvas();
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
-      pdf.addImage(imgData, 'PNG', 0, 0, 297, 210, undefined, 'FAST');
-      const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem;
-      pdf.save(`LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.pdf`);
-      showToast('✅ 상세 PDF 저장 완료');
-    } catch (e) {
-      console.error(e);
-      showToast('⚠️ 상세 PDF 저장 실패');
-    }
+  async function saveAsImage() {
+    const area = document.getElementById('captureArea');
+    document.body.classList.add('export-mode');
+    showToast('🖼️ 이미지 생성 중...');
+    html2canvas(area, { scale: 2, useCORS: true, width: 1440, windowWidth: 1440, backgroundColor:'#f8f9fb' }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `LAM_Report_${currentWeekData?.week || 'weekly'}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      document.body.classList.remove('export-mode');
+      showToast('✅ 저장 완료');
+    }).catch(() => {
+      document.body.classList.remove('export-mode');
+      showToast('⚠️ 이미지 저장 실패');
+    });
+  }
+
+  function saveAsPDF() {
+    document.body.classList.add('export-mode');
+    setTimeout(() => {
+      window.print();
+      document.body.classList.remove('export-mode');
+    }, 500);
   }
 
   function refreshData() {
