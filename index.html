@@ -558,6 +558,9 @@
       font-weight: 900;
       color: #1f2937;
     }
+    .detail-a4-export .detail-meta-chip .v.is-up { color: #e74c3c; }
+    .detail-a4-export .detail-meta-chip .v.is-down { color: #2563eb; }
+    .detail-a4-export .detail-meta-chip .v.is-flat { color: #111827; }
     .detail-a4-export .detail-export-body {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -1755,6 +1758,7 @@
     const pct = safeNumber(d.change_pct);
     const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name;
     const direction = abs > 0 ? '상승' : abs < 0 ? '하락' : '보합';
+    const toneClass = abs > 0 ? 'is-up' : abs < 0 ? 'is-down' : 'is-flat';
     const signedAbs = `${abs > 0 ? '+' : abs < 0 ? '' : ''}${abs.toFixed(1)}`;
     const signedPct = `${pct > 0 ? '+' : pct < 0 ? '' : ''}${pct.toFixed(1)}%`;
     const prevPrice = d.prev_price !== undefined && d.prev_price !== null && d.prev_price !== '' ? formatPrice(d.prev_price) : '-';
@@ -1797,10 +1801,10 @@
             <div class="detail-export-meta">
               <div class="panel-label">Key Metrics</div>
               <div class="detail-meta-grid">
-                <div class="detail-meta-chip"><span class="k">Price</span><span class="v">${escapeHtml(formatPrice(d.price))}</span></div>
-                <div class="detail-meta-chip"><span class="k">Prev</span><span class="v">${escapeHtml(prevPrice)}</span></div>
-                <div class="detail-meta-chip"><span class="k">Change</span><span class="v">${escapeHtml(signedAbs)}</span></div>
-                <div class="detail-meta-chip"><span class="k">Change %</span><span class="v">${escapeHtml(signedPct)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Price</span><span class="v ${toneClass}">${escapeHtml(formatPrice(d.price))}</span></div>
+                <div class="detail-meta-chip"><span class="k">Prev</span><span class="v is-flat">${escapeHtml(prevPrice)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Change</span><span class="v ${toneClass}">${escapeHtml(signedAbs)}</span></div>
+                <div class="detail-meta-chip"><span class="k">Change %</span><span class="v ${toneClass}">${escapeHtml(signedPct)}</span></div>
               </div>
             </div>
           </div>
@@ -1914,17 +1918,23 @@
     const naturalHeight = Math.ceil(sheet.scrollHeight);
     if (naturalHeight > availableHeight) {
       let guard = 0;
-      while (sheet.scrollHeight > availableHeight && (detailBodyFont > 16 || factorsBodyFont > 22) && guard < 20) {
-        if (detailBodyFont > 16) detailBodyFont -= 1;
-        if (factorsBodyFont > 22) factorsBodyFont -= 1;
-        if (detailHeadFont > 22) detailHeadFont -= 0.5;
+      while (sheet.scrollHeight > availableHeight && (detailBodyFont > 13 || factorsBodyFont > 18 || detailHeadFont > 20) && guard < 40) {
+        if (detailBodyFont > 13) detailBodyFont -= 1;
+        if (factorsBodyFont > 18) factorsBodyFont -= 1;
+        if (detailHeadFont > 20) detailHeadFont -= 0.5;
         otherDetailContents.forEach(el => el.style.setProperty('font-size', detailBodyFont + 'px', 'important'));
         if (factorsContent) factorsContent.style.setProperty('font-size', factorsBodyFont + 'px', 'important');
         detailHeads.forEach(el => el.style.setProperty('font-size', detailHeadFont + 'px', 'important'));
         guard += 1;
       }
-      sheet.style.transform = '';
-      sheet.style.width = availableWidth + 'px';
+      if (sheet.scrollHeight > availableHeight) {
+        const scale = Math.min(1, availableHeight / Math.max(sheet.scrollHeight, 1));
+        sheet.style.transform = `scale(${scale})`;
+        sheet.style.width = (availableWidth / Math.max(scale, 0.1)) + 'px';
+      } else {
+        sheet.style.transform = '';
+        sheet.style.width = availableWidth + 'px';
+      }
       return { width: 1587, height: 1123 };
     }
 
@@ -1962,9 +1972,30 @@
     const filledHeight = Math.ceil(sheet.scrollHeight);
     if (filledHeight > availableHeight) {
       resetAdaptiveStyles();
-      const scaledHeight = Math.ceil(sheet.scrollHeight);
-      sheet.style.transform = '';
-      sheet.style.width = availableWidth + 'px';
+      const overflowHeight = Math.ceil(sheet.scrollHeight);
+      if (overflowHeight > availableHeight) {
+        let shrinkGuard = 0;
+        while (sheet.scrollHeight > availableHeight && (detailBodyFont > 13 || factorsBodyFont > 18 || detailHeadFont > 20) && shrinkGuard < 30) {
+          if (detailBodyFont > 13) detailBodyFont -= 1;
+          if (factorsBodyFont > 18) factorsBodyFont -= 1;
+          if (detailHeadFont > 20) detailHeadFont -= 0.5;
+          otherDetailContents.forEach(el => el.style.setProperty('font-size', detailBodyFont + 'px', 'important'));
+          if (factorsContent) factorsContent.style.setProperty('font-size', factorsBodyFont + 'px', 'important');
+          detailHeads.forEach(el => el.style.setProperty('font-size', detailHeadFont + 'px', 'important'));
+          shrinkGuard += 1;
+        }
+        if (sheet.scrollHeight > availableHeight) {
+          const scale = Math.min(1, availableHeight / Math.max(sheet.scrollHeight, 1));
+          sheet.style.transform = `scale(${scale})`;
+          sheet.style.width = (availableWidth / Math.max(scale, 0.1)) + 'px';
+        } else {
+          sheet.style.transform = '';
+          sheet.style.width = availableWidth + 'px';
+        }
+      } else {
+        sheet.style.transform = '';
+        sheet.style.width = availableWidth + 'px';
+      }
     }
 
     return { width: 1587, height: 1123 };
