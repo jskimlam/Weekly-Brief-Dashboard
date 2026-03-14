@@ -1049,7 +1049,7 @@
       const cls = abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none');
       html += `
         <div class="item-card">
-          <div class="item-name">${name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name}</div>
+          <div class="item-name">${name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'AN' : name}</div>
           <div class="item-price price-${cls}">${d.price || '-'}<small>(${UNITS[name]})</small></div>
           <div class="item-change change-${cls}">${sign} ${Math.abs(abs).toFixed(1)} (${pct.toFixed(1)}%)</div>
           <div class="item-comm">${escapeHtml(d.commentary || '분석 코멘터리가 없습니다.')}</div>
@@ -1070,7 +1070,7 @@
     const d = currentWeekData.items[name];
     const abs = safeNumber(d.change_abs);
     const pct = safeNumber(d.change_pct);
-    const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name;
+    const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'AN' : name;
 
     document.getElementById('detailTitle').textContent = `${displayName} 상세 정보`;
     document.getElementById('detailWeek').textContent = `기준 주차: ${formatWeekLabel(currentWeekData.week || '-')}`;
@@ -1756,7 +1756,7 @@
     const weekLabel = formatWeekLabel(currentWeekData?.week || '-');
     const abs = safeNumber(d.change_abs);
     const pct = safeNumber(d.change_pct);
-    const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name;
+    const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'AN' : name;
     const direction = abs > 0 ? '상승' : abs < 0 ? '하락' : '보합';
     const toneClass = abs > 0 ? 'is-up' : abs < 0 ? 'is-down' : 'is-flat';
     const signedAbs = `${abs > 0 ? '+' : abs < 0 ? '' : ''}${abs.toFixed(1)}`;
@@ -2130,7 +2130,7 @@
       if (!currentWeekData || !currentWeekData.items?.[name]) { showToast('⚠️ 저장할 상세 데이터가 없습니다.'); return; }
       showToast(`🖼️ ${name} 상세 A4 가로 이미지 생성 중...`);
       const canvas = await renderDetailExportCanvas(name);
-      const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name;
+      const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'AN' : name;
       const link = document.createElement('a');
       link.download = `LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.png`;
       link.href = canvas.toDataURL('image/png');
@@ -2147,7 +2147,7 @@
       if (!currentDetailItem) { showToast('⚠️ 상세보기 항목이 없습니다.'); return; }
       showToast('🖼️ 상세 A4 가로 이미지 생성 중...');
       const canvas = await renderDetailExportCanvas();
-      const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem;
+      const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem === 'Acrylonitrile' ? 'AN' : currentDetailItem;
       const link = document.createElement('a');
       link.download = `LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.png`;
       link.href = canvas.toDataURL('image/png');
@@ -2168,7 +2168,7 @@
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
       pdf.addImage(imgData, 'PNG', 0, 0, 297, 210, undefined, 'FAST');
-      const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem;
+      const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem === 'Acrylonitrile' ? 'AN' : currentDetailItem;
       pdf.save(`LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.pdf`);
       showToast('✅ 상세 PDF 저장 완료');
     } catch (e) {
