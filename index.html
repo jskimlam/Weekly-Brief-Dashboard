@@ -210,6 +210,8 @@
     body.export-mode { background:#ffffff !important; }
     body.export-mode .main-content { max-width:none !important; padding:0 !important; margin:0 !important; }
 
+    .a4-landscape-export, .a4-landscape-export * , .detail-a4-export, .detail-a4-export * { box-sizing: border-box; }
+
     .a4-landscape-export {
       position: fixed;
       left: -10000px;
@@ -220,7 +222,7 @@
       padding: 0;
     }
     .a4-landscape-export .report-container {
-      width: 1588px;
+      width: 100%;
       min-height: 1123px;
       padding: 34px 38px 26px 38px;
       border-radius: 0;
@@ -446,9 +448,9 @@
       padding: 0;
     }
     .detail-a4-export .detail-export-sheet {
-      width: 1588px;
+      width: 100%;
       min-height: 1123px;
-      padding: 34px 38px 28px;
+      padding: 30px 34px 24px;
       background: linear-gradient(180deg, #fff8ef 0%, #ffffff 16%, #ffffff 100%);
       color: #1f2937;
     }
@@ -480,15 +482,15 @@
     }
     .detail-a4-export .detail-export-title {
       margin-top: 14px;
-      font-size: 35px;
+      font-size: 38px;
       line-height: 1.12;
       font-weight: 900;
       letter-spacing: -0.03em;
     }
     .detail-a4-export .detail-export-subtitle {
       margin-top: 10px;
-      font-size: 15px;
-      line-height: 1.55;
+      font-size: 16px;
+      line-height: 1.5;
       color: rgba(255,255,255,0.84);
       font-weight: 600;
     }
@@ -555,47 +557,64 @@
     }
     .detail-a4-export .detail-export-body {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas:
+        "factors outlook"
+        "additional chart";
       gap: 14px;
       margin-top: 14px;
+      align-items: stretch;
     }
     .detail-a4-export .detail-export-card {
       background: #fff;
       border: 1px solid #eceff3;
       border-radius: 22px;
       box-shadow: 0 10px 24px rgba(15,23,42,0.05);
-      padding: 18px 20px;
+      padding: 16px 18px;
+      min-width: 0;
+      overflow: hidden;
     }
-    .detail-a4-export .detail-export-card.full { grid-column: 1 / span 2; }
+    .detail-a4-export .detail-export-card.factors { grid-area: factors; }
+    .detail-a4-export .detail-export-card.outlook { grid-area: outlook; }
+    .detail-a4-export .detail-export-card.additional { grid-area: additional; }
     .detail-a4-export .detail-export-card h3 {
-      margin: 0 0 12px;
-      font-size: 21px;
+      margin: 0 0 10px;
+      font-size: 23px;
+      font-weight: 900;
       color: var(--main-orange);
     }
     .detail-a4-export .detail-export-card .content {
       white-space: pre-wrap;
-      font-size: 16px;
-      line-height: 1.75;
-      font-weight: 800;
+      font-size: 18px;
+      line-height: 1.6;
+      font-weight: 900;
       color: #243041;
+      word-break: keep-all;
     }
     .detail-a4-export .detail-export-chart {
-      margin-top: 14px;
+      grid-area: chart;
+      margin-top: 0;
       background: #fff;
       overflow: hidden;
       border: 1px solid #eceff3;
       border-radius: 22px;
       box-shadow: 0 10px 24px rgba(15,23,42,0.05);
-      padding: 16px 18px 18px;
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      align-self: stretch;
     }
     .detail-a4-export .detail-export-chart h3 {
-      margin: 0 0 14px;
-      font-size: 21px;
+      margin: 0 0 10px;
+      font-size: 23px;
+      font-weight: 900;
       color: var(--main-orange);
     }
     .detail-a4-export .detail-export-chart img {
       width: 100%;
-      height: auto;
+      height: 300px;
+      object-fit: contain;
       display: block;
       border-radius: 16px;
       border: 1px solid #edf2f7;
@@ -1098,7 +1117,7 @@
             anchor: 'end',
             color: '#333',
             formatter: (value) => formatPrice(value),
-            font: { weight: '800', size: 14 }
+            font: { weight: '900', size: 16 }
           },
           tooltip: {
             callbacks: {
@@ -1559,14 +1578,15 @@
     const exportNode = buildExportNode();
     document.body.classList.add('export-mode');
     try {
+      const targetHeight = Math.max(1123, exportNode.scrollHeight);
       const canvas = await html2canvas(exportNode, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         width: 1588,
         windowWidth: 1588,
-        height: 1123,
-        windowHeight: 1123,
+        height: targetHeight,
+        windowHeight: targetHeight,
         scrollX: 0,
         scrollY: 0
       });
@@ -1653,21 +1673,20 @@
         </div>
 
         <div class="detail-export-body">
-          <div class="detail-export-card">
+          <div class="detail-export-card factors">
             <h3>📌 변동요인</h3>
             <div class="content">${escapeHtml(d.factors || '입력된 변동요인이 없습니다.')}</div>
           </div>
-          <div class="detail-export-card">
+          <div class="detail-export-card outlook">
             <h3>🔎 결론 및 전망</h3>
             <div class="content">${escapeHtml(d.outlook || '입력된 결론 및 전망이 없습니다.')}</div>
           </div>
-          <div class="detail-export-card full">
+          <div class="detail-export-card additional">
             <h3>➕ 추가정보</h3>
             <div class="content">${escapeHtml(d.additional_info || '입력된 추가정보가 없습니다.')}</div>
           </div>
+          ${chartImg ? `<div class="detail-export-chart"><h3>📈 데일리 가격 추이</h3><img src="${chartImg}" alt="${escapeAttr(displayName)} detail chart"></div>` : ''}
         </div>
-
-        ${chartImg ? `<div class="detail-export-chart"><h3>📈 데일리 가격 추이</h3><img src="${chartImg}" alt="${escapeAttr(displayName)} detail chart"></div>` : ''}
 
         <div class="detail-export-footer">
           <div>LAM Weekly Chemical Market Report</div>
@@ -1693,8 +1712,8 @@
     const yPad = span * 0.22;
 
     const canvas = document.createElement('canvas');
-    canvas.width = 1460;
-    canvas.height = 600;
+    canvas.width = 1360;
+    canvas.height = 460;
     canvas.style.position = 'fixed';
     canvas.style.left = '-10000px';
     canvas.style.top = '0';
@@ -1712,8 +1731,8 @@
             borderWidth: 4,
             tension: 0.42,
             fill: false,
-            pointRadius: 5,
-            pointHoverRadius: 7,
+            pointRadius: 6,
+            pointHoverRadius: 8,
             pointBorderWidth: 2
           }]
         },
@@ -1721,7 +1740,7 @@
           responsive: false,
           animation: false,
           maintainAspectRatio: false,
-          layout: { padding: { top: 46, right: 34, bottom: 28, left: 26 } },
+          layout: { padding: { top: 52, right: 48, bottom: 42, left: 42 } },
           plugins: {
             legend: { display: false },
             datalabels: {
@@ -1732,7 +1751,7 @@
               clip: false,
               color: '#1f2937',
               formatter: (value) => formatPrice(value),
-              font: { weight: '800', size: 18 }
+              font: { weight: '900', size: 22 }
             },
             tooltip: { enabled: false }
           },
@@ -1744,7 +1763,7 @@
               grid: { color: 'rgba(148,163,184,0.2)' },
               ticks: {
                 color: '#374151',
-                font: { weight: '800', size: 14 },
+                font: { weight: '900', size: 16 },
                 padding: 10,
                 callback: (value) => formatPrice(value)
               },
@@ -1752,7 +1771,7 @@
                 display: true,
                 text: UNITS[name],
                 color: '#374151',
-                font: { weight: '800', size: 14 }
+                font: { weight: '900', size: 16 }
               }
             },
             x: {
@@ -1768,8 +1787,8 @@
         plugins: [ChartDataLabels]
       });
       chart.update('none');
-      await new Promise(resolve => setTimeout(resolve, 180));
-      return chart.toBase64Image('image/png', 1);
+      await new Promise(resolve => setTimeout(resolve, 320));
+      return canvas.toDataURL('image/png');
     } finally {
       if (chart) chart.destroy();
       canvas.remove();
@@ -1784,14 +1803,15 @@
     if (!exportNode) throw new Error('상세 데이터가 없습니다.');
     document.body.classList.add('export-mode');
     try {
+      const targetHeight = Math.max(1123, exportNode.scrollHeight);
       const canvas = await html2canvas(exportNode, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         width: 1588,
         windowWidth: 1588,
-        height: 1123,
-        windowHeight: 1123,
+        height: targetHeight,
+        windowHeight: targetHeight,
         scrollX: 0,
         scrollY: 0
       });
