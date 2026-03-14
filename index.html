@@ -1580,27 +1580,56 @@
 
     const cards = Array.from(clone.querySelectorAll('.item-card'));
     const weekLine = clone.querySelector('div[style*="border-bottom:3px solid var(--main-orange)"]') || clone.querySelector('.detail-header') || clone.querySelector('h2')?.parentElement;
+    const getOuterHeight = (el) => {
+      const cs = window.getComputedStyle(el);
+      return el.getBoundingClientRect().height + (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0);
+    };
     const tuneA4Fill = () => {
       let contentHeight = clone.scrollHeight;
       if (!cards.length) return contentHeight;
 
-      const extraSpace = availableHeight - contentHeight;
-      if (extraSpace > 6) {
+      cards.forEach(card => {
+        card.style.alignItems = 'center';
+        card.style.marginBottom = '';
+        card.style.minHeight = '';
+      });
+
+      const cardHeights = cards.map(getOuterHeight);
+      const cardsTotal = cardHeights.reduce((a, b) => a + b, 0);
+      const nonCardHeight = Math.max(0, contentHeight - cardsTotal);
+      const targetCardsTotal = Math.max(cardsTotal, availableHeight - nonCardHeight);
+      const extraSpace = Math.max(0, targetCardsTotal - cardsTotal);
+
+      if (weekLine) {
+        weekLine.style.paddingBottom = '16px';
+        weekLine.style.marginBottom = '22px';
+      }
+
+      if (extraSpace > 2) {
         const perCard = extraSpace / cards.length;
+        let used = 0;
         cards.forEach((card, idx) => {
+          const currentRect = card.getBoundingClientRect().height;
           const cs = window.getComputedStyle(card);
-          const baseHeight = Math.ceil(card.getBoundingClientRect().height);
           const baseMarginBottom = parseFloat(cs.marginBottom) || 0;
-          const addHeight = Math.max(10, perCard * 0.82);
-          const addMargin = Math.max(2, perCard * 0.18);
-          card.style.minHeight = (baseHeight + addHeight) + 'px';
-          card.style.marginBottom = (baseMarginBottom + addMargin + (idx === cards.length - 1 ? 0 : 0)) + 'px';
-          card.style.alignItems = 'center';
+          const addHeight = idx === cards.length - 1 ? (extraSpace - used) : perCard;
+          used += idx === cards.length - 1 ? (extraSpace - used) : perCard;
+          card.style.minHeight = Math.ceil(currentRect + addHeight) + 'px';
+          card.style.marginBottom = Math.max(baseMarginBottom, 4) + 'px';
         });
-        if (weekLine) {
-          weekLine.style.paddingBottom = '16px';
-          weekLine.style.marginBottom = '22px';
-        }
+        contentHeight = clone.scrollHeight;
+      }
+
+      let remain = availableHeight - contentHeight;
+      if (remain > 1 && cards.length) {
+        const bump = remain / cards.length;
+        let usedBump = 0;
+        cards.forEach((card, idx) => {
+          const current = parseFloat(card.style.minHeight) || card.getBoundingClientRect().height;
+          const add = idx === cards.length - 1 ? (remain - usedBump) : bump;
+          usedBump += idx === cards.length - 1 ? (remain - usedBump) : bump;
+          card.style.minHeight = Math.ceil(current + add) + 'px';
+        });
         contentHeight = clone.scrollHeight;
       }
       return contentHeight;
@@ -1613,11 +1642,12 @@
       clone.style.transform = `scale(${scale})`;
       clone.style.width = (availableWidth / scale) + 'px';
     } else {
-      const remain = availableHeight - contentHeight;
-      if (remain > 2) {
-        clone.style.paddingBottom = remain + 'px';
-      }
       clone.style.width = availableWidth + 'px';
+      const finalRemain = availableHeight - clone.scrollHeight;
+      if (finalRemain > 1 && cards.length) {
+        const addLast = cards[cards.length - 1].getBoundingClientRect().height + finalRemain;
+        cards[cards.length - 1].style.minHeight = Math.ceil(addLast) + 'px';
+      }
     }
 
     return wrap;
