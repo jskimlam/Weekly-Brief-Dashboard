@@ -1524,25 +1524,34 @@
     const source = document.getElementById('captureArea');
     if (!source) return null;
 
+    const targetWidth = 1587;
+    const targetHeight = 1123;
+    const paddingX = 24;
+    const paddingY = 22;
+    const availableWidth = targetWidth - paddingX * 2;
+    const availableHeight = targetHeight - paddingY * 2;
+
     const wrap = document.createElement('div');
     wrap.style.position = 'fixed';
     wrap.style.left = '-99999px';
     wrap.style.top = '0';
-    wrap.style.width = '1587px';
-    wrap.style.height = '1123px';
+    wrap.style.width = targetWidth + 'px';
+    wrap.style.height = targetHeight + 'px';
     wrap.style.background = '#ffffff';
-    wrap.style.padding = '24px';
+    wrap.style.padding = paddingY + 'px ' + paddingX + 'px';
     wrap.style.boxSizing = 'border-box';
     wrap.style.overflow = 'hidden';
     wrap.style.zIndex = '-1';
 
     const clone = source.cloneNode(true);
     clone.id = 'captureAreaExportClone';
-    clone.style.width = '100%';
+    clone.style.width = availableWidth + 'px';
     clone.style.maxWidth = 'none';
     clone.style.margin = '0';
     clone.style.padding = '0';
     clone.style.boxSizing = 'border-box';
+    clone.style.transformOrigin = 'top left';
+    clone.style.background = '#ffffff';
     clone.querySelectorAll('.item-actions, .btn-detail, .btn-save, .btn-edit').forEach(el => {
       el.style.display = 'none';
     });
@@ -1559,6 +1568,12 @@
 
     wrap.appendChild(clone);
     document.body.appendChild(wrap);
+
+    const contentHeight = clone.scrollHeight;
+    const scale = Math.min(1, availableHeight / Math.max(contentHeight, 1));
+    clone.style.transform = `scale(${scale})`;
+    clone.style.width = (availableWidth / scale) + 'px';
+
     return wrap;
   }
 
