@@ -1023,7 +1023,7 @@
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px; gap:10px; flex-wrap:wrap;">
         <div>
           <div style="font-size:14px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
-          <h2 style="font-size:24px; color:#333; margin:0 0 6px 0;">Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)</h2>
+          <h2 style="font-size:30px; color:#333; margin:0 0 6px 0; font-weight:900; letter-spacing:-0.02em;">Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)</h2>
           <div style="font-size:13px; font-weight:700; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
         </div>
         <span style="font-weight:700; color:#666; font-size:16px; padding-top:4px;">Week: ${formatWeekLabel(data.week || '-')}</span>
@@ -1557,7 +1557,13 @@
     });
 
     const title = clone.querySelector('h2');
-    if (title) title.textContent = 'Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)';
+    if (title) {
+      title.textContent = 'Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)';
+      title.style.fontSize = '30px';
+      title.style.fontWeight = '900';
+      title.style.letterSpacing = '-0.02em';
+      title.style.lineHeight = '1.1';
+    }
     const aiNote = clone.querySelector('div[style*="AI로 내용 정리 수정된 자료입니다"]') || Array.from(clone.querySelectorAll('div')).find(el => (el.textContent || '').trim() === 'AI로 내용 정리 수정된 자료입니다');
     if (aiNote) {
       aiNote.textContent = 'AI로 내용 정리 수정된 자료입니다';
@@ -1569,7 +1575,28 @@
     wrap.appendChild(clone);
     document.body.appendChild(wrap);
 
-    const contentHeight = clone.scrollHeight;
+    let contentHeight = clone.scrollHeight;
+    const extraSpace = availableHeight - contentHeight;
+    if (extraSpace > 24) {
+      const cards = Array.from(clone.querySelectorAll('.item-card'));
+      const extraPerCard = cards.length ? Math.floor(extraSpace / cards.length) : 0;
+      cards.forEach(card => {
+        const cs = window.getComputedStyle(card);
+        const pt = parseFloat(cs.paddingTop) || 0;
+        const pb = parseFloat(cs.paddingBottom) || 0;
+        const mb = parseFloat(cs.marginBottom) || 0;
+        card.style.paddingTop = (pt + Math.max(6, extraPerCard * 0.35)) + 'px';
+        card.style.paddingBottom = (pb + Math.max(8, extraPerCard * 0.45)) + 'px';
+        card.style.marginBottom = (mb + Math.max(2, extraPerCard * 0.06)) + 'px';
+      });
+      const header = clone.querySelector('div[style*="border-bottom:3px solid var(--main-orange)"]');
+      if (header) {
+        header.style.paddingBottom = '14px';
+        header.style.marginBottom = '28px';
+      }
+      contentHeight = clone.scrollHeight;
+    }
+
     const scale = Math.min(1, availableHeight / Math.max(contentHeight, 1));
     clone.style.transform = `scale(${scale})`;
     clone.style.width = (availableWidth / scale) + 'px';
