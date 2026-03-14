@@ -1020,9 +1020,13 @@
 
   function renderMainUI(data) {
     let html = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px; gap:10px; flex-wrap:wrap;">
-        <h2 style="font-size:24px; color:#333;">Weekly Chemical Market Report</h2>
-        <span style="font-weight:700; color:#666;">Week: ${formatWeekLabel(data.week || '-')}</span>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px; gap:10px; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:14px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
+          <h2 style="font-size:24px; color:#333; margin:0 0 6px 0;">Weekly Chemical Market Report (롯데첨단 구매부문 주원료 위클리)</h2>
+          <div style="font-size:13px; font-weight:700; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
+        </div>
+        <span style="font-weight:700; color:#666; font-size:16px; padding-top:4px;">Week: ${formatWeekLabel(data.week || '-')}</span>
       </div>`;
 
     ITEMS.forEach(name => {
@@ -1517,84 +1521,32 @@
   }
 
   function buildExportNode() {
-    const weekLabel = formatWeekLabel(currentWeekData?.week || '-');
-    const reportHtml = document.getElementById('reportContent')?.innerHTML || '';
-    const filledItems = ITEMS.filter(name => {
-      const d = currentWeekData?.items?.[name] || {};
-      return hasAnyMeaningfulValue(d);
-    });
-    const risingItems = filledItems.filter(name => safeNumber(currentWeekData?.items?.[name]?.change_abs) > 0).length;
-    const largestMove = filledItems
-      .map(name => ({ name, abs: Math.abs(safeNumber(currentWeekData?.items?.[name]?.change_abs)) }))
-      .sort((a, b) => b.abs - a.abs)[0];
-    const exportWrap = document.createElement('div');
-    exportWrap.className = 'a4-landscape-export';
-    exportWrap.innerHTML = `
-      <div class="report-container">
-        <div class="report-hero">
-          <div class="hero-left">
-            <div class="hero-kicker">LAM · PETROCHEMICALS</div>
-            <div class="hero-title">Weekly Chemical Market Report</div>
-            <div class="hero-subtitle">주요 원료 및 유도품 가격 흐름을 주차 기준으로 정리한 요약 보고서입니다. 보고용 이미지/PDF 저장 시 버튼과 편집 UI는 제외됩니다.</div>
-          </div>
-          <div class="hero-right">
-            <div class="week-panel">
-              <div class="panel-label">Report Week</div>
-              <div class="week-mark">${escapeHtml(weekLabel)}</div>
-              <div class="week-note">금요일 기준 주차 마감 레포트</div>
-            </div>
-            <div class="summary-panel">
-              <div class="panel-label">Quick Summary</div>
-              <div class="summary-grid">
-                <div class="summary-chip"><strong>${filledItems.length}</strong><span>Items</span></div>
-                <div class="summary-chip"><strong>${risingItems}</strong><span>Up</span></div>
-                <div class="summary-chip"><strong>${escapeHtml(largestMove?.name || '-')}</strong><span>Biggest Move</span></div>
-              </div>
-            </div>
-            <div class="brand-panel">
-              <div>
-                <div class="panel-label">Prepared For</div>
-                <div class="brand-mark">LAM</div>
-              </div>
-              <div class="brand-copy">Weekly market snapshot<br>Internal reporting format</div>
-            </div>
-          </div>
-        </div>
-        <div class="report-section-title">
-          <h3>Weekly Price Summary</h3>
-          <div class="section-note">Price / Weekly change / Commentary</div>
-        </div>
-        ${reportHtml}
-        <div class="report-footer">
-          <div>LAM Weekly Chemical Market Report</div>
-          <div>${escapeHtml(weekLabel)} · Export Format</div>
-        </div>
-      </div>`;
-    document.body.appendChild(exportWrap);
-    return exportWrap;
+    return document.getElementById('captureArea');
   }
 
   async function renderExportCanvas() {
     const exportNode = buildExportNode();
-    document.body.classList.add('export-mode');
-    try {
-      const targetHeight = Math.max(1123, exportNode.scrollHeight);
-      const canvas = await html2canvas(exportNode, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        width: 1588,
-        windowWidth: 1588,
-        height: targetHeight,
-        windowHeight: targetHeight,
-        scrollX: 0,
-        scrollY: 0
-      });
-      return canvas;
-    } finally {
-      exportNode.remove();
-      document.body.classList.remove('export-mode');
-    }
+    if (!exportNode) throw new Error('캡처할 보고서 영역을 찾을 수 없습니다.');
+    const rect = exportNode.getBoundingClientRect();
+    const targetWidth = Math.ceil(exportNode.scrollWidth || rect.width || 0);
+    const targetHeight = Math.ceil(exportNode.scrollHeight || rect.height || 0);
+    const canvas = await html2canvas(exportNode, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      width: targetWidth,
+      height: targetHeight,
+      windowWidth: targetWidth,
+      windowHeight: targetHeight,
+      scrollX: 0,
+      scrollY: -window.scrollY,
+      onclone: (clonedDoc) => {
+        clonedDoc.querySelectorAll('.item-actions, .btn-detail, .btn-save, .btn-edit').forEach(el => {
+          el.style.display = 'none';
+        });
+      }
+    });
+    return canvas;
   }
 
   async function saveAsImage() {
