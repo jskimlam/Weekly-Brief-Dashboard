@@ -1462,9 +1462,10 @@
     const src = String(text || '').replace(/
 /g, '').trim();
     if (!src) return [];
-    const matches = [...src.matchAll(/(^|
+    const titleRegex = /(^|
 )(제목\s*:\s*[^
-]+)/g)];
+]+)/g;
+    const matches = [...src.matchAll(titleRegex)];
     if (!matches.length) return [src];
     const blocks = [];
     for (let i = 0; i < matches.length; i += 1) {
