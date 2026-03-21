@@ -696,10 +696,11 @@
           <option value="MMA">MMA</option>
         </select>
         <button class="btn" type="button" id="parseApplyBtn" onclick="parseSelectedSmartText()" style="padding:8px 14px; background:#ff8c00; color:#fff;" disabled>선택 품목 파싱 적용</button>
+        <button class="btn" type="button" id="parseAllBtn" onclick="parseAllSmartText()" style="padding:8px 14px; background:#7c3aed; color:#fff;" disabled>전체 품목 자동 파싱</button>
         <button class="btn" type="button" id="parseSaveBtn" onclick="saveSelectedItemFromModal()" style="padding:8px 14px; background:#16a34a; color:#fff;" disabled>선택 품목만 저장</button>
       </div>
-      <textarea id="smartInput" class="smart-textarea" placeholder="선택한 품목의 텍스트만 붙여넣어 주세요.&#10;&#10;예: ACN 종목 브리핑 (2026-03-10)&#10;1. 가격&#10;...&#10;2. 코멘터리&#10;...&#10;3. 변동요인&#10;...&#10;4. 결론 및 전망&#10;...&#10;5. 기타 추가 정보&#10;..." disabled></textarea>
-      <div style="margin-top:8px; font-size:12px; color:#666;">비밀번호 해제 후 품목을 먼저 선택한 다음 텍스트를 넣어주세요. AN 샘플처럼 Markdown의 *, ** 형식도 파싱되며, WTI/SM/BD는 주중 흐름 일별 가격도 자동 반영됩니다.</div>
+      <textarea id="smartInput" class="smart-textarea" placeholder="여러 품목 브리핑을 한 번에 붙여넣어도 자동 파싱됩니다.&#10;&#10;예: 제목 : WTI 종목 브리핑 (2026-03-20)&#10;1. 가격&#10;...&#10;2. 코멘터리&#10;...&#10;3. 변동요인&#10;...&#10;4. 결론 및 전망&#10;...&#10;5. 기타 추가 정보&#10;..." disabled></textarea>
+      <div style="margin-top:8px; font-size:12px; color:#666;">비밀번호 해제 후 텍스트를 붙여넣으세요. 여러 품목을 한 번에 붙여넣으면 제목 기준으로 자동 분리하여 파싱합니다. AN은 ACN CFR Far East Asia, BPA는 BPA CFR China Spot, MMA는 MMA CFR South Korea (500mt 이상) 가격을 우선 인식합니다.</div>
     </div>
     <div style="margin-bottom:20px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
       <span style="font-weight:800; font-size:16px;">해당 주차:</span>
@@ -1289,10 +1290,12 @@
     const status = document.getElementById('parserLockStatus');
     const target = document.getElementById('parseTargetItem');
     const applyBtn = document.getElementById('parseApplyBtn');
+    const allBtn = document.getElementById('parseAllBtn');
     const saveBtn = document.getElementById('parseSaveBtn');
     if (ta) ta.disabled = !parserUnlocked;
     if (target) target.disabled = !parserUnlocked;
     if (applyBtn) applyBtn.disabled = !parserUnlocked;
+    if (allBtn) allBtn.disabled = !parserUnlocked;
     if (saveBtn) saveBtn.disabled = !parserUnlocked;
     if (pw) pw.disabled = parserUnlocked;
     if (status) {
@@ -1400,33 +1403,10 @@
       return;
     }
 
-    const parsed = getParsedSections(text, target);
-    let filled = 0;
-
-    if (parsed.priceValue) {
-      document.getElementById('modal_price_' + target).value = parsed.priceValue;
-      filled++;
-    }
-    if (parsed.commentary) {
-      document.getElementById('modal_comm_' + target).value = parsed.commentary;
-      filled++;
-    }
-    if (parsed.factors) {
-      document.getElementById('modal_factors_' + target).value = parsed.factors;
-      filled++;
-    }
-    if (parsed.outlook) {
-      document.getElementById('modal_outlook_' + target).value = parsed.outlook;
-      filled++;
-    }
-    if (parsed.additional) {
-      document.getElementById('modal_additional_' + target).value = parsed.additional;
-      filled++;
-    }
-    if (GRAPH_ITEMS.includes(target) && parsed.dailyRows.length) {
-      document.getElementById('modal_daily_' + target).value = formatDailyPricesForTextarea(parsed.dailyRows);
-      filled++;
-    }
+    const blocks = splitBriefBlocks(text);
+    const matchedBlock = blocks.find(block => detectItemFromText(block) === target) || text;
+    const parsed = getParsedSections(matchedBlock, target);
+    const filled = fillParsedItemToModal(target, parsed);
 
     if (filled) {
       showToast(`✅ ${target === 'Styrene' ? 'SM' : target === 'Acrylonitrile' ? 'AN' : target === 'Butadiene' ? 'BD' : target} 파싱 반영 완료`);
@@ -1435,8 +1415,35 @@
     }
   }
 
+  function parseAllSmartText() {
+    if (!parserUnlocked) return;
+    const text = document.getElementById('smartInput')?.value || '';
+    if (!text.trim()) {
+      showToast('파싱할 텍스트를 붙여넣어 주세요.');
+      return;
+    }
+    const blocks = splitBriefBlocks(text);
+    let itemCount = 0;
+    let fillCount = 0;
+    blocks.forEach(block => {
+      const item = detectItemFromText(block);
+      if (!item) return;
+      const parsed = getParsedSections(block, item);
+      const filled = fillParsedItemToModal(item, parsed);
+      if (filled) {
+        itemCount += 1;
+        fillCount += filled;
+      }
+    });
+    if (itemCount) {
+      showToast(`✅ ${itemCount}개 품목 자동 파싱 완료`);
+    } else {
+      showToast('⚠️ 제목 기준 품목을 찾지 못했습니다. 제목 : ... 종목 브리핑 형식을 확인해 주세요.');
+    }
+  }
+
   function parseSmartText() {
-    parseSelectedSmartText();
+    parseAllSmartText();
   }
 
   function toCanonicalItemName(rawName) {
