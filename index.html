@@ -1354,8 +1354,8 @@
       Styrene: ['SM CFR China', 'Styrene Monomer', 'Styrene', 'SM'],
       Acrylonitrile: ['ACN CFR Far East Asia', 'Acrylonitrile', 'ACN', 'AN'],
       Butadiene: ['BD CFR China', 'BD CFR NEA', 'Butadiene', 'BD'],
-      BPA: ['BPA', 'BPA CFR', 'BPA spot'],
-      MMA: ['MMA', 'MMA CFR']
+      BPA: ['BPA CFR China Spot', 'BPA CFR China', 'Bisphenol-A', 'BPA'],
+      MMA: ['MMA CFR South Korea (500mt 이상)', 'MMA CFR South Korea', 'MMA CFR Korea', 'Methyl Methacrylate', 'MMA']
     }[item] || [];
 
     const priceSectionMatch = text.match(/1\.\s*가격\s*[\r\n]+([\s\S]+?)(?=\n\s*2\.|$)/i);
@@ -1455,6 +1455,66 @@
     if (key === 'bpa') return 'BPA';
     if (key === 'mma') return 'MMA';
     return rawName;
+  }
+
+
+  function splitBriefBlocks(text) {
+    const src = String(text || '').replace(/
+/g, '').trim();
+    if (!src) return [];
+    const matches = [...src.matchAll(/(^|
+)(제목\s*:\s*[^
+]+)/g)];
+    if (!matches.length) return [src];
+    const blocks = [];
+    for (let i = 0; i < matches.length; i += 1) {
+      const start = matches[i].index + (matches[i][1] ? matches[i][1].length : 0);
+      const end = i + 1 < matches.length ? matches[i + 1].index : src.length;
+      const block = src.slice(start, end).trim();
+      if (block) blocks.push(block);
+    }
+    return blocks;
+  }
+
+  function detectItemFromText(text) {
+    const src = String(text || '');
+    const titleMatch = src.match(/제목\s*:\s*([^
+]+?)\s+종목\s+브리핑/i);
+    const title = (titleMatch ? titleMatch[1] : src).toLowerCase();
+    if (/wti/.test(title)) return 'WTI';
+    if (/styrene|sm/.test(title)) return 'Styrene';
+    if (/acrylonitrile|acn|an/.test(title)) return 'Acrylonitrile';
+    if (/butadiene|bd/.test(title)) return 'Butadiene';
+    if (/bisphenol|bpa/.test(title)) return 'BPA';
+    if (/methyl\s*methacrylate|mma/.test(title)) return 'MMA';
+
+    if (/ACN CFR Far East Asia/i.test(src)) return 'Acrylonitrile';
+    if (/BD CFR China/i.test(src)) return 'Butadiene';
+    if (/SM CFR China/i.test(src)) return 'Styrene';
+    if (/BPA CFR China Spot/i.test(src)) return 'BPA';
+    if (/MMA CFR South Korea \(500mt 이상\)/i.test(src)) return 'MMA';
+    return '';
+  }
+
+  function fillParsedItemToModal(item, parsed) {
+    const key = toCanonicalItemName(item || '');
+    if (!key || !parsed) return 0;
+    let count = 0;
+    const setValue = (id, value) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.value = value || '';
+      count += 1;
+    };
+    if (parsed.priceValue) setValue(`modal_price_${key}`, parsed.priceValue);
+    if (parsed.commentary) setValue(`modal_comm_${key}`, parsed.commentary);
+    if (parsed.factors) setValue(`modal_factors_${key}`, parsed.factors);
+    if (parsed.outlook) setValue(`modal_outlook_${key}`, parsed.outlook);
+    if (parsed.additional) setValue(`modal_additional_${key}`, parsed.additional);
+    if (GRAPH_ITEMS.includes(key) && Array.isArray(parsed.dailyRows) && parsed.dailyRows.length) {
+      setValue(`modal_daily_${key}`, formatDailyPricesForTextarea(parsed.dailyRows));
+    }
+    return count;
   }
 
   function buildModalRows() {
