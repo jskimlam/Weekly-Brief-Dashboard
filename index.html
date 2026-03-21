@@ -1459,12 +1459,9 @@
 
 
   function splitBriefBlocks(text) {
-    const src = String(text || '').replace(/
-/g, '').trim();
+    const src = String(text || '').replace(/\r/g, '').trim();
     if (!src) return [];
-    const titleRegex = /(^|
-)(제목\s*:\s*[^
-]+)/g;
+    const titleRegex = /(^|\n)(제목\s*:\s*[^\n]+)/g;
     const matches = [...src.matchAll(titleRegex)];
     if (!matches.length) return [src];
     const blocks = [];
@@ -1479,15 +1476,14 @@
 
   function detectItemFromText(text) {
     const src = String(text || '');
-    const titleMatch = src.match(/제목\s*:\s*([^
-]+?)\s+종목\s+브리핑/i);
+    const titleMatch = src.match(/제목\s*:\s*([^\n]+?)\s+종목\s+브리핑/i);
     const title = (titleMatch ? titleMatch[1] : src).toLowerCase();
-    if (/wti/.test(title)) return 'WTI';
-    if (/styrene|sm/.test(title)) return 'Styrene';
-    if (/acrylonitrile|acn|an/.test(title)) return 'Acrylonitrile';
-    if (/butadiene|bd/.test(title)) return 'Butadiene';
-    if (/bisphenol|bpa/.test(title)) return 'BPA';
-    if (/methyl\s*methacrylate|mma/.test(title)) return 'MMA';
+    if (/\bwti\b/.test(title)) return 'WTI';
+    if (/styrene|\bsm\b/.test(title)) return 'Styrene';
+    if (/acrylonitrile|\bacn\b|\ban\b/.test(title)) return 'Acrylonitrile';
+    if (/butadiene|\bbd\b/.test(title)) return 'Butadiene';
+    if (/bisphenol|\bbpa\b/.test(title)) return 'BPA';
+    if (/methyl\s*methacrylate|\bmma\b/.test(title)) return 'MMA';
 
     if (/ACN CFR Far East Asia/i.test(src)) return 'Acrylonitrile';
     if (/BD CFR China/i.test(src)) return 'Butadiene';
