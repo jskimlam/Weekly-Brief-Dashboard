@@ -49,6 +49,12 @@ jobs:
         working-directory: android-app
         run: gradle :app:assembleRelease --stacktrace
 
+      - name: Verify APK signing and alignment
+        run: |
+          APK=android-app/app/build/outputs/apk/release/app-release.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -v 4 "$APK"
+
       - name: Prepare artifact
         run: |
           cp android-app/app/build/outputs/apk/release/app-release.apk LAM-Weekly-1.0.0.apk
