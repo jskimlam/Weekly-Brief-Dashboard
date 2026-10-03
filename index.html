@@ -2281,10 +2281,16 @@
     try {
       showToast('🖼️ A4 가로 이미지 생성 중...');
       const canvas = await renderExportCanvas();
-      const link = document.createElement('a');
-      link.download = `LAM_Report_${currentWeekData?.week || 'weekly'}_A4_Landscape.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      const fileName = `LAM_Report_${currentWeekData?.week || 'weekly'}_A4_Landscape.png`;
+      const dataUrl = canvas.toDataURL('image/png');
+      if (window.AndroidBridge?.saveBase64File) {
+        window.AndroidBridge.saveBase64File(dataUrl, fileName, 'image/png');
+      } else {
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = dataUrl;
+        link.click();
+      }
       showToast('✅ A4 가로 이미지 저장 완료');
     } catch (e) {
       console.error(e);
@@ -2300,7 +2306,12 @@
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
       pdf.addImage(imgData, 'PNG', 0, 0, 297, 210, undefined, 'FAST');
-      pdf.save(`LAM_Report_${currentWeekData?.week || 'weekly'}_A4_Landscape.pdf`);
+      const fileName = `LAM_Report_${currentWeekData?.week || 'weekly'}_A4_Landscape.pdf`;
+      if (window.AndroidBridge?.saveBase64File) {
+        window.AndroidBridge.saveBase64File(pdf.output('datauristring'), fileName, 'application/pdf');
+      } else {
+        pdf.save(fileName);
+      }
       showToast('✅ A4 가로 PDF 저장 완료');
     } catch (e) {
       console.error(e);
@@ -2709,10 +2720,16 @@
       showToast('🖼️ 상세 A4 가로 이미지 생성 중...');
       const canvas = await renderDetailExportCanvas();
       const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem === 'Acrylonitrile' ? 'AN' : currentDetailItem;
-      const link = document.createElement('a');
-      link.download = `LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      const fileName = `LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.png`;
+      const dataUrl = canvas.toDataURL('image/png');
+      if (window.AndroidBridge?.saveBase64File) {
+        window.AndroidBridge.saveBase64File(dataUrl, fileName, 'image/png');
+      } else {
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = dataUrl;
+        link.click();
+      }
       showToast('✅ 상세 이미지 저장 완료');
     } catch (e) {
       console.error(e);
@@ -2730,7 +2747,12 @@
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
       pdf.addImage(imgData, 'PNG', 0, 0, 297, 210, undefined, 'FAST');
       const displayName = currentDetailItem === 'Styrene' ? 'SM' : currentDetailItem === 'Butadiene' ? 'BD' : currentDetailItem === 'Acrylonitrile' ? 'AN' : currentDetailItem;
-      pdf.save(`LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.pdf`);
+      const fileName = `LAM_${displayName}_${currentWeekData?.week || 'weekly'}_Detail_A4.pdf`;
+      if (window.AndroidBridge?.saveBase64File) {
+        window.AndroidBridge.saveBase64File(pdf.output('datauristring'), fileName, 'application/pdf');
+      } else {
+        pdf.save(fileName);
+      }
       showToast('✅ 상세 PDF 저장 완료');
     } catch (e) {
       console.error(e);
@@ -2754,7 +2776,13 @@
       if (d.outlook) text += `  · 전망: ${d.outlook}\n`;
       text += `\n`;
     });
-    navigator.clipboard.writeText(text.trim()).then(() => showToast('✅ 텍스트 복사됨'));
+    const output = text.trim();
+    if (window.AndroidBridge?.copyText) {
+      window.AndroidBridge.copyText(output);
+      showToast('✅ 텍스트 복사됨');
+    } else {
+      navigator.clipboard.writeText(output).then(() => showToast('✅ 텍스트 복사됨'));
+    }
   }
 
   function showToast(msg) {
