@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout
@@ -54,10 +54,22 @@ jobs:
           cp android-app/app/build/outputs/apk/release/app-release.apk LAM-Weekly-1.0.0.apk
           sha256sum LAM-Weekly-1.0.0.apk
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: LAM-Weekly-APK
           path: LAM-Weekly-1.0.0.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish APK release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view lam-weekly-v1.0.0 >/dev/null 2>&1; then
+            gh release upload lam-weekly-v1.0.0 LAM-Weekly-1.0.0.apk --clobber
+          else
+            gh release create lam-weekly-v1.0.0 LAM-Weekly-1.0.0.apk \
+              --title "LAM Weekly 1.0.0" \
+              --notes "LAM Weekly 6 Key Feedstocks Android APK. WebView shell for the live Weekly-Brief-Dashboard with Fold-responsive UI, native PNG/PDF saving, LAM Weekly launcher icon and branded splash screen."
+          fi
