@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>LAM Weekly Chemical Brief</title>
+  <title>LAM Weekly | 6 Key Feedstocks Research</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -650,20 +650,240 @@
     }
 
   </style>
+<style id="lam-research-theme">
+  :root{
+    --main-orange:#d97706;
+    --accent-orange:#f59e0b;
+    --accent-soft:#fff7ed;
+    --ink:#0f172a;
+    --ink-2:#1e293b;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --surface:#ffffff;
+    --surface-2:#f8fafc;
+    --navy:#07111f;
+    --navy-2:#0d1b2d;
+    --up-red:#dc2626;
+    --down-blue:#2563eb;
+    --none-black:#475569;
+  }
+  body{
+    background:
+      radial-gradient(circle at 8% 0%, rgba(245,158,11,.07), transparent 28%),
+      linear-gradient(180deg,#eef2f7 0,#f8fafc 240px,#f4f7fb 100%);
+    color:var(--ink);
+    font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  }
+  .header{
+    min-height:76px;
+    padding:12px 28px;
+    background:linear-gradient(135deg,#07111f 0%,#0b1728 68%,#172235 100%);
+    border-bottom:1px solid rgba(245,158,11,.45);
+    box-shadow:0 12px 32px rgba(2,6,23,.20);
+    color:#fff;
+  }
+  .header-brand{display:flex;align-items:center;gap:14px;min-width:280px}
+  .lam-badge{
+    width:48px;height:48px;padding:0;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(145deg,#f59e0b,#c76a06);
+    box-shadow:inset 0 1px rgba(255,255,255,.38),0 8px 18px rgba(217,119,6,.28);
+    font-size:18px;letter-spacing:.03em;
+  }
+  .brand-copy{display:flex;flex-direction:column;line-height:1.15}
+  .brand-kicker{font-size:10px;font-weight:800;letter-spacing:.18em;color:#fbbf24;text-transform:uppercase;margin-bottom:5px}
+  .title-text{font-size:20px;font-weight:850;margin:0;color:#f8fafc;letter-spacing:-.02em}
+  .title-text span{color:#fbbf24}
+  .brand-sub{font-size:11px;color:#94a3b8;font-weight:600;margin-top:4px}
+  .btn-group{gap:8px}
+  .header .btn{
+    border:1px solid rgba(148,163,184,.22);
+    background:rgba(255,255,255,.06);
+    color:#dbe4ee;
+    padding:9px 12px;border-radius:10px;
+    font-weight:750;backdrop-filter:blur(8px);
+  }
+  .header .btn:hover{background:rgba(255,255,255,.11);border-color:rgba(245,158,11,.45)}
+  .header .btn-copy{background:rgba(255,255,255,.06);color:#dbe4ee}
+  .header .btn-save{background:rgba(255,255,255,.06)!important;color:#dbe4ee}
+  .header .btn-new{
+    background:linear-gradient(135deg,#f59e0b,#d97706);
+    color:#15100a;border-color:rgba(251,191,36,.55);
+    box-shadow:0 6px 16px rgba(217,119,6,.22)
+  }
+  #weekSelector{
+    min-width:132px;
+    background:#0f1d30!important;
+    border:1px solid rgba(245,158,11,.6)!important;
+    color:#f8fafc!important;
+  }
+  .main-content{max-width:1540px;padding:26px 28px 42px}
+  .report-container{
+    padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;
+  }
+  .research-hero{
+    position:relative;overflow:hidden;
+    display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,.55fr);
+    gap:18px;margin-bottom:20px;
+    border:1px solid #dbe4ee;border-radius:24px;
+    background:linear-gradient(122deg,#07111f 0%,#0d1b2d 66%,#1c2739 100%);
+    box-shadow:0 18px 48px rgba(15,23,42,.16);
+    min-height:230px;
+  }
+  .research-hero:after{
+    content:'';position:absolute;right:-80px;top:-120px;width:430px;height:430px;border-radius:50%;
+    background:radial-gradient(circle,rgba(245,158,11,.20),rgba(245,158,11,.04) 46%,transparent 70%);
+    pointer-events:none;
+  }
+  .research-hero-main{position:relative;z-index:1;padding:32px 34px 30px}
+  .research-eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:11px;font-weight:850;letter-spacing:.15em;text-transform:uppercase;color:#fbbf24;
+    margin-bottom:13px;
+  }
+  .research-eyebrow:before{content:'';width:22px;height:2px;background:#f59e0b;border-radius:999px}
+  .research-title{
+    margin:0;color:#f8fafc;font-size:44px;line-height:1.02;font-weight:900;letter-spacing:-.045em;
+  }
+  .research-title span{color:#f5a524}
+  .research-desc{
+    max-width:770px;margin-top:15px;color:#b6c3d1;font-size:15px;line-height:1.65;font-weight:560;
+  }
+  .research-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .research-tag{
+    border:1px solid rgba(148,163,184,.22);background:rgba(255,255,255,.055);color:#cbd5e1;
+    padding:6px 9px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  }
+  .research-hero-side{
+    position:relative;z-index:1;padding:26px 28px;
+    border-left:1px solid rgba(148,163,184,.14);
+    display:flex;flex-direction:column;justify-content:space-between;gap:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+  }
+  .week-label{font-size:10px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;color:#94a3b8}
+  .week-value{font-size:28px;font-weight:900;color:#fff;margin-top:5px;letter-spacing:-.03em}
+  .week-date{font-size:12px;color:#94a3b8;font-weight:650;margin-top:3px}
+  .pulse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .pulse-card{
+    background:rgba(255,255,255,.055);border:1px solid rgba(148,163,184,.13);border-radius:13px;padding:11px 9px;
+  }
+  .pulse-card strong{display:block;font-size:22px;color:#fff;line-height:1;font-weight:900}
+  .pulse-card span{display:block;margin-top:6px;font-size:9px;letter-spacing:.10em;text-transform:uppercase;color:#94a3b8;font-weight:800}
+  .pulse-card.up strong{color:#fb7185}.pulse-card.down strong{color:#60a5fa}.pulse-card.flat strong{color:#fbbf24}
+  .research-section-head{
+    display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin:24px 2px 14px;
+  }
+  .section-kicker{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#d97706;font-weight:850}
+  .section-title{font-size:24px;line-height:1.1;font-weight:900;color:#0f172a;letter-spacing:-.03em;margin-top:5px}
+  .section-note{font-size:12px;color:#64748b;font-weight:650;text-align:right}
+  .research-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  #reportContent .item-card{
+    position:relative;margin:0;display:flex;flex-direction:column;align-items:stretch;gap:0;
+    min-height:338px;padding:0;border:1px solid #dfe7ef;border-radius:18px;background:#fff;
+    box-shadow:0 8px 24px rgba(15,23,42,.055);overflow:hidden;
+    transition:.2s ease;
+  }
+  #reportContent .item-card:hover{transform:translateY(-2px);border-color:#d3a35d;box-shadow:0 14px 32px rgba(15,23,42,.09)}
+  #reportContent .item-card:before{content:'';height:3px;background:linear-gradient(90deg,#d97706,#f59e0b 42%,#fbbf24);display:block}
+  .feedstock-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:18px 18px 12px}
+  .feedstock-id{display:flex;gap:11px;align-items:center;min-width:0}
+  .feedstock-code{
+    width:44px;height:44px;flex:0 0 44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;background:#0f1d30;color:#fbbf24;
+    font-size:13px;font-weight:900;letter-spacing:.04em;border:1px solid #1d3047;
+  }
+  .feedstock-name{font-size:16px;color:#0f172a;font-weight:900;letter-spacing:-.015em;line-height:1.2}
+  .feedstock-benchmark{font-size:10px;color:#94a3b8;font-weight:750;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .direction-pill{
+    flex:0 0 auto;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:850;line-height:1;
+    border:1px solid transparent;
+  }
+  .direction-pill.up{color:#b91c1c;background:#fff1f2;border-color:#fecdd3}
+  .direction-pill.down{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}
+  .direction-pill.none{color:#64748b;background:#f8fafc;border-color:#e2e8f0}
+  .feedstock-metrics{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:0 18px 15px;
+    border-bottom:1px solid #edf1f5;
+  }
+  #reportContent .item-price{font-size:31px;text-align:left;line-height:1;color:#0f172a;font-weight:900;letter-spacing:-.045em}
+  #reportContent .item-price small{font-size:10px;display:block;margin-top:6px;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;font-weight:750}
+  #reportContent .item-change{padding:6px 8px;border-radius:8px;font-size:11px;font-weight:850;text-align:right;min-width:86px}
+  #reportContent .item-comm{
+    flex:1;border:0;padding:15px 18px 12px;font-size:14px;line-height:1.7;color:#334155;font-weight:650;
+    word-break:keep-all;background:linear-gradient(180deg,#fff,#fbfcfe);
+  }
+  .research-signal{padding:0 18px 13px;color:#64748b;font-size:10px;font-weight:750;letter-spacing:.025em}
+  .research-signal b{color:#d97706}
+  #reportContent .item-actions{
+    display:grid;grid-template-columns:1.35fr .8fr .8fr;gap:7px;padding:12px 14px 14px;border-top:1px solid #edf1f5;background:#fbfcfe;
+  }
+  #reportContent .item-actions button{
+    border-radius:9px!important;padding:8px 9px!important;font-size:10px!important;font-weight:850!important;box-shadow:none!important;
+  }
+  #reportContent .btn-detail{background:#0f1d30;color:#fff;border:1px solid #152c46}
+  #reportContent .btn-save{background:#fff!important;color:#475569!important;border:1px solid #dbe4ee!important}
+  #reportContent .btn-edit{background:#fff;color:#475569;border:1px solid #dbe4ee}
+  .research-footer{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;
+    padding:12px 4px 0;border-top:1px solid #dfe7ef;color:#64748b;font-size:10px;font-weight:700;
+  }
+  .research-footer strong{color:#0f172a;letter-spacing:.08em}
+  .modal-overlay{background:rgba(2,6,23,.74);backdrop-filter:blur(8px)}
+  .modal-box{
+    border-radius:20px;border:1px solid #dbe4ee;box-shadow:0 30px 70px rgba(2,6,23,.28);padding:26px;
+  }
+  .detail-header{border-bottom:1px solid #dbe4ee;padding-bottom:17px}
+  .detail-title{font-size:28px;color:#0f172a;letter-spacing:-.035em}
+  .detail-card{background:#fbfcfe;border:1px solid #dfe7ef;border-radius:15px;padding:17px}
+  .detail-card h3{color:#0f172a;font-size:15px;letter-spacing:-.01em;border-bottom:1px solid #e9eef3;padding-bottom:9px}
+  .detail-card .content{font-size:14px;line-height:1.72;color:#334155;font-weight:600}
+  .meta-chip{background:#fff7ed;border-color:#fed7aa;color:#9a4f08}
+  .detail-chart-wrap{border-color:#dfe7ef}
+  .detail-table th{background:#0f1d30;color:#fff}
+  .smart-parser{background:#fffaf2;border:1px dashed #d9a85e}
+  .modal-label,.section-label{background:#0f1d30}
+  .modal-subtitle{color:#0f172a}
+  @media(max-width:1180px){
+    .research-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .research-hero{grid-template-columns:1fr .48fr}
+    .research-title{font-size:38px}
+  }
+  @media(max-width:767px){
+    .header{padding:10px 12px;align-items:flex-start;gap:10px;min-height:auto}
+    .header-brand{min-width:0}.brand-sub,.brand-kicker{display:none}.title-text{font-size:16px}
+    .lam-badge{width:40px;height:40px;flex-basis:40px;font-size:15px}
+    .btn-group{width:100%;padding-bottom:2px}.header .btn{padding:8px 9px;font-size:11px}
+    .main-content{padding:14px 11px 28px}
+    .research-hero{grid-template-columns:1fr;min-height:auto;border-radius:18px}
+    .research-hero-main{padding:24px 20px}.research-hero-side{padding:18px 20px;border-left:0;border-top:1px solid rgba(148,163,184,.14)}
+    .research-title{font-size:32px}.research-desc{font-size:13px}
+    .research-grid{grid-template-columns:1fr}
+    #reportContent .item-card{min-height:0}
+    .section-note{display:none}
+    .research-section-head{margin-top:18px}
+    .feedstock-metrics{align-items:center}
+    #reportContent .item-price{font-size:28px}
+    #reportContent .item-comm{font-size:13.5px}
+  }
+</style>
 </head>
 <body>
 <div class="header">
-  <div style="display:flex; align-items:center;">
+  <div class="header-brand">
     <div class="lam-badge">LAM</div>
-    <div class="title-text">Weekly <span>Market</span> Brief</div>
+    <div class="brand-copy">
+      <div class="brand-kicker">Market Intelligence</div>
+      <div class="title-text">LAM Weekly <span>Feedstock Research</span></div>
+      <div class="brand-sub">6 Key Feedstocks · Procurement Market Brief</div>
+    </div>
   </div>
   <div class="btn-group">
-    <button class="btn btn-refresh" onclick="refreshData()">↻</button>
-    <button class="btn btn-copy" onclick="copyToClipboard()">📋 카톡복사</button>
-    <button class="btn btn-save" onclick="saveAsImage()">🖼️ 이미지</button>
-    <button class="btn btn-save" style="background:#17a2b8;" onclick="saveAsPDF()">📄 PDF</button>
-    <select id="weekSelector" onchange="loadWeekData(this.value)" class="btn" style="background:white; border:2px solid var(--main-orange); color:var(--main-orange);"></select>
-    <button class="btn btn-new" onclick="openModal()">+ NEW</button>
+    <button class="btn btn-refresh" onclick="refreshData()">↻ Refresh</button>
+    <button class="btn btn-copy" onclick="copyToClipboard()">Copy</button>
+    <button class="btn btn-save" onclick="saveAsImage()">PNG</button>
+    <button class="btn btn-save" onclick="saveAsPDF()">PDF</button>
+    <select id="weekSelector" onchange="loadWeekData(this.value)" class="btn"></select>
+    <button class="btn btn-new" onclick="openModal()">+ New Entry</button>
   </div>
 </div>
 
@@ -727,26 +947,26 @@
 
     <div class="detail-grid">
       <div class="detail-card">
-        <h3>📌 변동요인</h3>
+        <h3>MARKET DRIVERS · 변동요인</h3>
         <div id="detailFactors" class="content"></div>
       </div>
       <div class="detail-card">
-        <h3>🔎 결론 및 전망</h3>
+        <h3>RESEARCH OUTLOOK · 결론 및 전망</h3>
         <div id="detailOutlook" class="content"></div>
       </div>
       <div class="detail-card full">
-        <h3>🤖 AI 전망</h3>
+        <h3>AI MARKET VIEW · AI 전망</h3>
         <div id="detailAiOutlook" class="content"></div>
       </div>
       <div class="detail-card full">
-        <h3>➕ 추가정보</h3>
+        <h3>MARKET DETAILS · 추가정보</h3>
         <div id="detailAdditional" class="content"></div>
       </div>
     </div>
 
     <div id="detailChartSection" class="detail-chart-wrap" style="display:none;">
       <div class="detail-chart-top">
-        <div style="font-size:32px; font-weight:900;">📈 데일리 가격 추이</div>
+        <div style="font-size:32px; font-weight:900;">DAILY PRICE TREND · 데일리 가격 추이</div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <span style="font-size:13px; font-weight:800; color:#555;">그래프 형태</span>
           <select id="detailGraphType" class="detail-graph-type" style="width:140px;" onchange="changeDetailGraphType()">
@@ -789,6 +1009,14 @@
   const GRAPH_ITEMS = ['WTI', 'Styrene', 'Butadiene'];
   const PARSER_PASSWORD = '0111';
   const ITEM_ALIASES = { 'SM': 'Styrene', 'BD': 'Butadiene', 'AN': 'Acrylonitrile' };
+  const DISPLAY_META = {
+    WTI:{code:'WTI',name:'WTI Crude Oil',benchmark:'NYMEX Light Sweet Crude'},
+    Styrene:{code:'SM',name:'Styrene Monomer',benchmark:'CFR China'},
+    Acrylonitrile:{code:'AN',name:'Acrylonitrile',benchmark:'CFR Far East Asia'},
+    Butadiene:{code:'BD',name:'Butadiene',benchmark:'CFR China'},
+    BPA:{code:'BPA',name:'Bisphenol A',benchmark:'CFR China Spot'},
+    MMA:{code:'MMA',name:'Methyl Methacrylate',benchmark:'CFR South Korea · 500mt+'}
+  };
   const W40_FINAL_DATA = {"WTI":{"price":91.11,"prev_price":92.42,"change_abs":-1.31,"change_pct":-1.42,"commentary":"WTI는 사우디 동서 송유관 가동 회복과 안부항 원유 선적 재개로 중동발 공급 차질 우려가 완화되며 9월 29일 $89.38/b까지 급락했다. 이후 미국 휘발유·중간유분 재고 감소와 중국 석유제품 수출 제한 이슈로 $92.87/b까지 반등했으나, G7의 향후 4개월간 원유·경유 비축유 1억 배럴 공동 방출 합의가 공급 불안 프리미엄을 다시 낮추며 하락으로 마감","factors":"- 사우디 동서 송유관 가동 회복\n- 안부항 원유 선적 재개\n- 호르무즈 해협 통항 정상화 기대\n- 미국 휘발유·중간유분 재고 감소\n- 중국 석유제품 수출 제한\n- G7 원유·경유 비축유 1억 배럴 방출\n- 사우디·후티 군사 긴장 지속\n- 홍해·호르무즈 해상 물류 리스크","outlook":"사우디 원유 수출 경로 정상화와 G7 비축유 방출은 단기 위험 프리미엄을 낮추는 요인이다. 반면 실제 방출은 수개월에 걸쳐 진행되고 중동 군사·해상운송 불확실성도 남아 있어 $90/b 부근의 하방 경직성과 높은 변동성이 병존할 전망이다.","additional_info":"- 9월 29일 사우디 수출 정상화 기대에 WTI $89.38/b까지 하락\n- 9월 30일 미국 휘발유·중간유분 재고 감소로 $90.42/b 반등\n- 10월 1일 중국 석유제품 수출 제한과 중동 긴장으로 $92.87/b 상승\n- 10월 2일 G7 비축유 방출 합의로 $91.11/b 마감\n- G7 방출 규모는 향후 4개월간 원유·경유 약 1억 배럴\n- 중국 수출 제한은 디젤·항공유·휘발유 공급 우려와 정제마진 지지 요인\n- ICE Brent 12월물은 10월 2일 $102.25/b 마감\n- 사우디·후티 군사 대응과 호르무즈 통항 상황은 재상승 위험 변수","daily_prices":[{"date":"9/28","price":92.6},{"date":"9/29","price":89.38},{"date":"9/30","price":90.42},{"date":"10/1","price":92.87},{"date":"10/2","price":91.11}],"ai_outlook":"보합 전망. 사우디 동서 송유관 복구와 원유 선적 재개, G7 비축유 방출은 최근 확대된 공급 불안 프리미엄을 낮추는 요인이다. 다만 비축유 방출이 약 4개월에 걸쳐 이뤄질 예정이어서 즉각적인 공급 과잉으로 연결되기는 어렵고, 미·이란 협상 지연이나 홍해·호르무즈 항로 차질이 발생하면 지정학 프리미엄은 빠르게 재확대될 수 있다. 미국 휘발유·중간유분 재고 감소가 반복될 경우 정제제품 수급이 원유 가격 하단을 지지할 가능성도 높다. 단기적으로 $89~94/b 범위에서 공급 정상화 뉴스와 중동 리스크에 따라 등락하는 고변동성 보합 장세가 예상된다."},"Styrene":{"price":1369,"prev_price":1331,"change_abs":38,"change_pct":2.85,"commentary":"중국 SM은 낮은 화동 항만재고와 월말 숏커버링, 벤젠 원가 강세, DCE 선물 급등이 동시에 작용하며 주중 $1,390/mt대까지 급등했다. 다만 국경절 휴장 진입과 높은 SM 가격에 따른 ABS·PS·EPS 업체의 구매 저항으로 후반 상승분을 일부 반납했으며, 공급 타이트가 약한 실수요를 상쇄하면서 상승으로 마감","factors":"- 화동 SM 항만재고 저점\n- 중국 DCE SM 선물 급등\n- 중국 내수 SM 가격 상승\n- 벤젠 원가 강세\n- 월말 숏커버링\n- 중국 수출 지속 및 제한적 수입\n- ABS·PS·EPS 마진 압박\n- SK picglobal 감산 가능성\n- Aster PO-SM 재가동 불확실성","outlook":"화동 저재고와 제한적 수입, 일부 역내 감산 가능성은 단기 하단을 지지한다. 다만 금주 상승의 상당 부분이 숏커버링과 선물 강세에서 발생했고 다운스트림 마진도 악화돼 연휴 후 실수요가 확인되지 않으면 상승분 일부가 되돌려질 가능성이 있다.","additional_info":"- 화동 SM 항만재고 약 31,000~32,400mt로 낮은 수준\n- 9월 30일 중국 내수와 DCE SM 선물이 급등\n- 중국 8월 SM 수출 약 114,000mt\n- 중국 8월 수입 약 12,000mt로 제한\n- 인도향 수출 비중 60% 이상\n- SK picglobal 울산 No.2 PO-SM 10월 가동률 약 75% 계획\n- Aster 550,000mt/년 PO-SM 재가동 여부 불확실\n- ABS·PS·EPS는 SM 원가 상승분 전가에 어려움","daily_prices":[{"date":"9/28","price":1325},{"date":"9/29","price":1386},{"date":"9/30","price":1394},{"date":"10/1","price":1369},{"date":"10/2","price":1369}],"ai_outlook":"보합 전망. 화동 재고가 30,000mt대 초반으로 낮고 중국 수입도 제한적인 가운데 SK picglobal 감산 가능성까지 더해지면 단기 공급은 여전히 타이트하게 평가될 수 있다. 그러나 금주 상승은 실수요 확대보다는 저재고·벤젠 강세·DCE 선물 상승·월말 숏커버링의 영향이 컸으며, ABS·PS·EPS 업체의 마진 악화는 고가 SM 구매를 제한하는 핵심 변수다. 연휴 후 입항량이 빠르게 늘거나 DCE 선물이 9,900위안/mt 아래로 조정되면 $1,350/mt 부근 되돌림이 가능하다. 반대로 재고가 낮게 유지되고 선물이 견조하면 $1,390~1,420/mt 재시험이 가능해 단기적으로 $1,350~1,420/mt의 고변동성 보합 장세가 예상된다."},"Acrylonitrile":{"price":1550,"prev_price":1550,"change_abs":0,"change_pct":0,"commentary":"ACN은 프로필렌 원가 강세와 CPDC·태광 정기보수에 따른 비중국산 현물 공급 제한이 약한 ABS·아크릴섬유 수요를 상쇄했다. 중국 생산업체들이 마진 방어를 위해 가동률을 낮췄지만 수출 물량은 여전히 가용했고 신규 AN 설비 가동까지 시작돼 공급 부담이 남으면서 보합으로 마감","factors":"- 프로필렌 원가 강세\n- CPDC 정기보수\n- 태광 정기보수\n- 중국 생산업체 감산\n- 중국 수출 물량 가용성\n- 톈진 신규 AN 설비 가동\n- ABS 가동률 부진\n- 아크릴섬유 수요 부진","outlook":"역내 보수로 비중국산 현물 물량이 제한돼 단기 하단은 지지되지만 중국 신규 공급과 수출 가용물량은 상단을 제한할 전망이다. 원가 상승분이 실제 거래가격에 전가되는지와 연휴 후 중국 수출 오퍼 수준이 핵심 변수다.","additional_info":"- ACN CFR Far East Asia $1,550/mt 보합\n- FOB China $1,520/mt 보합\n- FOB China 매도호가 $1,550~1,570/mt\n- 중국 매수호가 약 $1,450/mt\n- 주요 중국 업체 마진 방어 목적 감산\n- 톈진 130,000mt/년 신규 AN 설비 원료 투입\n- CFR India 거래 $1,530~1,540/mt 일부 관측\n- ABS 가동률 약 55%, 아크릴섬유 약 57%","daily_prices":[],"ai_outlook":"보합 전망. CPDC·태광 보수로 역내 비중국산 현물 카고가 제한되는 동안 CFR Far East Asia의 급격한 하락 가능성은 낮다. 그러나 중국 업체가 감산하더라도 수출 물량이 가용하고 톈진 신규 130,000mt/년 설비가 가동을 시작한 만큼 중장기 공급 부담은 확대될 가능성이 높다. ABS와 아크릴섬유의 낮은 가동률은 고가 원료를 흡수할 실수요가 부족하다는 점을 보여주며, 프로필렌 상승만으로 ACN 가격이 오르기 어려운 구조다. 보수 물량이 지속되면 $1,550/mt 중심의 보합이 가능하지만 신규 공급이 조기에 시장화되면 $1,500/mt 부근의 하락 압력이 확대될 수 있다."},"Butadiene":{"price":1600,"prev_price":1600,"change_abs":0,"change_pct":0,"commentary":"아시아 BD는 중국 국경절을 앞두고 국제 현물 협상이 크게 위축됐지만 중국 내수가격과 SHFE 합성고무 선물 반등, 낮은 중국 재고가 가격 하단을 지지했다. 반면 11월부터 동남아 크래커와 Formosa 설비 정상화에 따른 추가 Spot 공급 가능성과 타이어 수요 부진이 상단을 제한해 보합으로 마감","factors":"- 중국 BD 재고 적정 수준 하회\n- 화동 Ex-tank 가격 반등\n- SHFE 합성고무 선물 상승\n- 10월 하반기 Prompt 카고 부족\n- 중국 국경절 전 현물 거래 위축\n- Chandra Asri 재가동\n- Formosa No.3 크래커 정상화\n- 중국 타이어업계 장기 휴무","outlook":"10월 하반기 Prompt 부족과 낮은 중국 재고는 $1,600/mt 부근을 지지하지만 11월 동남아와 대만 설비 정상화가 Spot 공급 증가로 이어질 가능성이 있다. 연휴 후 타이어 수요와 합성고무 선물의 실제 BD 구매 전환 여부가 중요하다.","additional_info":"- 중국 BD 재고 약 26,000mt\n- 시장 적정 재고 30,000~35,000mt 하회\n- 화동 Ex-tank 가격 13,550위안/mt로 반등\n- 중국 수입 패리티 약 $1,745/mt\n- CFR China 대비 수입 패리티 약 $145/mt 높음\n- SHFE 합성고무 11월물 16,000위안/mt 기록\n- 10월 하반기 Prompt 공급 부족 전망\n- Chandra Asri 및 Formosa 설비 정상화는 11월 공급 증가 변수","daily_prices":[{"date":"9/28","price":1600},{"date":"9/29","price":1600},{"date":"9/30","price":1600},{"date":"10/1","price":1600},{"date":"10/2","price":1600}],"ai_outlook":"보합 전망. 중국 재고가 적정 수준을 밑돌고 수입 패리티도 CFR China보다 높아 현재 $1,600/mt는 즉각적인 하락이 쉽지 않은 가격대다. 10월 하반기 Prompt 카고 부족과 합성고무 선물 강세가 지속되면 연휴 직후 제한적인 재고보충 수요가 가격을 지지할 수 있다. 그러나 11월부터 Chandra Asri 재가동, Formosa No.3 정상화, 동남아 Steam Cracker 가동 회복이 실제 Spot 물량 증가로 이어지면 근월 공급 타이트는 완화될 가능성이 높다. 재고가 30,000mt 이상으로 회복될 경우 $1,550~1,580/mt 조정 위험이 있어 단기적으로 $1,570~1,620/mt 범위의 보합 흐름이 예상된다."},"BPA":{"price":1570,"prev_price":1570,"change_abs":0,"change_pct":0,"commentary":"중국 수입 BPA는 국경절 전 얇은 거래 속에서 생산자의 견조한 오퍼와 구매자의 약한 수요가 맞서며 보합을 유지했다. 높은 원료비와 일부 장기보수는 가격 하단을 지지했지만 PC 등 유도품 수요가 부진하고 중국·한국 설비 재가동 가능성이 있어 상단도 제한되며 보합으로 마감","factors":"- 생산자 견조한 오퍼\n- 국경절 전 거래 유동성 저하\n- 중국 내수 수요 부진\n- PC 수요 약세\n- 중국 설비 재가동 계획\n- 한국 설비 보수·재가동\n- Nan Ya 장기보수\n- 높은 원료비","outlook":"생산자 재고 압박이 크지 않고 장기보수 물량이 남아 있어 급락 가능성은 제한적이다. 다만 중국·한국 설비 재가동이 현실화되면 공급 부담이 커질 수 있어 연휴 후 PC·에폭시 가동률과 실제 재고보충 여부를 확인할 필요가 있다.","additional_info":"- CFR China 평가범위 $1,520~1,620/mt\n- $1,620/mt 초과 오퍼에 구매자 반응 제한\n- 동중국 내수는 연휴 전 관망 속 보합\n- Nan Ya Mailiao No.4 장기보수 지속\n- Sinopec Sabic Tianjin No.3 10월 재가동 일정\n- Kumho P&B 여수 설비 일정이 공급 변수\n- LG Chem 여수 설비 보수·재가동 일정 존재\n- PC 가격 약세가 BPA 구매심리 제한","daily_prices":[],"ai_outlook":"보합 전망. Nan Ya 장기보수와 생산자의 제한적인 현물 판매 의지는 중국 수입 BPA의 하단을 방어하는 요인이다. 그러나 Sinopec Sabic과 한국 설비의 재가동이 10월 중 현실화되면 공급은 점차 증가할 수 있으며 PC 시장의 약세가 지속되는 한 수요 측의 적극적인 재고보충도 기대하기 어렵다. 원료 상승이 BPA 오퍼에 반영되더라도 실제 거래가격에 전가되는지는 별도로 확인해야 한다. 연휴 후 PC·에폭시 가동률이 개선되지 않으면 $1,520/mt 하단 재시험 가능성이 있으나 공급 복귀가 지연될 경우 $1,600/mt대 유지가 가능한 균형 장세가 예상된다."},"MMA":{"price":1935,"prev_price":1925,"change_abs":10,"change_pct":0.52,"commentary":"동남아향 1,000mt 대형 카고가 $1,950~1,960/mt에 거래되면서 500mt 이상 MMA 평가가격이 소폭 상승했다. 중국 국경절 전 고정가 거래는 많지 않았지만 역내 현물 오퍼가 제한적이고 일부 생산자의 판매 통제가 이어진 가운데 중국산 저가 오퍼가 상단을 제약하면서 상승으로 마감","factors":"- 동남아 대형 카고 실거래\n- 역내 현물 오퍼 제한\n- 중국 생산자 판매 통제\n- 중국산 저가 오퍼\n- 중국 국경절 휴장\n- PMMA 수요 관망\n- 한국·대만 수입거래 제한\n- 소량 카고 가격 동반 상승","outlook":"동남아 공급 제한은 가격 하단을 지지하지만 중국산 저가 오퍼 확대 가능성은 추가 상승을 제약한다. 연휴 후 중국산 물량의 실제 수출 체결 여부와 PMMA 구매 회복이 향후 방향을 결정할 전망이다.","additional_info":"- 동남아향 1,000mt 거래 $1,950~1,960/mt\n- CFR Southeast Asia 500mt 이상 $1,910~1,960/mt\n- 한국·대만향 평가범위도 동반 상승\n- 중국산 10월 선적 오퍼 약 $1,850/mt FOB China\n- 이후 $1,780/mt FOB China 저가 오퍼도 시장에 언급\n- 한국산 MMA 약 $1,950/mt FOB Northeast Asia\n- 소량 카고도 대형 카고 가격 상승에 연동\n- PMMA 구매자는 고정가 거래보다 관망 우세","daily_prices":[],"ai_outlook":"보합 전망. 동남아 대형 카고가 $1,950/mt 이상에서 성립한 점은 현물 공급이 넉넉하지 않고 일부 구매자가 필요물량을 확보하고 있음을 보여준다. 그러나 중국산 MMA가 $1,780~1,850/mt FOB China 수준에서 제시되기 시작해 연휴 후 이 물량이 실제 수출거래로 이어지면 역내 오퍼는 빠르게 조정될 수 있다. PMMA 수요가 뚜렷하게 회복되지 않는 한 구매자는 고가 물량을 선제적으로 확보하기보다 필요물량 중심으로 대응할 가능성이 높다. 동남아 공급 제약이 지속되면 $1,950/mt 재시험이 가능하지만 중국산 저가 물량이 확대되면 $1,900/mt 부근으로 조정될 수 있어 단기 보합 흐름이 예상된다."}};
 
   let currentWeekData = null;
@@ -1042,35 +1270,90 @@
   }
 
   function renderMainUI(data) {
-    let html = `
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px; border-bottom:3px solid var(--main-orange); padding-bottom:10px; gap:10px; flex-wrap:wrap;">
-        <div>
-          <div style="font-size:16px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
-          <h2 style="font-size:30px; color:#333; margin:0 0 6px 0; font-weight:900; letter-spacing:-0.02em; line-height:1.18; text-align:center;">Weekly Chemical Market Report<br><span style="display:block; font-size:0.82em; font-weight:900;">(롯데첨단 구매부문 주원료 위클리)</span></h2>
-          <div style="font-size:16px; font-weight:800; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
-        </div>
-        <span style="font-weight:800; color:#666; font-size:22px; padding-top:6px;">Week: ${formatWeekLabel(data.week || '-')}</span>
-      </div>`;
-
-    ITEMS.forEach(name => {
+    const rows = ITEMS.map(name => {
       const d = data.items[name] || {};
       const abs = safeNumber(d.change_abs);
       const pct = safeNumber(d.change_pct);
-      const sign = abs > 0 ? '▲' : (abs < 0 ? '▼' : '-');
-      const cls = abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none');
-      html += `
-        <div class="item-card">
-          <div class="item-name">${name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'AN' : name}</div>
-          <div class="item-price price-${cls}">${d.price || '-'}<small>(${UNITS[name]})</small></div>
-          <div class="item-change change-${cls}">${sign} ${Math.abs(abs).toFixed(1)} (${pct.toFixed(1)}%)</div>
-          <div class="item-comm">${escapeHtml(d.commentary || '분석 코멘터리가 없습니다.')}</div>
-          <div class="item-actions">
-            <button class="btn-detail" onclick="openDetailModal('${name}')">상세보기</button>
-            <button class="btn-save" style="padding:8px 10px; border-radius:8px; font-size:14px; font-weight:900;" onclick="saveItemDetail('${name}')">저장</button>
-            <button class="btn-edit" onclick="requestEditPassword('${name}')">수정</button>
-          </div>
-        </div>`;
+      const meta = DISPLAY_META[name] || {code:name,name:name,benchmark:''};
+      return {name,d,abs,pct,meta};
     });
+    const advancers = rows.filter(x => x.abs > 0).length;
+    const decliners = rows.filter(x => x.abs < 0).length;
+    const unchanged = rows.length - advancers - decliners;
+    const weekLabel = formatWeekLabel(data.week || '-');
+    const asOf = getISOWeekFriday(data.week || '');
+
+    let html = `
+      <section class="research-hero">
+        <div class="research-hero-main">
+          <div class="research-eyebrow">LAM Market Intelligence · Weekly Research</div>
+          <h1 class="research-title">LAM Weekly <span>6 Key Feedstocks</span></h1>
+          <div class="research-desc">Core procurement feedstock dashboard covering crude oil and major petrochemical raw materials. Weekly price direction, market drivers and research commentary are consolidated into one institutional-style market brief.</div>
+          <div class="research-tags">
+            <span class="research-tag">Procurement Research</span>
+            <span class="research-tag">Asia Petrochemicals</span>
+            <span class="research-tag">Weekly Market Monitor</span>
+          </div>
+        </div>
+        <div class="research-hero-side">
+          <div>
+            <div class="week-label">Report Week</div>
+            <div class="week-value">${escapeHtml(weekLabel)}</div>
+            <div class="week-date">As of ${escapeHtml(asOf || '-')} · 6 feedstocks monitored</div>
+          </div>
+          <div class="pulse-grid">
+            <div class="pulse-card up"><strong>${advancers}</strong><span>Advancers</span></div>
+            <div class="pulse-card down"><strong>${decliners}</strong><span>Decliners</span></div>
+            <div class="pulse-card flat"><strong>${unchanged}</strong><span>Unchanged</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="research-section-head">
+        <div>
+          <div class="section-kicker">Feedstock Monitor</div>
+          <div class="section-title">Weekly Market Snapshot</div>
+        </div>
+        <div class="section-note">Price · Weekly Change · Market Commentary · Research Note</div>
+      </div>
+      <div class="research-grid">`;
+
+    rows.forEach(({name,d,abs,pct,meta}) => {
+      const sign = abs > 0 ? '▲' : (abs < 0 ? '▼' : '•');
+      const cls = abs > 0 ? 'up' : (abs < 0 ? 'down' : 'none');
+      const direction = abs > 0 ? 'UP' : abs < 0 ? 'DOWN' : 'FLAT';
+      const aiDir = String(d.ai_outlook || '').trim().split(/\s+/)[0] || '—';
+      html += `
+        <article class="item-card">
+          <div class="feedstock-head">
+            <div class="feedstock-id">
+              <div class="feedstock-code">${escapeHtml(meta.code)}</div>
+              <div>
+                <div class="feedstock-name">${escapeHtml(meta.name)}</div>
+                <div class="feedstock-benchmark">${escapeHtml(meta.benchmark)}</div>
+              </div>
+            </div>
+            <div class="direction-pill ${cls}">${direction}</div>
+          </div>
+          <div class="feedstock-metrics">
+            <div class="item-price price-${cls}">${escapeHtml(String(d.price || '-'))}<small>${escapeHtml(UNITS[name])}</small></div>
+            <div class="item-change change-${cls}">${sign} ${Math.abs(abs).toFixed(2)}<br>${pct > 0 ? '+' : ''}${pct.toFixed(2)}%</div>
+          </div>
+          <div class="item-comm">${escapeHtml(d.commentary || 'Market commentary is not available.')}</div>
+          <div class="research-signal">AI View · <b>${escapeHtml(aiDir)}</b></div>
+          <div class="item-actions">
+            <button class="btn-detail" onclick="openDetailModal('${name}')">Open Research Note</button>
+            <button class="btn-save" onclick="saveItemDetail('${name}')">Export</button>
+            <button class="btn-edit" onclick="requestEditPassword('${name}')">Edit</button>
+          </div>
+        </article>`;
+    });
+
+    html += `</div>
+      <div class="research-footer">
+        <span><strong>LAM WEEKLY</strong> · 6 Key Feedstocks Research Dashboard</span>
+        <span>Internal procurement market intelligence · ${escapeHtml(weekLabel)}</span>
+      </div>`;
 
     document.getElementById('reportContent').innerHTML = html;
   }
@@ -1081,10 +1364,10 @@
     const d = currentWeekData.items[name];
     const abs = safeNumber(d.change_abs);
     const pct = safeNumber(d.change_pct);
-    const displayName = name === 'Styrene' ? 'SM' : name === 'Butadiene' ? 'BD' : name === 'Acrylonitrile' ? 'AN' : name;
-
-    document.getElementById('detailTitle').textContent = `${displayName} 상세 정보`;
-    document.getElementById('detailWeek').textContent = `기준 주차: ${formatWeekLabel(currentWeekData.week || '-')}`;
+    const meta = DISPLAY_META[name] || {code:name,name:name};
+    const displayName = meta.name;
+    document.getElementById('detailTitle').textContent = `${displayName} · Research Note`;
+    document.getElementById('detailWeek').textContent = `LAM Weekly · ${formatWeekLabel(currentWeekData.week || '-')} · ${meta.code}`;
     document.getElementById('detailFactors').textContent = d.factors || '입력된 변동요인이 없습니다.';
     document.getElementById('detailOutlook').textContent = d.outlook || '입력된 결론 및 전망이 없습니다.';
     document.getElementById('detailAiOutlook').textContent = d.ai_outlook || '입력된 AI 전망이 없습니다.';
@@ -1694,8 +1977,8 @@
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; border-bottom:3px solid var(--main-orange); padding-bottom:12px; gap:10px; flex-wrap:wrap;">
           <div>
             <div style="font-size:16px; font-weight:800; color:#4b5563; margin-bottom:6px;">Weekly Price Summary</div>
-            <div style="font-size:44px; color:#333; margin:0 0 8px 0; font-weight:900; letter-spacing:-0.03em; line-height:1.08; text-align:center;">Weekly Chemical Market Report<br><span style="display:block; font-size:0.82em; font-weight:900;">(롯데첨단 구매부문 주원료 위클리)</span></div>
-            <div style="font-size:16px; font-weight:800; color:#6b7280;">AI로 내용 정리 수정된 자료입니다</div>
+            <div style="font-size:44px; color:#333; margin:0 0 8px 0; font-weight:900; letter-spacing:-0.03em; line-height:1.08; text-align:center;">LAM Weekly 6 Key Feedstocks<br><span style="display:block; font-size:0.82em; font-weight:900;">Weekly Procurement Feedstock Research</span></div>
+            <div style="font-size:16px; font-weight:800; color:#6b7280;">Market Intelligence · Weekly Procurement Research</div>
           </div>
           <span style="font-weight:800; color:#666; font-size:22px; padding-top:6px;">Week: ${formatWeekLabel(currentWeekData.week || '-')}</span>
         </div>
@@ -1710,7 +1993,7 @@
           `).join('')}
         </div>
         <div style="margin-top:10px; padding-top:8px; border-top:1px solid #eceff3; color:#70757d; font-size:13px; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
-          <span>LAM Weekly Chemical Market Report</span>
+          <span>LAM LAM Weekly 6 Key Feedstocks</span>
           <span>${formatWeekLabel(currentWeekData.week || '-')} · Export Format</span>
         </div>
       </div>`;
@@ -1908,9 +2191,9 @@
       <div class="detail-export-sheet">
         <div class="detail-export-hero">
           <div class="detail-export-titlebox">
-            <div class="detail-export-kicker">LAM · DETAIL BRIEF</div>
-            <div class="detail-export-title">${escapeHtml(displayName)} 상세 브리핑</div>
-            <div class="detail-export-subtitle">주간 가격과 변동 요인을 한 페이지 A4 가로 형식으로 정리한 상세 보고서입니다.</div>
+            <div class="detail-export-kicker">LAM · RESEARCH NOTE</div>
+            <div class="detail-export-title">${escapeHtml(displayName)} Research Note</div>
+            <div class="detail-export-subtitle">Weekly price action, market drivers and outlook in an executive research-note format.</div>
           </div>
           <div class="detail-export-side">
             <div class="detail-export-panel">
@@ -1947,7 +2230,7 @@
         </div>
 
         <div class="detail-export-footer">
-          <div>LAM Weekly Chemical Market Report</div>
+          <div>LAM LAM Weekly 6 Key Feedstocks</div>
           <div>${escapeHtml(displayName)} Detail Brief</div>
           <div>${escapeHtml(weekLabel)} · A4 Landscape</div>
         </div>
