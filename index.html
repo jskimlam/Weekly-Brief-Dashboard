@@ -1289,9 +1289,8 @@
 
   async function fetchWeekBaseData(week) {
     if (currentWeekData?.week === week) return normalizeWeekData(currentWeekData);
-    const res = await callGAS('getData', { week });
-    if (res && res.success) return normalizeWeekData(res);
-    return normalizeWeekData({ week, items: {} });
+    const res = await fetchWeekDataWithW41Fallback(week);
+    return normalizeWeekData(res && res.success ? res : { week, items: {} });
   }
 
   async function saveSelectedItemFromModal() {
@@ -1354,23 +1353,71 @@
     });
   }
 
+  // W41: checked-in six-feedstock report allows display before the GAS archive is populated.
+  // Persisted GAS edits take precedence over non-empty local fields so editing remains effective.
+  const W41_LOCAL_WEEK = '2026-W41';
+  let W41_LOCAL_PROMISE = null;
+  async function fetchW41LocalData() {
+    if (!W41_LOCAL_PROMISE) {
+      W41_LOCAL_PROMISE = fetch('./data/w41-20261009.json', {cache:'no-cache'})
+        .then(r => { if (!r.ok) throw new Error('W41 file: '+r.status); return r.json(); })
+        .catch(e => { console.warn('W41 fallback unavailable', e); return null; });
+    }
+    return W41_LOCAL_PROMISE;
+  }
+  function mergeNonemptyRemoteFields(localItems, remoteItems) {
+    const merged = {...(localItems || {})};
+    for (const [item, fields] of Object.entries(remoteItems || {})) {
+      if (!fields || typeof fields !== 'object') continue;
+      const prev = merged[item] || {};
+      const chosen = {...prev};
+      for (const [key, value] of Object.entries(fields)) {
+        if (value === null || value === undefined || value === '') continue;
+        if (Array.isArray(value) && value.length === 0) continue;
+        chosen[key] = value;
+      }
+      merged[item] = chosen;
+    }
+    return merged;
+  }
+  async function fetchWeekDataWithW41Fallback(week) {
+    const [remote, local] = await Promise.all([
+      callGAS('getData', {week}),
+      week === W41_LOCAL_WEEK ? fetchW41LocalData() : Promise.resolve(null)
+    ]);
+    if (local && local.items) {
+      return {
+        ...local, success: true, week,
+        items: mergeNonemptyRemoteFields(local.items, remote && remote.success ? remote.items : {})
+      };
+    }
+    return remote;
+  }
+
   async function loadWeekList() {
-    const res = await callGAS('getWeekList', {});
-    if (res.success && res.weeks && res.weeks.length > 0) {
+    const [res, localW41] = await Promise.all([
+      callGAS('getWeekList', {}),
+      fetchW41LocalData()
+    ]);
+    let weeks = res && res.success && Array.isArray(res.weeks) ? [...res.weeks] : [];
+    if (localW41 && localW41.items) {
+      weeks = [W41_LOCAL_WEEK, ...weeks.filter(w => w !== W41_LOCAL_WEEK)];
+    }
+    if (weeks.length) {
       const sel = document.getElementById('weekSelector');
-      sel.innerHTML = res.weeks.map(w => `<option value="${w}">${formatWeekLabel(w)}</option>`).join('');
-      loadWeekData(res.weeks[0]);
+      sel.innerHTML = weeks.map(w => `<option value="${w}">${formatWeekLabel(w)}</option>`).join('');
+      await loadWeekData(weeks[0]);
     } else {
       const sel = document.getElementById('weekSelector');
-      sel.innerHTML = '<option value=>데이터 없음</option>';
+      sel.innerHTML = '<option value="">데이터 없음</option>';
       renderMainUI({ week: '-', items: {} });
       showToast('초기 데이터가 없으면 NEW로 첫 주차를 저장하세요.');
     }
   }
 
   async function loadWeekData(week) {
-    const res = await callGAS('getData', {week});
-    if (res.success) {
+    const res = await fetchWeekDataWithW41Fallback(week);
+    if (res && res.success) {
       currentWeekData = normalizeWeekData(res);
       renderMainUI(currentWeekData);
     }
