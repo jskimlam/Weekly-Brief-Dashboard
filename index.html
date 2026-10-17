@@ -1369,7 +1369,7 @@
   let W42_LOCAL_PROMISE = null;
   async function fetchW42LocalData() {
     if (!W42_LOCAL_PROMISE) {
-      W42_LOCAL_PROMISE = fetch('./data/w42-20261016.json', {cache:'no-cache'})
+      W42_LOCAL_PROMISE = fetch('./data/w42-20261016.json?v=20261017-1630', {cache:'no-store'})
         .then(r => { if (!r.ok) throw new Error('W42 file: '+r.status); return r.json(); })
         .catch(e => { console.warn('W42 fallback unavailable', e); return null; });
     }
@@ -1390,15 +1390,41 @@
     }
     return merged;
   }
+  // W42 Platts-verified values are canonical. Older GAS responses must never
+  // overwrite W42 prices; full source fields are restored if a stored price is stale.
+  // Non-price editorial updates in GAS remain visible when the benchmark matches.
+  function mergeVerifiedW42Items(verifiedItems, remoteItems) {
+    const finalItems = mergeNonemptyRemoteFields(verifiedItems, remoteItems);
+    for (const [name, verified] of Object.entries(verifiedItems || {})) {
+      const live = (remoteItems || {})[name] || {};
+      const validatedPrice = Number(live.price) === Number(verified.price);
+      if (!validatedPrice) {
+        finalItems[name] = {...verified};
+        continue;
+      }
+      finalItems[name] = {
+        ...finalItems[name],
+        price: verified.price,
+        prev_price: verified.prev_price,
+        change_abs: verified.change_abs,
+        change_pct: verified.change_pct,
+        daily_prices: verified.daily_prices
+      };
+    }
+    return finalItems;
+  }
   async function fetchWeekDataWithW41Fallback(week) {
     const [remote, local] = await Promise.all([
       callGAS('getData', {week}),
       week === W42_LOCAL_WEEK ? fetchW42LocalData() : (week === W41_LOCAL_WEEK ? fetchW41LocalData() : Promise.resolve(null))
     ]);
     if (local && local.items) {
+      const remoteItems = remote && remote.success ? remote.items : {};
       return {
         ...local, success: true, week,
-        items: mergeNonemptyRemoteFields(local.items, remote && remote.success ? remote.items : {})
+        items: week === W42_LOCAL_WEEK
+          ? mergeVerifiedW42Items(local.items, remoteItems)
+          : mergeNonemptyRemoteFields(local.items, remoteItems)
       };
     }
     return remote;
