@@ -1375,6 +1375,16 @@
     }
     return W42_LOCAL_PROMISE;
   }
+  const W43_LOCAL_WEEK = '2026-W43';
+  let W43_LOCAL_PROMISE = null;
+  async function fetchW43LocalData() {
+    if (!W43_LOCAL_PROMISE) {
+      W43_LOCAL_PROMISE = fetch('./data/w43-20261023.json?v=20261024', {cache:'no-store'})
+        .then(r => { if (!r.ok) throw new Error('W43 file: '+r.status); return r.json(); })
+        .catch(e => { console.warn('W43 fallback unavailable', e); return null; });
+    }
+    return W43_LOCAL_PROMISE;
+  }
   function mergeNonemptyRemoteFields(localItems, remoteItems) {
     const merged = {...(localItems || {})};
     for (const [item, fields] of Object.entries(remoteItems || {})) {
@@ -1416,13 +1426,13 @@
   async function fetchWeekDataWithW41Fallback(week) {
     const [remote, local] = await Promise.all([
       callGAS('getData', {week}),
-      week === W42_LOCAL_WEEK ? fetchW42LocalData() : (week === W41_LOCAL_WEEK ? fetchW41LocalData() : Promise.resolve(null))
+      week === W43_LOCAL_WEEK ? fetchW43LocalData() : (week === W42_LOCAL_WEEK ? fetchW42LocalData() : (week === W41_LOCAL_WEEK ? fetchW41LocalData() : Promise.resolve(null)))
     ]);
     if (local && local.items) {
       const remoteItems = remote && remote.success ? remote.items : {};
       return {
         ...local, success: true, week,
-        items: week === W42_LOCAL_WEEK
+        items: (week === W42_LOCAL_WEEK || week === W43_LOCAL_WEEK)
           ? mergeVerifiedW42Items(local.items, remoteItems)
           : mergeNonemptyRemoteFields(local.items, remoteItems)
       };
@@ -1431,10 +1441,11 @@
   }
 
   async function loadWeekList() {
-    const [res, localW41, localW42] = await Promise.all([
+    const [res, localW41, localW42, localW43] = await Promise.all([
       callGAS('getWeekList', {}),
       fetchW41LocalData(),
-      fetchW42LocalData()
+      fetchW42LocalData(),
+      fetchW43LocalData()
     ]);
     let weeks = res && res.success && Array.isArray(res.weeks) ? [...res.weeks] : [];
     if (localW41 && localW41.items) {
@@ -1442,6 +1453,9 @@
     }
     if (localW42 && localW42.items) {
       weeks = [W42_LOCAL_WEEK, ...weeks.filter(w => w !== W42_LOCAL_WEEK)];
+    }
+    if (localW43 && localW43.items) {
+      weeks = [W43_LOCAL_WEEK, ...weeks.filter(w => w !== W43_LOCAL_WEEK)];
     }
     if (weeks.length) {
       const sel = document.getElementById('weekSelector');
