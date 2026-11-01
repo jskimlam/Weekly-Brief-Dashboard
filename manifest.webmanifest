@@ -1,0 +1,25 @@
+{
+  "name": "LAM Weekly Feedstock Research",
+  "short_name": "LAM Weekly",
+  "lang": "ko",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#071323",
+  "theme_color": "#FF8C00",
+  "icons": [
+    {
+      "src": "./assets/lam-weekly-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/lam-weekly-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
