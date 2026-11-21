@@ -1466,7 +1466,23 @@
     }
     return finalItems;
   }
+  const LAM_MANAGER_WEEK_FILES = {"2026-W47": {"as_of": "2026-11-20", "path": "data/w47-20261120.json"}};
+
+  async function fetchManagerWeek(week) {
+    const route = LAM_MANAGER_WEEK_FILES[week];
+    if (!route) return null;
+    const response = await fetch('./'+route.path, {cache:'no-store'});
+    if (!response.ok) throw new Error('LAM weekly file unavailable: '+week);
+    const local = await response.json();
+    if (local.week !== week || local.as_of !== route.as_of || !local.items || Array.isArray(local.items))
+      throw new Error('LAM weekly file identity mismatch: '+week);
+    const remote = await callGAS('getData', {week});
+    if (remote && remote.week && remote.week !== week) throw new Error('LAM remote week mismatch');
+    return {...local, success:true, items:mergeVerifiedW42Items(local.items, remote && remote.success ? remote.items : {})};
+  }
+
   async function fetchWeekDataWithW41Fallback(week) {
+    if (LAM_MANAGER_WEEK_FILES[week]) return fetchManagerWeek(week);
     const [remote, local] = await Promise.all([
       callGAS('getData', {week}),
       week === W46_LOCAL_WEEK ? fetchW46LocalData() : (week === W45_LOCAL_WEEK ? fetchW45LocalData() : (week === W44_LOCAL_WEEK ? fetchW44LocalData() : (week === W43_LOCAL_WEEK ? fetchW43LocalData() : (week === W42_LOCAL_WEEK ? fetchW42LocalData() : (week === W41_LOCAL_WEEK ? fetchW41LocalData() : Promise.resolve(null))))))
@@ -1512,6 +1528,7 @@
     if (localW46 && localW46.items) {
       weeks = [W46_LOCAL_WEEK, ...weeks.filter(w => w !== W46_LOCAL_WEEK)];
     }
+    weeks = [...new Set([...weeks, ...Object.keys(LAM_MANAGER_WEEK_FILES)])].sort().reverse();
     if (weeks.length) {
       const sel = document.getElementById('weekSelector');
       sel.innerHTML = weeks.map(w => `<option value="${w}">${formatWeekLabel(w)}</option>`).join('');
@@ -1524,11 +1541,23 @@
     }
   }
 
+  let lamWeekRequestId = 0;
   async function loadWeekData(week) {
-    const res = await fetchWeekDataWithW41Fallback(week);
-    if (res && res.success) {
+    const requestId = ++lamWeekRequestId;
+    currentWeekData = null;
+    renderMainUI({week, items:{}});
+    try {
+      const res = await fetchWeekDataWithW41Fallback(week);
+      if (requestId !== lamWeekRequestId) return;
+      if (!res || !res.success || res.week !== week) throw new Error('Selected week does not match loaded data');
       currentWeekData = normalizeWeekData(res);
       renderMainUI(currentWeekData);
+    } catch (error) {
+      if (requestId !== lamWeekRequestId) return;
+      currentWeekData = null;
+      renderMainUI({week, items:{}});
+      showToast('선택 주차 자료 확인 실패 · 다른 주차 자료를 표시하지 않습니다.');
+      console.error(error);
     }
   }
 
